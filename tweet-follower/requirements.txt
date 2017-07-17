@@ -1,0 +1,4 @@
+tweepy
+json
+flask
+python-mysql
