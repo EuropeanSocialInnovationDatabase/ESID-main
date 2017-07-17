@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='css/style.css') }}">
+	<meta name="description" content="SocialSpy - A framework for following information on social media">
+	<meta name="keywords" content="social media, social media following">
+	<meta name="author" content="Nikola Milošević">
+	<meta property="og:title" content="SocialSpy - A framework for following information on social media">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+	<link href='http://fonts.googleapis.com/css?family=Lora' rel='stylesheet' type='text/css'>
+    <style type="text/css">
+      html, body, #map-canvas { height: 100%; margin: 0; padding: 0;}
+    </style>
+	<title>SocialSpy</title>
+   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+  </head>
+  <body>
+
+
+<nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">SocialSpy</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="add_keywords">Add Keywords<span class="label label-success label-as-badge">+1</span></a></li>
+            <li><a href="manage_keywords">Manage KeyWords</a></li>
+			<li><a href="view_stats">View Stats</a></li>
+            <li><a href="download">Download</a></li>
+            <li class="active"><a href="index.html">About</a></li>
+            <li><a href="contact">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+	<div id="content_text">
+        SocialSpy is a software for following content on social media (predominatly Twitter).
+	</div>
+
+    <!-- FOOTER -->
+    <div class="navbar-inverse navbar-fixed-bottom">
+      <div style="text-align: center; color: white;">
+         <p class="small">Developed at <a href="http://www.research.mbs.ac.uk/innovation" target="_blank">Manchester Institute of Innovation Research, The University of Manchester</a></p>
+
+      </div>
+    </div>
+
+</body>
+</html>
