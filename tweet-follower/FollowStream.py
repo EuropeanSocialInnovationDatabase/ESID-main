@@ -9,26 +9,21 @@ Created at the University of Manchester, School of Computer Science
 Licence GNU/GPL 3.0
 '''
 from __future__ import absolute_import, print_function
-from tweepy.streaming import StreamListener
+
+import MySQLdb
+import json
+
 from tweepy import OAuthHandler
 from tweepy import Stream
-import MySQLdb
-import codecs
-import json
-host = 'localhost'
-username = 'root'
-password = 'MountFuji86!'
-database = 'social_media_collector'
+from tweepy.streaming import StreamListener
+from my_settings import *
+
+
+
+
+
 db = MySQLdb.connect(host,username,password,database,charset='utf8')
-# Go to http://apps.twitter.com and create an app.
-# The consumer key and secret will be generated for you after
-# url of my app: https://apps.twitter.com/app/7823732
-consumer_key="4zPbYtbw7mLUne03h7ygjXmHq"
-consumer_secret="DiKbFLwWUjwAMEr4FLA1fE0EGo4sjKOe7YKvwOhCC38ze1BHZJ"
-# After the step above, you will be redirected to your app's page.
-# Create an access token under the the "Your access token" section
-access_token=" 886879366701035520-mSoHKyR42PkTmkbAb5Dn6a0Eyt1Dj6M"
-access_token_secret="ejcT7xE9VZfsvcrJnSjskt2fNyeCBpaYmcf0P5XY2ysOg"
+
 class StdOutListener(StreamListener):
     """ A listener handles tweets are the received from the stream.
     This is a basic listener that just prints received tweets to stdout.
