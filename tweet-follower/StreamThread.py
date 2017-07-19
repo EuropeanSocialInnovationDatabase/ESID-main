@@ -23,12 +23,20 @@ class StdOutListener(StreamListener):
         parsed_json = json.loads(data)
         created_at = parsed_json['created_at']
         text = parsed_json['text']
+        twitter_id = parsed_json['id_str']
+        in_reply_to_status_id = parsed_json['in_reply_to_status_id']
+        in_reply_to_user_id = parsed_json['in_reply_to_user_id']
         screen_name = parsed_json['user']['screen_name']
+        Tw_user_id = parsed_json['user']['id_str']
+        Location = parsed_json['user']['Location']
+        UserDesc = parsed_json['user']['description']
         retweet_count = parsed_json['retweet_count']
         favorite_count = parsed_json['favorite_count']
+        is_retweeted = parsed_json['retweeted']
+        lang = parsed_json['lang']
         #cursor = db.cursor()
         print(text)
-        #sql = "INSERT into tweets (date,tweet_text,user,retweetcount,favor_count) values (NOW(),'%s','%s','%s',%d,%d)" % (text,screen_name,int(retweet_count),int(favorite_count))
+        sql = "INSERT into tweets (idTweets,recoreded,text,isRetweet,twitterID,userHandle,Tw_user_id,UserName,UserDesc,in_reply_to_screenname,in_reply_to_status_id,retweets,fav_count,Location) values (NOW(),'%s','%s','%s',%d,%d)" % (text,screen_name,int(retweet_count),int(favorite_count))
         try:
             print("End")
             #cursor.execute(sql)
