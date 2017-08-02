@@ -3,6 +3,7 @@ from tweepy import OAuthHandler,API
 import  threading
 import MySQLdb
 import KeyWord
+import time
 
 class UserFollowThread(threading.Thread):
     def __init__(self ):
@@ -103,6 +104,5 @@ class UserFollowThread(threading.Thread):
     def stopped(self):
         return self._stop_event.is_set()
 
-if __name__ == '__main__':
-    uft = UserFollowThread()
-    uft.start()
+
+

@@ -46,7 +46,31 @@
       </div>
     </nav>
 
-	<div id="content_text">
+	<div id="content_text"  style="margin-top:100px">
+        The most frequent hashtags: <br/>
+        <table border="1">
+            <tr>
+                <td>Hashtag</td><td>Frequency</td>
+            </tr>
+            {% for ht in hashtags %}
+
+            <tr>
+                <td>{{ht.EntityName}}</td><td>{{ht.count}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        The most frequently mentioned users: <br/>
+        <table border="1">
+            <tr>
+                <td>User</td><td>Frequency</td>
+            </tr>
+            {% for ht in users %}
+
+            <tr>
+                <td>{{ht.EntityName}}</td><td>{{ht.count}}</td>
+            </tr>
+            {% endfor %}
+        </table>
         View Stats page.
 	</div>
 

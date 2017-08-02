@@ -4,6 +4,7 @@ from my_settings import *
 import MySQLdb
 app = Flask(__name__)
 import KeyWord
+import Entity
 
 @app.route('/')
 def main():
@@ -23,7 +24,24 @@ def download():
 
 @app.route('/view_stats')
 def view_stats():
-    return render_template('view_stats.html')
+    db = MySQLdb.connect(host, username, password, database, charset='utf8')
+    cursor = db.cursor()
+    sql= 'SELECT Type,EntityName,count(EntityName) FROM twitter_follow.entities where Type="Hashtag" group by EntityName order by count(EntityName) desc limit 10;'
+    cursor.execute(sql)
+    hashtags_raw = cursor.fetchall()
+    hashtags = []
+    users = []
+    for hashtag_raw in hashtags_raw:
+        hashtag = Entity.Entity(hashtag_raw[0],hashtag_raw[1],hashtag_raw[2])
+        hashtags.append(hashtag)
+    sql = 'SELECT Type,EntityName,count(EntityName) FROM twitter_follow.entities where Type="User" group by EntityName order by count(EntityName) desc limit 10;'
+    cursor.execute(sql)
+    users_raw = cursor.fetchall()
+    for user_raw in users_raw:
+        user = Entity.Entity(user_raw[0],user_raw[1],user_raw[2])
+        users.append(user)
+
+    return render_template('view_stats.html',users = users,hashtags = hashtags)
 
 @app.route('/contact')
 def contact():
