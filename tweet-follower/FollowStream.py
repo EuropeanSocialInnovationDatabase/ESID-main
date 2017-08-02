@@ -11,12 +11,13 @@ from my_settings import *
 import time
 
 if __name__ == '__main__':
+    fresh_start = True
     print("Hello")
     Threads = []
     while True:
         db = MySQLdb.connect(host, username, password, database, charset='utf8')
         cursor = db.cursor()
-        sql_del = "SELECT * FROM social_media_collector.KeyWords where Following=2" #Schedulled to be deleted
+        sql_del = "SELECT * FROM KeyWords where Following=2" #Schedulled to be deleted
         cursor.execute(sql_del)
         results = cursor.fetchall()
         for res in results:
@@ -25,10 +26,13 @@ if __name__ == '__main__':
                 if Th.keyword == keywordToDelete:
                     Th.stop()
                     Threads.remove(Th)
-                    sql2 = "Update social_media_collector.KeyWords set Following=3 where KeyWord='" + res[1] + "'" # deleted
+                    sql2 = "Update KeyWords set Following=3 where KeyWord='" + res[1] + "'" # deleted
                     cursor.execute(sql2)
                     db.commit()
-        sql = "SELECT * FROM social_media_collector.KeyWords where Following=0"
+        sql = "SELECT * FROM KeyWords where Following=0"
+        if(fresh_start==True):
+            fresh_start = False
+            sql = sql + " or Following=1"
         cursor.execute(sql)
         results = cursor.fetchall()
 
@@ -36,7 +40,7 @@ if __name__ == '__main__':
             st = StreamThread(res[1])
             st.start()
             Threads.append(st)
-            sql2 = "Update social_media_collector.KeyWords set Following=1 where KeyWord='"+res[1]+"'"
+            sql2 = "Update KeyWords set Following=1 where KeyWord='"+res[1]+"'"
             cursor.execute(sql2)
             db.commit()
         time.sleep(60)

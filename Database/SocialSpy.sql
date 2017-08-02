@@ -4,6 +4,7 @@
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
+SET NAMES utf8;
 
 
 -- -----------------------------------------------------
@@ -13,9 +14,9 @@ DROP TABLE IF EXISTS `KeyWords` ;
 
 CREATE TABLE IF NOT EXISTS `KeyWords` (
   `idKeyWords` INT NOT NULL AUTO_INCREMENT,
-  `KeyWord` VARCHAR(160) NULL,
+  `KeyWord` VARCHAR(320)  CHARACTER SET utf8 NULL,
   `IsUserHandle` BINARY NULL,
-  `Comment` VARCHAR(500) NULL,
+  `Comment` VARCHAR(500)  CHARACTER SET utf8 NULL,
   `DateTime` DATETIME NULL,
   `Following` INT NULL COMMENT '0 -  not following' /* comment truncated */ /*1 -  following
 2 - schedulled for deleting
@@ -32,13 +33,13 @@ DROP TABLE IF EXISTS `TwUsersOfInterest` ;
 CREATE TABLE IF NOT EXISTS `TwUsersOfInterest` (
   `UsersOfInterestId` INT NOT NULL AUTO_INCREMENT,
   `TwitterId` VARCHAR(45) NULL,
-  `Name` VARCHAR(100) NULL,
-  `ScreenName` VARCHAR(100) NULL,
-  `description` VARCHAR(200) NULL,
+  `Name` VARCHAR(100)  CHARACTER SET utf8 NULL,
+  `ScreenName` VARCHAR(100)  CHARACTER SET utf8 NULL,
+  `description` VARCHAR(200)  CHARACTER SET utf8 NULL,
   `url` VARCHAR(200) NULL,
-  `Location` VARCHAR(200) NULL,
-  `timezone` VARCHAR(200) NULL,
-  `created_at` VARCHAR(200) NULL,
+  `Location` VARCHAR(200)  CHARACTER SET utf8 NULL,
+  `timezone` VARCHAR(200)  CHARACTER SET utf8 NULL,
+  `created_at` VARCHAR(200)  CHARACTER SET utf8 NULL,
   `statuses_count` INT NULL,
   `followers_count` INT NULL,
   `following_count` INT NULL,
@@ -58,9 +59,9 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `tweets` ;
 
 CREATE TABLE IF NOT EXISTS `tweets` (
-  `idTweets` INT NOT NULL,
+  `idTweets` INT NOT NULL AUTO_INCREMENT,
   `recorded` DATETIME NULL,
-  `text` VARCHAR(200) NULL,
+  `text` VARCHAR(200)  CHARACTER SET utf8 NULL,
   `isRetweet` BINARY NULL,
   `twitterID` VARCHAR(45) NULL,
   `userHandle` VARCHAR(100) NULL,
@@ -82,9 +83,9 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `Entities` ;
 
 CREATE TABLE IF NOT EXISTS `Entities` (
-  `idEntities` INT NOT NULL,
+  `idEntities` INT NOT NULL AUTO_INCREMENT,
   `Type` VARCHAR(45) NULL,
-  `EntityName` VARCHAR(45) NULL,
+  `EntityName` VARCHAR(45)  CHARACTER SET utf8 NULL,
   `tweets_idTweets` INT NOT NULL,
   `url` VARCHAR(45) NULL,
   PRIMARY KEY (`idEntities`),
@@ -105,7 +106,7 @@ DROP TABLE IF EXISTS `UserTweets` ;
 CREATE TABLE IF NOT EXISTS `UserTweets` (
   `idUserTweets` INT NOT NULL AUTO_INCREMENT,
   `recorded` DATETIME NULL,
-  `text` VARCHAR(200) NULL,
+  `text` VARCHAR(200)  CHARACTER SET utf8 NULL,
   `isRetweeted` INT NULL,
   `in_reply_to_screenname` VARCHAR(100) NULL,
   `in_reply_to_status_id` VARCHAR(100) NULL,
@@ -129,9 +130,9 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `UserTweetEntities` ;
 
 CREATE TABLE IF NOT EXISTS `UserTweetEntities` (
-  `idEntities` INT NOT NULL,
+  `idEntities` INT NOT NULL AUTO_INCREMENT,
   `Type` VARCHAR(45) NULL,
-  `EntityName` VARCHAR(45) NULL,
+  `EntityName` VARCHAR(45)  CHARACTER SET utf8 NULL,
   `url` VARCHAR(45) NULL,
   `UserTweets_idUserTweets` INT NOT NULL,
   PRIMARY KEY (`idEntities`),

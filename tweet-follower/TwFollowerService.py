@@ -3,6 +3,7 @@ from flask import render_template,request
 from my_settings import *
 import MySQLdb
 app = Flask(__name__)
+import KeyWord
 
 @app.route('/')
 def main():
@@ -32,12 +33,12 @@ def contact():
 def manage_keywords():
     db = MySQLdb.connect(host, username, password, database, charset='utf8')
     cursor = db.cursor()
-    sql = "SELECT * FROM twitter_follow.keywords;"
+    sql = "SELECT * FROM keywords;"
     cursor.execute(sql)
     result = cursor.fetchall()
     keywords_res = []
     for res in result:
-        keyword = KeyWord(res[0],res[1],res[2],res[3],res[4],res[5])
+        keyword = KeyWord.KeyWord(res[0],res[1],res[2],res[3],res[4],res[5])
         keywords_res.append(keyword)
     cursor.close()
     db.close()
@@ -85,14 +86,7 @@ def add():
     db.close()
     return render_template('success.html')
 
-class KeyWord:
-    def __init__(self, id, keyword,isUser,comment,date,FollowState):
-        self.id = id
-        self.keyword = keyword
-        self.isUser = isUser
-        self.comment = comment
-        self.date = date
-        self.FollowState = FollowState
+
 
 
 if __name__ == '__main__':
