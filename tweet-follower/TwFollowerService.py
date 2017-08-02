@@ -30,9 +30,30 @@ def contact():
 
 @app.route('/manage_keywords')
 def manage_keywords():
-    return render_template('manage_keywords.html')
+    db = MySQLdb.connect(host, username, password, database, charset='utf8')
+    cursor = db.cursor()
+    sql = "SELECT * FROM twitter_follow.keywords;"
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    keywords_res = []
+    for res in result:
+        keyword = KeyWord(res[0],res[1],res[2],res[3],res[4],res[5])
+        keywords_res.append(keyword)
+    cursor.close()
+    db.close()
 
+    return render_template('manage_keywords.html',keywords = keywords_res)
 
+@app.route('/remove_keyword',methods = [ 'GET'])
+def remove_keyword():
+    id_toRemove = request.args.get("id")
+    db = MySQLdb.connect(host, username, password, database, charset='utf8')
+    cursor = db.cursor()
+    sql = "UPDATE keywords set Following = 2 where idKeyWords='%s'"
+    cursor.execute(sql, id_toRemove)
+    cursor.commit()
+    cursor.close()
+    db.close()
 
 @app.route('/add',methods = ['POST', 'GET'])
 def add():
@@ -60,7 +81,19 @@ def add():
                 db.commit()
         except Exception:
             print("Something went wrong")
+    cursor.close()
+    db.close()
     return render_template('success.html')
+
+class KeyWord:
+    def __init__(self, id, keyword,isUser,comment,date,FollowState):
+        self.id = id
+        self.keyword = keyword
+        self.isUser = isUser
+        self.comment = comment
+        self.date = date
+        self.FollowState = FollowState
+
 
 if __name__ == '__main__':
     app.run(host= '0.0.0.0')

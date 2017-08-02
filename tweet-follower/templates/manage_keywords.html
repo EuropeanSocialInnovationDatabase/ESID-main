@@ -46,8 +46,14 @@
       </div>
     </nav>
 
-	<div id="content_text">
-        Manage Keywords page.
+	<div id="content_text" style="margin-top:100px">
+        {% for keyword in keywords %}
+        {% if keyword.isUser == '1'%}
+        <div id="{{keyword.id}}" style="width:600px;float:left">@{{keyword.keyword}}</div><div style="float:left"><a href="/remove_keyword?id={{keyword.id}}">REMOVE</a> </div>
+        {% else %}
+        <div id="{{keyword.id}}" style="width:600px;float:left">{{keyword.keyword}}</div><div style="float:left"><a href="/remove_keyword?id={{keyword.id}}">REMOVE</a> </div>
+        {% endif %}
+        {% endfor %}
 	</div>
 
     <!-- FOOTER -->
