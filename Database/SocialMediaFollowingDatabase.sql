@@ -11,18 +11,13 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 -- Schema mydb
 -- -----------------------------------------------------
 
--- -----------------------------------------------------
--- Schema mydb
--- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8 ;
-USE `mydb` ;
 
 -- -----------------------------------------------------
 -- Table `mydb`.`KeyWords`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`KeyWords` ;
+DROP TABLE IF EXISTS `KeyWords` ;
 
-CREATE TABLE IF NOT EXISTS `mydb`.`KeyWords` (
+CREATE TABLE IF NOT EXISTS `KeyWords` (
   `idKeyWords` INT NOT NULL AUTO_INCREMENT,
   `KeyWord` VARCHAR(160) NULL,
   `IsUserHandle` BINARY NULL,
@@ -36,9 +31,9 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `mydb`.`TwUsersOfInterest`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`TwUsersOfInterest` ;
+DROP TABLE IF EXISTS `TwUsersOfInterest` ;
 
-CREATE TABLE IF NOT EXISTS `mydb`.`TwUsersOfInterest` (
+CREATE TABLE IF NOT EXISTS `TwUsersOfInterest` (
   `UsersOfInterestId` INT NOT NULL AUTO_INCREMENT,
   `TwitterId` VARCHAR(45) NULL,
   `Name` VARCHAR(100) NULL,
@@ -61,9 +56,9 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `mydb`.`tweets`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`tweets` ;
+DROP TABLE IF EXISTS `tweets` ;
 
-CREATE TABLE IF NOT EXISTS `mydb`.`tweets` (
+CREATE TABLE IF NOT EXISTS `tweets` (
   `idTweets` INT NOT NULL,
   `recorded` DATETIME NULL,
   `text` VARCHAR(200) NULL,
@@ -85,9 +80,9 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `mydb`.`Entities`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`Entities` ;
+DROP TABLE IF EXISTS `Entities` ;
 
-CREATE TABLE IF NOT EXISTS `mydb`.`Entities` (
+CREATE TABLE IF NOT EXISTS `Entities` (
   `idEntities` INT NOT NULL,
   `Type` VARCHAR(45) NULL,
   `EntityName` VARCHAR(45) NULL,

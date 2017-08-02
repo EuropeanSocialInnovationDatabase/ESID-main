@@ -55,6 +55,9 @@ def add():
             for user in users:
                 sql = "INSERT into KeyWords (KeyWord,IsUserHandle,Comment,DateTime,Following) values ('%s','%d','%s',NOW(),'%d')" % (
                     user, 1, users_comment, 0)
+                cursor.execute(sql)
+                # print(sql)
+                db.commit()
         except Exception:
             print("Something went wrong")
     return render_template('success.html')
