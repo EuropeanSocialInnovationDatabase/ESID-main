@@ -26,7 +26,7 @@ def download():
 def view_stats():
     db = MySQLdb.connect(host, username, password, database, charset='utf8')
     cursor = db.cursor()
-    sql= 'SELECT Type,EntityName,count(EntityName) FROM twitter_follow.entities where Type="Hashtag" group by EntityName order by count(EntityName) desc limit 10;'
+    sql= 'SELECT Type,EntityName,count(EntityName) FROM Entities where Type="Hashtag" group by EntityName order by count(EntityName) desc limit 10;'
     cursor.execute(sql)
     hashtags_raw = cursor.fetchall()
     hashtags = []
@@ -34,7 +34,7 @@ def view_stats():
     for hashtag_raw in hashtags_raw:
         hashtag = Entity.Entity(hashtag_raw[0],hashtag_raw[1],hashtag_raw[2])
         hashtags.append(hashtag)
-    sql = 'SELECT Type,EntityName,count(EntityName) FROM twitter_follow.entities where Type="User" group by EntityName order by count(EntityName) desc limit 10;'
+    sql = 'SELECT Type,EntityName,count(EntityName) FROM Entities where Type="User" group by EntityName order by count(EntityName) desc limit 10;'
     cursor.execute(sql)
     users_raw = cursor.fetchall()
     for user_raw in users_raw:
@@ -51,7 +51,7 @@ def contact():
 def manage_keywords():
     db = MySQLdb.connect(host, username, password, database, charset='utf8')
     cursor = db.cursor()
-    sql = "SELECT * FROM keywords;"
+    sql = "SELECT * FROM KeyWords;"
     cursor.execute(sql)
     result = cursor.fetchall()
     keywords_res = []
@@ -68,7 +68,7 @@ def remove_keyword():
     id_toRemove = request.args.get("id")
     db = MySQLdb.connect(host, username, password, database, charset='utf8')
     cursor = db.cursor()
-    sql = "UPDATE keywords set Following = 2 where idKeyWords='%s'"
+    sql = "UPDATE KeyWords set Following = 2 where idKeyWords='%s'"
     cursor.execute(sql, id_toRemove)
     cursor.commit()
     cursor.close()
