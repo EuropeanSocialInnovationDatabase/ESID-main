@@ -23,45 +23,49 @@ class StdOutListener(StreamListener):
         self.api = API()
 
     def on_status(self, status):
-        created_at = status.created_at
+        try:
+            created_at = status.created_at
 
-        text = status.text
-        twitter_id =  status.id_str
-        in_reply_to_status_id = status.in_reply_to_status_id_str
-        in_reply_to_user_id = status.in_reply_to_screen_name
-        screen_name = status.user.screen_name
-        user_name = status.user.name
-        Tw_user_id = status.user.id_str
-        Location = status.user.location
-        UserDesc = status.user.description
-        retweet_count = status.retweet_count
-        favorite_count = status.favorite_count
-        is_retweeted = status.retweeted
-        lang = status.lang
-        cursor = db.cursor()
-        print(text)
-        sql = "INSERT into tweets (recorded,text,isRetweet,twitterID,userHandle,Tw_user_id,UserName,UserDesc," \
-              "in_reply_to_screenname,in_reply_to_status_id_str,retweets,fav_count,Location) values (NOW(),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+            text = status.text
+            twitter_id =  status.id_str
+            in_reply_to_status_id = status.in_reply_to_status_id_str
+            in_reply_to_user_id = status.in_reply_to_screen_name
+            screen_name = status.user.screen_name
+            user_name = status.user.name
+            Tw_user_id = status.user.id_str
+            Location = status.user.location
+            UserDesc = status.user.description
+            retweet_count = status.retweet_count
+            favorite_count = status.favorite_count
+            is_retweeted = status.retweeted
+            lang = status.lang
+            cursor = db.cursor()
+            print(text)
+            sql = "INSERT into tweets (recorded,text,isRetweet,twitterID,userHandle,Tw_user_id,UserName,UserDesc," \
+                  "in_reply_to_screenname,in_reply_to_status_id_str,retweets,fav_count,Location) values (NOW(),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
 
-        # try:
-        #print("End")
-        cursor.execute(sql, (
-        text, is_retweeted, twitter_id, screen_name, Tw_user_id, user_name, UserDesc, in_reply_to_user_id,
-        in_reply_to_status_id, int(retweet_count), int(favorite_count), Location))
-        tweet_id = cursor.lastrowid
-        # print(sql)
-        db.commit()
-
-        hashtags = status.entities['hashtags']
-        for hashtag in hashtags:
-            hash_sql = "insert into entities (Type,EntityName,tweets_idTweets) VALUES (%s,%s,%s)"
-            cursor.execute(hash_sql, ('Hashtag', hashtag['text'], tweet_id))
+            # try:
+            #print("End")
+            cursor.execute(sql, (
+            text, is_retweeted, twitter_id, screen_name, Tw_user_id, user_name, UserDesc, in_reply_to_user_id,
+            in_reply_to_status_id, int(retweet_count), int(favorite_count), Location))
+            tweet_id = cursor.lastrowid
+            # print(sql)
             db.commit()
-        usermentions = status.entities['user_mentions']
-        for mentionedUser in usermentions:
-            hash_sql = "insert into entities (Type,EntityName,tweets_idTweets) VALUES (%s,%s,%s)"
-            cursor.execute(hash_sql, ("User", mentionedUser['screen_name'], tweet_id))
-            db.commit()
+
+            hashtags = status.entities['hashtags']
+            for hashtag in hashtags:
+                hash_sql = "insert into Entities (Type,EntityName,tweets_idTweets) VALUES (%s,%s,%s)"
+                cursor.execute(hash_sql, ('Hashtag', hashtag['text'], tweet_id))
+                db.commit()
+            usermentions = status.entities['user_mentions']
+            for mentionedUser in usermentions:
+                hash_sql = "insert into Entities (Type,EntityName,tweets_idTweets) VALUES (%s,%s,%s)"
+                cursor.execute(hash_sql, ("User", mentionedUser['screen_name'], tweet_id))
+                db.commit()
+
+        except Exception as err:
+            print "Exception:"+err.message
 
         # except Exception:
         #print("Something went wrong")
