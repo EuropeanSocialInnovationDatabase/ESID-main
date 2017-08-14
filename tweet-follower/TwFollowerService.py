@@ -40,8 +40,14 @@ def view_stats():
     for user_raw in users_raw:
         user = Entity.Entity(user_raw[0],user_raw[1],user_raw[2])
         users.append(user)
+    sql = 'SELECT count(*) FROM tweets;'
+    cursor.execute(sql)
+    tweets_raw = cursor.fetchall()
+    total_tweets = 0
+    for tweet in tweets_raw:
+        total_tweets = tweet[0]
 
-    return render_template('view_stats.html',users = users,hashtags = hashtags)
+    return render_template('view_stats.html',users = users,hashtags = hashtags,tweets_cnt = total_tweets)
 
 @app.route('/contact')
 def contact():
