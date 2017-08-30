@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from my_settings import *
+from database_access import *
 import MySQLdb
 import sys
 import csv
+import datetime
 
 class Organisation:
     def __init__(self):
@@ -25,6 +26,7 @@ class Organisation:
         self.linked_project_ids = [] # Actors_has_projects
         self.tags = [] # ActorsAdditionalData
         self.network_tags = [] #ActorsAdditionalData
+        self.facebook = None # ActorFacebookPage
 
 
 class Project:
@@ -47,6 +49,7 @@ class Project:
         self.support_tags = [] # AdditionalProjectData.SupportTags
         self.focus = [] # AdditionalProjectData.Focus
         self.technology = [] # AdditionalProjectData.Technology
+        self.facebook = None
 
 
 if __name__ == '__main__':
@@ -54,6 +57,8 @@ if __name__ == '__main__':
     if(len(sys.argv)<3):
         print "This scripts needs two arguments: csv with organisations and csv with projects"
         exit(1)
+    db = MySQLdb.connect(host, username, password, database, charset='utf8')
+    cursor = db.cursor()
     organisations_arg = sys.argv[1]
     projects_arg = sys.argv[2]
     organisations = []
@@ -111,5 +116,167 @@ if __name__ == '__main__':
             pro.technology = row[16].replace('"','').split(',')
             projects.append(pro)
             i += 1
- #TODO: Save data to database
+    for organisation in organisations:
+        # Academia/Research organisation -> Higher edicational institution
+        # For-profit business -> Private for-profit business
+        # Govrnment/Public Sector -> Public sector
+        # Grassroots organisation or community network -> Grassroot/Community network
+        # Social enterprise, charity, foundation or other non-profit -> Non-profit or Social Enterprise
+        if (organisation.organisation_type == "Academia/Research organisation"):
+            organisation.organisation_type = "Academia/Research organisation"
+        if (organisation.organisation_type == "For-profit business"):
+            organisation.organisation_type = "Private for-profit business"
+        if (organisation.organisation_type == "Govrnment/Public Sector"):
+            organisation.organisation_type = "Public sector"
+        if (organisation.organisation_type == "Grassroots organisation or community network"):
+            organisation.organisation_type = "Grassroot/Community network"
+        if (organisation.organisation_type == "Social enterprise, charity, foundation or other non-profit"):
+            organisation.organisation_type = "Non-profit or Social Enterprise"
+        if organisation.start_date=="":
+            organisation.start_date = None
+        if organisation.organisation_size=="":
+            organisation.organisation_size = None
+        if organisation.website == "":
+            organisation.website = None
+        if (organisation.website is not None) and ("facebook.com" in organisation.website):
+            organisation.facebook = organisation.website
+            organisation.website = None
+        if organisation.longitude=="":
+            organisation.longitude = None
+        if organisation.latitude =="":
+            organisation.latitude = None
+        sql_org = "Insert into Actors (ActorName,Type,SubType,Size,SourceOriginallyObtained,ActorWebsite,StartDate," \
+                  "DataSources_idDataSources,ActorFacebookPage) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+        cursor.execute(sql_org,(organisation.organisation_name,'S',organisation.organisation_type,
+                                organisation.organisation_size,'Digital Social Innovation Database',
+                                organisation.website,organisation.start_date,1,organisation.facebook))
+        org_id_inTable = cursor.lastrowid
+        organisation.database_id = org_id_inTable
+        db.commit()
+        try:
+            sql_loc = "Insert into Location (Type,Address,City,Country,Longitude,Latitude,Actors_idActors) VALUES " \
+                  "(%s,%s,%s,%s,%s,%s,%s)"
+            cursor.execute(sql_loc,("Headquarters",organisation.address,organisation.region,organisation.country,
+                                organisation.longitude,organisation.latitude,organisation.database_id))
+        except:
+            print organisation.longitude
+        db.commit()
+
+        sql_short_desc = "Insert into ActorsAdditionalData (FieldName,FieldContent,Actors_idActors,DateObtained,SourceURL)" \
+                         "VALUES(%s,%s,%s,NOW(),%s)"
+        cursor.execute(sql_short_desc,("Short Description",organisation.short_description,organisation.database_id,"https://digitalsocial.eu"))
+        db.commit()
+        sql_long_desc = "Insert into ActorsAdditionalData (FieldName,FieldContent,Actors_idActors,DateObtained,SourceURL)" \
+                         "VALUES(%s,%s,%s,NOW(),%s)"
+        cursor.execute(sql_long_desc, (
+        "Long Description", organisation.long_description, organisation.database_id, "https://digitalsocial.eu"))
+        db.commit()
+
+
+        for tag in organisation.tags:
+            sql_tag_desc = "Insert into ActorsAdditionalData (FieldName,FieldContent,Actors_idActors,DateObtained,SourceURL)" \
+                            "VALUES(%s,%s,%s,NOW(),%s)"
+            cursor.execute(sql_tag_desc, (
+                "Tag", tag, organisation.database_id,
+                "https://digitalsocial.eu"))
+            db.commit()
+        for tag in organisation.network_tags:
+            sql_ntag_desc = "Insert into ActorsAdditionalData (FieldName,FieldContent,Actors_idActors,DateObtained,SourceURL)" \
+                            "VALUES(%s,%s,%s,NOW(),%s)"
+            cursor.execute(sql_ntag_desc, (
+                "Network Tag", tag, organisation.database_id,
+                "https://digitalsocial.eu"))
+            db.commit()
+    for project in projects:
+        if "facebook.com" in project.website:
+            project.facebook = project.website
+            project.website = None
+        if project.start_date=="":
+            project.start_date = None
+        if project.end_date=="":
+            project.end_date = None
+        d1 = datetime.datetime.now().date()
+        if project.longitude=="":
+            project.longitude = None
+        if project.latitude =="":
+            project.latitude = None
+
+        ongoing = 0
+        if project.end_date is not None:
+            if '/'in project.end_date:
+                d2 = datetime.datetime.strptime(project.end_date, "%d/%m/%Y").date()
+            else:
+                d2 = datetime.datetime.strptime(project.end_date, "%Y-%m-%d").date()
+            if d2 > d1:
+                ongoing = 1
+        sql_pro = "Insert into Projects (ProjectName,DateStart,DateEnd, Ongoing," \
+                  "ProjectWebpage,FacebookPage,FirstDataSource,DataSources_idDataSources) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
+        cursor.execute(sql_pro, (project.project_name,
+                                 project.start_date,project.end_date,ongoing,project.website,project.facebook,'Digital Social Innovation Database',
+                                 '1'))
+        pro_id_inTable = cursor.lastrowid
+        project.database_id = pro_id_inTable
+        db.commit()
+        sql_proloc = "Insert into ProjectLocation(Type,City,Country,Longitude,Latitude,Projects_idProjects) VALUES('Main',%s,%s,%s,%s,%s)"
+        cursor.execute(sql_proloc,(project.region,project.country,project.longitude,project.latitude,project.database_id))
+
+        sql_short_desc = "Insert into AdditionalProjectData (FieldName,Value,Projects_idProjects,DateObtained,SourceURL)" \
+                         "VALUES(%s,%s,%s,NOW(),%s)"
+        cursor.execute(sql_short_desc,("Short Description",project.short_description,project.database_id,"https://digitalsocial.eu"))
+        db.commit()
+
+        sql_long_desc = "Insert into AdditionalProjectData (FieldName,Value,Projects_idProjects,DateObtained,SourceURL)" \
+                         "VALUES(%s,%s,%s,NOW(),%s)"
+        cursor.execute(sql_long_desc, (
+        "Long Description", project.long_description, project.database_id, "https://digitalsocial.eu"))
+        db.commit()
+
+        sql_soc_imp = "Insert into AdditionalProjectData (FieldName,Value,Projects_idProjects,DateObtained,SourceURL)" \
+                        "VALUES(%s,%s,%s,NOW(),%s)"
+        cursor.execute(sql_soc_imp, (
+            "Social Impact", project.long_description, project.database_id, "https://digitalsocial.eu"))
+        db.commit()
+        sql_soc_imp2 = "Insert into OutreachImpact (Type,Name,Description,URL,Projects_idProjects)" \
+                      "VALUES(%s,%s,%s,%s,%s)"
+        cursor.execute(sql_soc_imp2, (
+            "Social Impact", "", project.social_impact, "https://digitalsocial.eu",project.database_id))
+        db.commit()
+
+        for tag in project.support_tags:
+            sql_tag_desc = "Insert into AdditionalProjectData (FieldName,Value,Projects_idProjects,DateObtained,SourceURL)" \
+                            "VALUES(%s,%s,%s,NOW(),%s)"
+            cursor.execute(sql_tag_desc, (
+                "Support Tag", tag, project.database_id,
+                "https://digitalsocial.eu"))
+            db.commit()
+        for tag in project.technology:
+            sql_tag_desc = "Insert into AdditionalProjectData (FieldName,Value,Projects_idProjects,DateObtained,SourceURL)" \
+                               "VALUES(%s,%s,%s,NOW(),%s)"
+            cursor.execute(sql_tag_desc, (
+                    "Technology", tag, project.database_id,
+                    "https://digitalsocial.eu"))
+            db.commit()
+        for tag in project.focus:
+            sql_tag_desc = "Insert into AdditionalProjectData (FieldName,Value,Projects_idProjects,DateObtained,SourceURL)" \
+                               "VALUES(%s,%s,%s,NOW(),%s)"
+            cursor.execute(sql_tag_desc, (
+                    "Focus", tag, project.database_id,
+                    "https://digitalsocial.eu"))
+            db.commit()
+        for tag in project.focus:
+            sql_tag_desc = "Insert into AdditionalProjectData (FieldName,Value,Projects_idProjects,DateObtained,SourceURL)" \
+                               "VALUES(%s,%s,%s,NOW(),%s)"
+            cursor.execute(sql_tag_desc, (
+                    "Who we help", tag, project.database_id,
+                    "https://digitalsocial.eu"))
+            db.commit()
+        for link_org_id in project.linked_organisation_ids:
+            for organisation in organisations:
+                if organisation.organisation_id == link_org_id:
+                    sql_org_pro = "Insert into Actors_has_Projects(Actors_idActors,Projects_idProjects,OrganisationRole) Values" \
+                          "(%s,%s,%s)"
+                    cursor.execute(sql_org_pro,(organisation.database_id,project.database_id,""))
+                    db.commit()
+                    db.commit()
+    print "Completed!"
 

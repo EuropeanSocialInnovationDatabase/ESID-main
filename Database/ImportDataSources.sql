@@ -1,0 +1,2 @@
+INSERT INTO EDSI.DataSources (`Name`,`Type`,URL,DataIsOpen,RelatedToEU,AssociatedProject,DataDurationStart,DataDurationEnd,Theme,CountryCoverage,SocialInnovationDef,MainEntities,DataSource,InclusionCriteria)
+VALUES ("Digital Social Innovation Database","Mapping","https://digitalsocial.eu/organisations","Open and downloadable","Yes","DSI4EU","2016-01-01",null,"digital technologies","all, predominantly EU","people developing inspiring digital solutions to social challenges","Projects; Organisations","user inputted","unknown");
