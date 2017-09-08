@@ -89,6 +89,9 @@ class InnovageSpider(scrapy.Spider):
                 websites = strip_tags(project.split("Website:")[1]).strip().split('\n')
             if "</ul>" in project:
                 project_description = strip_tags(project.split("</ul>")[1].split("Website")[0])
+            if project_name=="Poland" or project_name=="Netherlands" or project_name=="USA":
+                return
+
             project_sql = "INSERT INTO Projects (ProjectName,Type,ProjectWebpage,FirstDataSource,DataSources_idDataSources) VALUES (%s,'Social Innovation',%s,'MOPACT',4)"
             self.cursor.execute(project_sql, (project_name, websites[0]))
             self.db.commit()
