@@ -4,7 +4,7 @@ This project presents a development effort that is ongoing at the University of 
 
 The work in this project is funded by European Union under the [KNOWMAK project](http://cordis.europa.eu/project/rcn/205959_en.html).
 
-More information about ESID can be found at [http://esid.manchester.ac.uk].
+More information about ESID can be found at http://esid.manchester.ac.uk.
 
 ## Overview of the developed software
 
