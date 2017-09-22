@@ -68,7 +68,7 @@ class GeneralWebsitespider(CrawlSpider):
         for res in results:
             ArtWeb = res[2]
             if ArtWeb== None or "vk.com" in ArtWeb.lower() or "youtube" in ArtWeb.lower() or "twitter" in ArtWeb.lower() or "linkedin" in ArtWeb.lower() \
-                or "vimeo" in ArtWeb.lower() or "instagram" in ArtWeb.lower() or "plus.google" in ArtWeb.lower():
+                or "vimeo" in ArtWeb.lower() or "instagram" in ArtWeb.lower() or "plus.google" in ArtWeb.lower() or "facebook.com" in ArtWeb.lower():
                 continue
             parsed_uri = urlparse(ArtWeb)
             domain = '{uri.netloc}/'.format(uri=parsed_uri).replace("/","").replace("www.","")
@@ -79,7 +79,7 @@ class GeneralWebsitespider(CrawlSpider):
         for res in results:
             ArtWeb = res[2]
             if ArtWeb == None or "vk.com" in ArtWeb.lower() or "youtube" in ArtWeb.lower() or "twitter" in ArtWeb.lower() or "linkedin" in ArtWeb.lower() \
-                    or "vimeo" in ArtWeb.lower() or "instagram" in ArtWeb.lower() or "plus.google" in ArtWeb.lower():
+                    or "vimeo" in ArtWeb.lower() or "instagram" in ArtWeb.lower() or "plus.google" in ArtWeb.lower() or "facebook.com" in ArtWeb.lower():
                 continue
             parsed_uri = urlparse(ArtWeb)
             try:
@@ -124,6 +124,9 @@ class GeneralWebsitespider(CrawlSpider):
     def parse_start_url(self, response):
         source_page = response.url
         print source_page
+        if "facebook.com" in source_page or "vk.com" in source_page or "youtube.com" in source_page or "twitter.com" in source_page or \
+                        "linkedin" in source_page or "vimeo" in source_page or "instagram" in source_page or "google" in source_page:
+            return
 
         all_page_links = response.xpath('//a/@href').extract()
         item = SIScrapedItem()
@@ -159,8 +162,11 @@ class GeneralWebsitespider(CrawlSpider):
                 item.RelatedTo = "Project"
                 item.DatabaseID = res[0]
                 item.Name = res[1]
+        if(item.DatabaseID == None or item.DatabaseID==""):
+            return
         client = MongoClient()
         db = client.ESID
+
         result = db.websites.insert_one(
             {
                 "relatedTo": item.RelatedTo,
