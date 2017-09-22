@@ -128,7 +128,11 @@ class GeneralWebsitespider(CrawlSpider):
         all_page_links = response.xpath('//a/@href').extract()
         item = SIScrapedItem()
         item.URL = source_page
-        item.PageTitle = response.xpath('//title').extract()
+        ptitle = response.xpath('//title').extract()
+        if len(ptitle)>0:
+            item.PageTitle = strip_tags(response.xpath('//title').extract()[0])
+        else:
+            item.PageTitle = ""
         item.Content = response.body
         s = fromstring(response.body)
         cleaner = Cleaner()
