@@ -70,6 +70,8 @@ class InnovageSpider(scrapy.Spider):
         additional_info = " ".join(projectdetails.xpath('//section[@class=""]').extract())
         web_site_html = " ".join(projectdetails.xpath('//section[@class=""]/descendant::*/a').extract())
         web_site = strip_tags(web_site_html).split('\n')
+        if len(web_site) == 1:
+            web_site = web_site[0].split(" ")
         project_sql = "INSERT INTO Projects (ProjectName,Type,ProjectWebpage,FirstDataSource,DataSources_idDataSources) VALUES (%s,'Social Innovation',%s,'Innovage',3)"
         self.cursor.execute(project_sql,(projectname,web_site[0]))
         self.db.commit()
