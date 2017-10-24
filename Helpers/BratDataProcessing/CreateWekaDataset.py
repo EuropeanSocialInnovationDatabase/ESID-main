@@ -4,24 +4,7 @@ from os.path import isfile, join,isdir
 import csv
 import re
 import sklearn.metrics
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.feature_extraction.text import TfidfTransformer
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import SVC
-from sklearn.pipeline import Pipeline
-from sklearn.metrics import precision_recall_fscore_support
-from sklearn.model_selection import KFold
-import numpy as np
-import keras
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation
-from keras.preprocessing.text import Tokenizer
-from keras.layers import Embedding
-
-
-
-
+import os
 class DataSet:
     Annotators = []
     def __init__(self):
@@ -126,13 +109,9 @@ class Annotation:
     LowLevelClass = ""
 
 if __name__ == '__main__':
-    max_words = 1000
-    batch_size = 32
-    epochs = 100
     data_folder = "../AnnotationWorkshop"
     ds = DataSet()
     total_num_spam = 0
-    sentences = []
     total_num_files = 0
     annotators = [f for f in listdir(data_folder) if isdir(join(data_folder, f))]
     for ann in annotators:
@@ -164,7 +143,6 @@ if __name__ == '__main__':
                 l.EndSpan = line_index+len(line)
                 l.Text = line
                 line_index = line_index+len(line)+1
-                sentences.append(line)
                 doc.Lines.append(l)
 
 
@@ -397,103 +375,31 @@ if __name__ == '__main__':
     doc_array = []
     for ann in ds.Annotators:
         for doc in ann.documents:
-            doc_array.append([doc.Text,doc.isProjectObjectiveSatisfied,doc.isProjectActorSatisfied,doc.isProjectOutputSatisfied,doc.isProjectInnovativenessSatisfied])
+            doc_array.append([doc.Text,doc.isProjectObjectiveSatisfied,doc.isProjectActorSatisfied,doc.isProjectOutputSatisfied,doc.isProjectInnovativenessSatisfied,doc.DocumentName])
 
     data_x = []
     data_y = []
     test_x = []
     test_y = []
+    directory1 = "Good"
+    directory2 = "Bad"
+    if not os.path.exists(directory1):
+        os.makedirs(directory1)
+    if not os.path.exists(directory2):
+        os.makedirs(directory2)
     for x in doc_array:
         data_x.append(x[0])
-        data_y.append(x[1])
-    kf = KFold(n_splits=10)
+        data_y.append(x[4])
+        if x[4]== True:
+            file = open(directory1+"/"+x[5],"w")
+            file.write(x[0])
+            file.close()
+        else:
+            file = open(directory2 + "/" + x[5],"w")
+            file.write(x[0])
+            file.close()
 
-    kf.get_n_splits(data_x,data_y)
-    averages = []
-    precisions = []
-    recalls = []
-    f1_scores = []
-    num_classes = 2
-    score1 = 0
-    acc1 = 0
 
-    for train_index, test_index in kf.split(data_x,data_y):
-        X_train = []
-        X_test = []
-        y_train = []
-        y_test = []
-        for train_i in train_index:
-            X_train.append(data_x[train_i])
-            y_train.append(data_y[train_i])
 
-        for test_i in test_index:
-            X_test.append(data_x[test_i])
-            y_test.append(data_y[test_i])
-
-        print('Vectorizing sequence data...')
-        tokenizer = Tokenizer(num_words=max_words)
-        X_train = tokenizer.sequences_to_matrix(X_train, mode='binary')
-        X_test = tokenizer.sequences_to_matrix(X_test, mode='binary')
-        print('x_train shape:', X_train.shape)
-        print('x_test shape:', X_test.shape)
-
-        print('Convert class vector to binary class matrix '
-              '(for use with categorical_crossentropy)')
-        y_train = keras.utils.to_categorical(y_train, num_classes)
-        y_test = keras.utils.to_categorical(y_test, num_classes)
-        print('y_train shape:', y_train.shape)
-        print('y_test shape:', y_test.shape)
-
-        print('Building model...')
-        model = Sequential()
-        #model.add(Embedding(1000, 64, input_length=1000))
-        model.add(Dense(512, input_shape=(max_words,)))
-        model.add(Activation('relu'))
-        model.add(Dropout(0.2))
-
-        model.add(Dense(512, input_shape=(max_words,)))
-        model.add(Activation('relu'))
-        model.add(Dropout(0.2))
-
-        model.add(Dense(256, input_shape=(max_words,)))
-        model.add(Activation('relu'))
-        model.add(Dropout(0.2))
-
-        model.add(Dense(256, input_shape=(max_words,)))
-        model.add(Activation('relu'))
-        model.add(Dropout(0.2))
-
-        model.add(Dense(128, input_shape=(max_words,)))
-        model.add(Activation('relu'))
-        model.add(Dropout(0.2))
-
-        model.add(Dense(64, input_shape=(max_words,)))
-        model.add(Activation('relu'))
-        model.add(Dropout(0.2))
-
-        model.add(Dense(32, input_shape=(max_words,)))
-        model.add(Activation('relu'))
-        model.add(Dropout(0.2))
-
-        model.add(Dense(num_classes))
-        model.add(Activation('softmax'))
-
-        model.compile(loss='mean_squared_error',
-                      optimizer='adam',
-                      metrics=['accuracy'])
-
-        history = model.fit(X_train, y_train,
-                            batch_size=batch_size,
-                            epochs=epochs,
-                            verbose=1,
-                            validation_split=0.1)
-        score = model.evaluate(X_test, y_test,
-                               batch_size=batch_size, verbose=1)
-        score1 = score1 + score[0]
-        acc1 = acc1 + score[1]
-        print('Test score:', score[0])
-        print('Test accuracy:', score[1])
-    print "Final score: "+str(float(score1/10))
-    print "Final accuracy:" + str(float(acc1/10))
 
 

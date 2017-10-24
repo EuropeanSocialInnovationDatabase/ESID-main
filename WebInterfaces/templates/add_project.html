@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="ESID - Manually insert projects into ESID">
+	<meta name="keywords" content="social media, social media following">
+	<meta name="author" content="Nikola Milošević">
+	<meta property="og:title" content="Add project to database">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+	<link href='http://fonts.googleapis.com/css?family=Lora' rel='stylesheet' type='text/css'>
+    <style type="text/css">
+      html, body, #map-canvas { height: 100%; margin: 0; padding: 0;}
+    </style>
+	<title>ESID - manual insert</title>
+
+   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<title>Add Keywords</title>
+  </head>
+  <body>
+
+
+  </body>
+    <!--<nav class="navbar navbar-inverse navbar-fixed-top">-->
+      <!--<div class="container">-->
+        <!--<div class="navbar-header">-->
+          <!--<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">-->
+            <!--<span class="sr-only">Toggle navigation</span>-->
+            <!--<span class="icon-bar"></span>-->
+            <!--<span class="icon-bar"></span>-->
+            <!--<span class="icon-bar"></span>-->
+          <!--</button>-->
+          <!--<a class="navbar-brand" href="index.html">Add Project</a>-->
+        <!--</div>-->
+        <!--<div id="navbar" class="collapse navbar-collapse">-->
+          <!--<ul class="nav navbar-nav">-->
+            <!--<li class="active"><a href="add_keywords">Add Keywords<span class="label label-success label-as-badge">+1</span></a></li>-->
+            <!--<li><a href="manage_keywords">Manage KeyWords</a></li>-->
+			<!--<li><a href="view_stats">View Stats</a></li>-->
+            <!--<li><a href="download">Download</a></li>-->
+            <!--<li ><a href="/">About</a></li>-->
+            <!--<li><a href="contact">Contact</a></li>-->
+          <!--</ul>-->
+        <!--</div>-->
+      <!--</div>-->
+    <!--</nav>-->
+
+
+<form enctype="multipart/form-data" method="post" action="add">
+    <div class="form-group">
+      <div class="col-xs-12 col-sm-6 col-lg-6">
+
+        <div>
+          <label for="project_name">Project name:</label>
+           <input class="form-control" name="project_name" placeholder="Project name" required></input><br />
+            <label for="start_date">Start date:</label>
+           <input class="form-control"  name="start_date" placeholder="Start date in yyyy-mm-dd format"></input><br />
+            <label for="end_date">End date:</label>
+           <input class="form-control"  name="end_date" placeholder="End date in yyyy-mm-dd format"></input><br />
+            <label for="project_website">Project website:</label>
+           <input class="form-control"  name="project_website" placeholder="website"></input><br />
+            <label for="project_website1">Additional website:</label>
+           <input class="form-control"  name="project_website1" placeholder="additional website"></input><br />
+            <label for="project_website2">Additional website:</label>
+           <input class="form-control"  name="project_website2" placeholder="additional website"></input><br />
+            <label for="project_facebook">Project Facebook page:</label>
+           <input class="form-control"  name="project_facebook" placeholder="Facebook"></input><br />
+            <label for="project_twitter">Project Twitter page:</label>
+           <input class="form-control"  name="project_twitter" placeholder="Twitter"></input><br />
+            <label for="project_linkedin">Project LinkedIn page:</label>
+           <input class="form-control"  name="project_linkedin" placeholder="LinkedIn"></input><br />
+            <label for="data_source">Data source name:</label>
+           <input class="form-control"  name="data_source" placeholder="Data Source"></input><br />
+            <label for="location_type">Location type:</label>
+             <select name="location_type" >
+                <option value="Main">Main</option>
+                 <option value="Secondary">Secondary</option>
+             </select><br />
+            <label for="location_address">Address:</label>
+           <input class="form-control"  name="location_address" placeholder="Address"></input><br />
+            <label for="location_city">City:</label>
+           <input class="form-control"  name="location_city" placeholder="City"></input><br />
+            <label for="location_country">Country:</label>
+           <input class="form-control"  name="location_country" placeholder="Country"></input><br />
+             <label for="location_postcode">Post code:</label>
+           <input class="form-control"  name="location_postcode" placeholder="Post code"></input><br />
+            <label for="location_longitude">Longitude:</label>
+           <input class="form-control"  name="location_longitude" placeholder="longitude (format numeric with dot: XX.XX)"></input><br />
+            <label for="location_latitude">Latitude:</label>
+           <input class="form-control"  name="location_latitude" placeholder="latitude (format numeric with dot: XX.XX)"></input><br />
+
+            <label for="description">Description:</label>
+           <textarea class="form-control" rows="11" name="description" placeholder="Description of the project"></textarea><br />
+            <label for="tags">Tags and Tecnologies:</label>
+           <input class="form-control"  name="tags" placeholder="comma separated list of tags/technologies/domains"></input><br />
+
+        </div>
+
+      </div>
+
+
+        </div>
+      </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-lg-12 buttons_div">
+      <button type="submit" class="btn btn-success">Add</button>
+      <button type="reset" class="btn btn">Clear</button><br /><br /><br />
+    </div>
+  </form>
+
+    <!-- FOOTER -->
+    <div class="navbar-inverse navbar-fixed-bottom">
+      <div style="text-align: center; color: white;">
+         <p class="small">Developed at <a href="http://www.research.mbs.ac.uk/innovation" target="_blank">Manchester Institute of Innovation Research, The University of Manchester</a></p>
+
+      </div>
+    </div>
+
+</body>
+</html>

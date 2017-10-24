@@ -1,0 +1,183 @@
+body{
+background-color:#ecf2fc;
+}
+
+#rcorners1 {
+    border-radius: 150px;
+    margin-top: 70px;
+	position: absolute; /* or absolute */
+    left: 35%;
+	float:left;
+}
+#rcorners2 {
+    border-radius: 150px;
+	position: absolute; /* or absolute */
+	float:left;
+	margin-left:-65px;
+}
+#team_names{
+  margin-top: 330px;
+}
+#tweet-img{
+float:right;
+}
+#facebook-img{
+float:right;}
+#content_text2
+{
+margin-top: 70px;
+margin-left: 50px;
+margin-right: 50px;
+margin-bottom: 70px;
+float:left;
+font-size: 20px;
+width:90%;
+font-family: 'Lora', serif;
+}
+#reslabel{
+margin-top:30px;
+}
+#loginform{
+margin-left: 20px;
+margin-right: 20px;
+margin-bottom: 20px;
+margin-top:20px;
+float:left;
+font-size: 15px;
+width:90%;
+font-family: 'Lora', serif;
+}
+#login-suround
+{
+border-radius: 30px;
+margin-top: 200px;
+margin-left: 30%;
+margin-right: 20px;
+margin-bottom: 20px;
+float:left;
+font-size: 15px;
+width:30%;
+background-color:#DCDCDE;
+ border: 2px solid #A8A8A8;
+font-family: 'Lora', serif;
+}
+.share{
+  width: 55px;
+  height: 30px;
+  float: right;
+  }
+.sides {
+display: inline-block;
+width: 400px;
+margin-top:100px;
+ text-align:center;
+}
+.sides2 {
+display: inline-block;
+width: 40%;
+margin-top:100px;
+  margin-left: 20px;
+  margin-right: 60px;
+ text-align:left;
+}
+
+.sides3 {
+display: inline-block;
+width: 40%;
+position:absolute;
+margin-top:100px;
+  margin-left: 100px;
+  margin-right: 60px;
+ text-align:left;
+}
+#main {display: inline-block;
+width: 200px;
+border: 2px dotted blue;
+margin-top:100px;} /* you can change this to 989px */
+#reslabel2{
+margin-top:80px;
+}
+#content_text{
+margin-top: 440px;
+margin-left: 50px;
+margin-right: 50px;
+margin-bottom: 70px;
+float:left;
+font-size: 20px;
+font-family: 'Lora', serif;
+}
+.first_char{
+font-size:35px;
+}
+.results-div{
+font-size: 20px;
+font-family: 'Lora', serif;
+margin-left:50px;
+margin-bottom:50px;
+}
+
+.ResElement {
+position : relative;
+left : 9px;
+width : 80%;
+text-align : left;
+margin: 0 0 0 0;
+border-bottom : 1px solid #888888;
+border-top : 1px solid #888888;
+display: inline-block;
+clear: both;
+}
+.Pregled-div
+{
+margin-top: 0px;
+margin-left: 50px;
+margin-right: 50px;
+float:left;
+font-size: 20px;
+font-family: 'Lora', serif;
+}
+
+.Duplikat-div
+{
+margin-top: 90px;
+margin-left: 50px;
+margin-right: 50px;
+float:left;
+font-size: 20px;
+font-family: 'Lora', serif;
+}
+.Pretraga-div
+{
+margin-top: 90px;
+margin-left: 50px;
+margin-right: 50px;
+float:left;
+font-size: 20px;
+font-family: 'Lora', serif;
+}
+
+.search{
+font-size: 35px;
+}
+.checkboxes{
+font-size: 15px;
+}
+.checkbox
+{
+float:left;
+font-size: 10px;
+margin-left:50px;
+}
+.form-group{
+margin-top: 70px;
+margin-left: 50px;
+margin-bottom: 70px;
+width:90%;
+float:left;
+font-size: 20px;
+font-family: 'Lora', serif;
+}
+
+.buttons_div{
+margin-left: 50px;
+}
