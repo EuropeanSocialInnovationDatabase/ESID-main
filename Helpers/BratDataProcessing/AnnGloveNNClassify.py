@@ -4,6 +4,7 @@ from os.path import isfile, join,isdir
 import csv
 import re
 import sklearn.metrics
+from keras.callbacks import EarlyStopping
 from keras import Input
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
@@ -24,6 +25,8 @@ from keras.preprocessing.sequence import pad_sequences
 from keras.utils import to_categorical
 import gensim
 import os
+import numpy as np
+import time
 
 
 
@@ -131,17 +134,20 @@ class Annotation:
     LowLevelClass = ""
 
 if __name__ == '__main__':
-    max_words = 200000
+    os.environ['PYTHONHASHSEED'] = '0'
+    np.random.seed(42)
+    max_words = 20000
     batch_size = 32
     epochs = 100
     GLOVE_DIR = "Glove_dir"
-    MAX_SEQUENCE_LENGTH = 3000
+    MAX_SEQUENCE_LENGTH = 1000
     EMBEDDING_DIM = 100
     data_folder = "../AnnotationWorkshop"
     ds = DataSet()
     total_num_spam = 0
     sentences = []
     total_num_files = 0
+    #job = aetros.backend.start_job('nikolamilosevic86/GloveModel')
     annotators = [f for f in listdir(data_folder) if isdir(join(data_folder, f))]
     for ann in annotators:
         folder = data_folder+"/"+ann
@@ -285,6 +291,7 @@ if __name__ == '__main__':
     match_outputs = 0
     match_actors = 0
     match_innovativeness = 0
+
     while i<len(ds.Annotators)-1:
         while j<len(ds.Annotators):
             annotator1 = ds.Annotators[i]
@@ -452,6 +459,8 @@ if __name__ == '__main__':
             # words not found in embedding index will be all-zeros.
             embedding_matrix[i] = embedding_vector
 
+    early_stopping = EarlyStopping(monitor='val_loss', patience=15)
+
     embedding_layer = Embedding(len(word_index) + 1,
                                 EMBEDDING_DIM,
                                 weights=[embedding_matrix],
@@ -460,20 +469,26 @@ if __name__ == '__main__':
 
     model = Sequential()
     model.add(embedding_layer)
-    model.add(Dense(512, input_shape=(max_words,)))
+    model.add(Conv1D(128,5,activation='relu'))
+    model.add(MaxPooling1D(5))
+    model.add(Conv1D(128, 5, activation='relu'))
+    model.add(MaxPooling1D(5))
+    model.add(Conv1D(128, 5, activation='relu'))
+    model.add(MaxPooling1D(35))
+    model.add(Flatten())
+
+    model.add(Dense(128, input_shape=(max_words,)))
     model.add(Activation('relu'))
     model.add(Dropout(0.2))
 
-    model.add(Flatten())
-
-    model.add(Dense(512, input_shape=(max_words,)))
+    model.add(Dense(128, input_shape=(max_words,)))
     model.add(Activation('relu'))
     model.add(Dropout(0.2))
 
     model.add(Dense(2))
     model.add(Activation('softmax'))
 
-    model.compile(loss='mean_squared_error',
+    model.compile(loss='binary_crossentropy',
                   optimizer='adam',
                   metrics=['accuracy'])
 
@@ -481,13 +496,14 @@ if __name__ == '__main__':
                         batch_size=batch_size,
                         epochs=epochs,
                         verbose=1,
-                        validation_split=0.1)
+                        validation_split=0.1,callbacks=[early_stopping])
     score = model.evaluate(x_val, y_val,
                            batch_size=batch_size, verbose=1)
     score1 = score[0]
     acc1 = score[1]
     print('Test score:', score[0])
     print('Test accuracy:', score[1])
+    #job.done()
 #print "Final score: "+str(float(score1/10))
 #print "Final accuracy:" + str(float(acc1/10))
 

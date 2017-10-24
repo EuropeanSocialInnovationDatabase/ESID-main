@@ -8,6 +8,9 @@ import keras
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation
 from keras.preprocessing.text import Tokenizer
+import aetros.backend
+import numpy as np
+import os
 
 
 
@@ -116,6 +119,8 @@ class Annotation:
     LowLevelClass = ""
 
 if __name__ == '__main__':
+    os.environ['PYTHONHASHSEED'] = '0'
+    np.random.seed(42)
     max_words = 1000
     batch_size = 32
     epochs = 100
@@ -124,6 +129,7 @@ if __name__ == '__main__':
     total_num_spam = 0
     sentences = []
     total_num_files = 0
+    #job = aetros.backend.start_job('nikolamilosevic86/pureClassify')
     annotators = [f for f in listdir(data_folder) if isdir(join(data_folder, f))]
     for ann in annotators:
         folder = data_folder+"/"+ann
@@ -485,3 +491,4 @@ if __name__ == '__main__':
         print('Test accuracy:', score[1])
     print "Final score: "+str(float(score1/10))
     print "Final accuracy:" + str(float(acc1/10))
+    #job.done()
