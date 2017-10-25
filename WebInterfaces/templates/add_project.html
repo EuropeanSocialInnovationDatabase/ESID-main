@@ -16,6 +16,19 @@
       html, body, #map-canvas { height: 100%; margin: 0; padding: 0;}
     </style>
 	<title>ESID - manual insert</title>
+    <script type="text/javascript">
+        function validateForm() {
+            var x = document.forms["myForm"]["start_date"].value;
+            if (x == "") return true;
+            var regEx = /^\d{4}-\d{2}-\d{2}$/;
+            if(!x.match(regEx)) return false;  // Invalid format
+            var d = new Date(x);
+            if(!d.getTime()) return false; // Invalid date (or this could be epoch)
+                return d.toISOString().slice(0,10) === dateString;
+    }
+}
+    </script>
+
 
    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <title>Add Keywords</title>
@@ -49,52 +62,53 @@
     <!--</nav>-->
 
 
-<form enctype="multipart/form-data" method="post" action="add">
+<form enctype="multipart/form-data" method="post" action="add" onsubmit="return validateForm()" name="myForm">
+
     <div class="form-group">
       <div class="col-xs-12 col-sm-6 col-lg-6">
 
         <div>
-          <label for="project_name">Project name:</label>
+          <label for="project_name">Project name (required):</label>
            <input class="form-control" name="project_name" placeholder="Project name" required></input><br />
-            <label for="start_date">Start date:</label>
+            <label for="start_date">Start date (optional):</label>
            <input class="form-control"  name="start_date" placeholder="Start date in yyyy-mm-dd format"></input><br />
-            <label for="end_date">End date:</label>
+            <label for="end_date">End date (optional):</label>
            <input class="form-control"  name="end_date" placeholder="End date in yyyy-mm-dd format"></input><br />
-            <label for="project_website">Project website:</label>
-           <input class="form-control"  name="project_website" placeholder="website"></input><br />
-            <label for="project_website1">Additional website:</label>
-           <input class="form-control"  name="project_website1" placeholder="additional website"></input><br />
-            <label for="project_website2">Additional website:</label>
-           <input class="form-control"  name="project_website2" placeholder="additional website"></input><br />
-            <label for="project_facebook">Project Facebook page:</label>
+            <label for="project_website">Project website (optional):</label>
+           <input class="form-control"  name="project_website" placeholder="website with http://"></input><br />
+            <label for="project_website1">Additional website (optional):</label>
+           <input class="form-control"  name="project_website1" placeholder="additional website with http://"></input><br />
+            <label for="project_website2">Additional website (optional):</label>
+           <input class="form-control"  name="project_website2" placeholder="additional website with http://"></input><br />
+            <label for="project_facebook">Project Facebook page (optional):</label>
            <input class="form-control"  name="project_facebook" placeholder="Facebook"></input><br />
-            <label for="project_twitter">Project Twitter page:</label>
+            <label for="project_twitter">Project Twitter page (optional):</label>
            <input class="form-control"  name="project_twitter" placeholder="Twitter"></input><br />
-            <label for="project_linkedin">Project LinkedIn page:</label>
+            <label for="project_linkedin">Project LinkedIn page (optional):</label>
            <input class="form-control"  name="project_linkedin" placeholder="LinkedIn"></input><br />
-            <label for="data_source">Data source name:</label>
-           <input class="form-control"  name="data_source" placeholder="Data Source"></input><br />
+            <label for="data_source">Data source name (required):</label>
+           <input class="form-control"  name="data_source" placeholder="Data Source" required></input><br />
             <label for="location_type">Location type:</label>
              <select name="location_type" >
                 <option value="Main">Main</option>
                  <option value="Secondary">Secondary</option>
              </select><br />
-            <label for="location_address">Address:</label>
+            <label for="location_address">Address (optional):</label>
            <input class="form-control"  name="location_address" placeholder="Address"></input><br />
-            <label for="location_city">City:</label>
+            <label for="location_city">City (optional):</label>
            <input class="form-control"  name="location_city" placeholder="City"></input><br />
-            <label for="location_country">Country:</label>
+            <label for="location_country">Country (optional):</label>
            <input class="form-control"  name="location_country" placeholder="Country"></input><br />
-             <label for="location_postcode">Post code:</label>
+             <label for="location_postcode">Post code (optional):</label>
            <input class="form-control"  name="location_postcode" placeholder="Post code"></input><br />
-            <label for="location_longitude">Longitude:</label>
+            <label for="location_longitude">Longitude (optional):</label>
            <input class="form-control"  name="location_longitude" placeholder="longitude (format numeric with dot: XX.XX)"></input><br />
-            <label for="location_latitude">Latitude:</label>
+            <label for="location_latitude">Latitude (optional):</label>
            <input class="form-control"  name="location_latitude" placeholder="latitude (format numeric with dot: XX.XX)"></input><br />
 
-            <label for="description">Description:</label>
+            <label for="description">Description (optional):</label>
            <textarea class="form-control" rows="11" name="description" placeholder="Description of the project"></textarea><br />
-            <label for="tags">Tags and Tecnologies:</label>
+            <label for="tags">Tags and Tecnologies (optional):</label>
            <input class="form-control"  name="tags" placeholder="comma separated list of tags/technologies/domains"></input><br />
 
         </div>
