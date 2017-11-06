@@ -24,7 +24,7 @@ class EUSICSpider(scrapy.Spider):
     def start_requests(self):
         self.db = MySQLdb.connect(host, username, password, database, charset='utf8')
         self.cursor = self.db.cursor()
-        urls = ["http://eusic.challenges.org/selected/"]
+        urls = ["http://eusic-2016.challenges.org/selected/"]
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse)
 
@@ -40,6 +40,7 @@ class EUSICSpider(scrapy.Spider):
         facebook = ""
         website = ""
         twitter = ""
+        name = None
         source_page = response.url
         html = response.body.replace('\n', '').replace('\t', '').replace('\r', '')
         soup = BeautifulSoup.BeautifulSoup(html)
@@ -50,7 +51,7 @@ class EUSICSpider(scrapy.Spider):
                 parts = str(div).split("<br />")
                 StartField = False
                 for part in parts:
-                    if "Semi-finalist:" in part:
+                    if "Semi-finalist:" in part or "Finalist:" in part or "Winner:" in part:
                         name = strip_tags(part).split(":")[1].replace('"','')
                     if "Country:" in part:
                         country = strip_tags(part).split(":")[1].replace('"','')
@@ -72,7 +73,8 @@ class EUSICSpider(scrapy.Spider):
             if "summary" in div.text.lower():
                 summary = str(div).replace("<br />",'\n').replace("Summary","")
                 summary = strip_tags(summary).replace("View all semi-finalists","").strip()
-
+        if  name is None:
+            name = soup.findAll("h1")[0].text.lower()
         project_sql = "INSERT INTO Projects (ProjectName,Type,ProjectWebpage,FirstDataSource,DataSources_idDataSources,FacebookPage,ProjectTwitter) VALUES (%s,'Social Innovation',%s,'EUSIC',7,%s,%s)"
         self.cursor.execute(project_sql,(name,website,facebook,twitter))
         self.db.commit()
