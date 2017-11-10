@@ -109,7 +109,7 @@ class Annotation:
     LowLevelClass = ""
 
 if __name__ == '__main__':
-    data_folder = "../AnnotationWorkshop"
+    data_folder = "../FullDataset_Alina"
     ds = DataSet()
     total_num_spam = 0
     total_num_files = 0
@@ -345,31 +345,31 @@ if __name__ == '__main__':
         i = i+1
         j = i+1
 
-    accuracy_spam = float(num_overlap_spam)/float(kappa_files)
-    print "Agreement for detecting social innovation/spam: "+str(accuracy_spam)
-    print "Percentage of spam projects (in IAA set): " + str(float(num_spam)/float(2*kappa_files))
-    print "Percentage of spam projects (whole set): " + str(float(total_num_spam) / float(total_num_files))
-    print ""
-    print "IAA for Objectives: "+str(float(match_objectives)/float(total_objectives-match_objectives))
-    print "Total and matches: "+str(total_objectives-match_objectives)+"; "+str(match_objectives)
-    print "IAA for Actors: " + str(float(match_actors) / float(total_actors - match_actors))
-    print "Total and matches: " + str(total_actors-match_actors) + "; " + str(match_actors)
-    print "IAA for Outputs: " + str(float(match_outputs) / float(total_outputs - match_outputs))
-    print "Total and matches: " + str(total_outputs-match_outputs) + "; " + str(match_outputs)
-    print "IAA for Innovativeness: " + str(float(match_innovativeness) / float(total_innovativeness - match_innovativeness))
-    print "Total and matches: " + str(total_innovativeness-match_innovativeness) + "; " + str(match_innovativeness)
-    print "Total AII over all SL annotations: "+str(float(match_innovativeness+match_objectives+match_actors+match_outputs) / float(total_innovativeness - match_innovativeness+total_objectives-match_objectives+total_actors - match_actors+total_outputs - match_outputs))
-    print "Total and matches: " + str(total_innovativeness - match_innovativeness+total_objectives-match_objectives+total_actors - match_actors+total_outputs - match_outputs) +";" +str(match_innovativeness+match_objectives+match_actors+match_outputs)
-    print "IAA files count: "+str(kappa_files)
-    kappa_total_outputs = sklearn.metrics.cohen_kappa_score(ann1_annotations_outputs, ann2_annotations_outputs)
-    kappa_total_actors = sklearn.metrics.cohen_kappa_score(ann1_annotations_actors, ann2_annotations_actors)
-    kappa_total_objectives = sklearn.metrics.cohen_kappa_score(ann1_annotations_objectives, ann2_annotations_objectives)
-    kappa_total_innovativeness = sklearn.metrics.cohen_kappa_score(ann1_annotations_innovativeness, ann2_annotations_innovativeness)
-    print ""
-    print "Kappa totaly objectives: "+str(kappa_total_objectives)
-    print "Kappa totaly actors: " + str(kappa_total_actors)
-    print "Kappa totaly outputs: " + str(kappa_total_outputs)
-    print "Kappa totaly innovativeness: " + str(kappa_total_innovativeness)
+    # accuracy_spam = float(num_overlap_spam)/float(kappa_files)
+    # print "Agreement for detecting social innovation/spam: "+str(accuracy_spam)
+    # print "Percentage of spam projects (in IAA set): " + str(float(num_spam)/float(2*kappa_files))
+    # print "Percentage of spam projects (whole set): " + str(float(total_num_spam) / float(total_num_files))
+    # print ""
+    # print "IAA for Objectives: "+str(float(match_objectives)/float(total_objectives-match_objectives))
+    # print "Total and matches: "+str(total_objectives-match_objectives)+"; "+str(match_objectives)
+    # print "IAA for Actors: " + str(float(match_actors) / float(total_actors - match_actors))
+    # print "Total and matches: " + str(total_actors-match_actors) + "; " + str(match_actors)
+    # print "IAA for Outputs: " + str(float(match_outputs) / float(total_outputs - match_outputs))
+    # print "Total and matches: " + str(total_outputs-match_outputs) + "; " + str(match_outputs)
+    # print "IAA for Innovativeness: " + str(float(match_innovativeness) / float(total_innovativeness - match_innovativeness))
+    # print "Total and matches: " + str(total_innovativeness-match_innovativeness) + "; " + str(match_innovativeness)
+    # print "Total AII over all SL annotations: "+str(float(match_innovativeness+match_objectives+match_actors+match_outputs) / float(total_innovativeness - match_innovativeness+total_objectives-match_objectives+total_actors - match_actors+total_outputs - match_outputs))
+    # print "Total and matches: " + str(total_innovativeness - match_innovativeness+total_objectives-match_objectives+total_actors - match_actors+total_outputs - match_outputs) +";" +str(match_innovativeness+match_objectives+match_actors+match_outputs)
+    # print "IAA files count: "+str(kappa_files)
+    # kappa_total_outputs = sklearn.metrics.cohen_kappa_score(ann1_annotations_outputs, ann2_annotations_outputs)
+    # kappa_total_actors = sklearn.metrics.cohen_kappa_score(ann1_annotations_actors, ann2_annotations_actors)
+    # kappa_total_objectives = sklearn.metrics.cohen_kappa_score(ann1_annotations_objectives, ann2_annotations_objectives)
+    # kappa_total_innovativeness = sklearn.metrics.cohen_kappa_score(ann1_annotations_innovativeness, ann2_annotations_innovativeness)
+    # print ""
+    # print "Kappa totaly objectives: "+str(kappa_total_objectives)
+    # print "Kappa totaly actors: " + str(kappa_total_actors)
+    # print "Kappa totaly outputs: " + str(kappa_total_outputs)
+    # print "Kappa totaly innovativeness: " + str(kappa_total_innovativeness)
 
     print annotators
     doc_array = []
@@ -389,8 +389,8 @@ if __name__ == '__main__':
         os.makedirs(directory2)
     for x in doc_array:
         data_x.append(x[0])
-        data_y.append(x[4])
-        if x[4]== True:
+        data_y.append(x[3])
+        if x[3]== True:
             file = open(directory1+"/"+x[5],"w")
             file.write(x[0])
             file.close()

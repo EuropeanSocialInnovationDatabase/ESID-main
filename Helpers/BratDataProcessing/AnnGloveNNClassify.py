@@ -27,8 +27,88 @@ import gensim
 import os
 import numpy as np
 import time
+from keras import backend as K
 
 
+
+def mcor(y_true, y_pred):
+    # matthews_correlation
+    y_pred_pos = K.round(K.clip(y_pred, 0, 1))
+    y_pred_neg = 1 - y_pred_pos
+
+    y_pos = K.round(K.clip(y_true, 0, 1))
+    y_neg = 1 - y_pos
+
+    tp = K.sum(y_pos * y_pred_pos)
+    tn = K.sum(y_neg * y_pred_neg)
+
+    fp = K.sum(y_neg * y_pred_pos)
+    fn = K.sum(y_pos * y_pred_neg)
+
+    numerator = (tp * tn - fp * fn)
+    denominator = K.sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
+
+    return numerator / (denominator + K.epsilon())
+
+
+def precision(y_true, y_pred):
+    """Precision metric.
+
+    Only computes a batch-wise average of precision.
+
+    Computes the precision, a metric for multi-label classification of
+    how many selected items are relevant.
+    """
+    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
+    precision = true_positives / (predicted_positives + K.epsilon())
+    return precision
+
+
+def recall(y_true, y_pred):
+    """Recall metric.
+
+    Only computes a batch-wise average of recall.
+
+    Computes the recall, a metric for multi-label classification of
+    how many relevant items are selected.
+    """
+    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
+    recall = true_positives / (possible_positives + K.epsilon())
+    return recall
+
+
+def f1(y_true, y_pred):
+    def recall(y_true, y_pred):
+        """Recall metric.
+
+        Only computes a batch-wise average of recall.
+
+        Computes the recall, a metric for multi-label classification of
+        how many relevant items are selected.
+        """
+        true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+        possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
+        recall = true_positives / (possible_positives + K.epsilon())
+        return recall
+
+    def precision(y_true, y_pred):
+        """Precision metric.
+
+        Only computes a batch-wise average of precision.
+
+        Computes the precision, a metric for multi-label classification of
+        how many selected items are relevant.
+        """
+        true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+        predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
+        precision = true_positives / (predicted_positives + K.epsilon())
+        return precision
+
+    precision = precision(y_true, y_pred)
+    recall = recall(y_true, y_pred)
+    return 2 * ((precision * recall) / (precision + recall))
 
 class DataSet:
     Annotators = []
@@ -134,15 +214,15 @@ class Annotation:
     LowLevelClass = ""
 
 if __name__ == '__main__':
-    os.environ['PYTHONHASHSEED'] = '0'
-    np.random.seed(42)
+    os.environ['PYTHONHASHSEED'] = '4'
+    np.random.seed(53)
     max_words = 20000
     batch_size = 32
     epochs = 100
     GLOVE_DIR = "Glove_dir"
     MAX_SEQUENCE_LENGTH = 1000
     EMBEDDING_DIM = 100
-    data_folder = "../AnnotationWorkshop"
+    data_folder = "../FullDataset_Alina"
     ds = DataSet()
     total_num_spam = 0
     sentences = []
@@ -382,40 +462,46 @@ if __name__ == '__main__':
         i = i+1
         j = i+1
 
-    accuracy_spam = float(num_overlap_spam)/float(kappa_files)
-    print "Agreement for detecting social innovation/spam: "+str(accuracy_spam)
-    print "Percentage of spam projects (in IAA set): " + str(float(num_spam)/float(2*kappa_files))
-    print "Percentage of spam projects (whole set): " + str(float(total_num_spam) / float(total_num_files))
-    print ""
-    print "IAA for Objectives: "+str(float(match_objectives)/float(total_objectives-match_objectives))
-    print "Total and matches: "+str(total_objectives-match_objectives)+"; "+str(match_objectives)
-    print "IAA for Actors: " + str(float(match_actors) / float(total_actors - match_actors))
-    print "Total and matches: " + str(total_actors-match_actors) + "; " + str(match_actors)
-    print "IAA for Outputs: " + str(float(match_outputs) / float(total_outputs - match_outputs))
-    print "Total and matches: " + str(total_outputs-match_outputs) + "; " + str(match_outputs)
-    print "IAA for Innovativeness: " + str(float(match_innovativeness) / float(total_innovativeness - match_innovativeness))
-    print "Total and matches: " + str(total_innovativeness-match_innovativeness) + "; " + str(match_innovativeness)
-    print "Total AII over all SL annotations: "+str(float(match_innovativeness+match_objectives+match_actors+match_outputs) / float(total_innovativeness - match_innovativeness+total_objectives-match_objectives+total_actors - match_actors+total_outputs - match_outputs))
-    print "Total and matches: " + str(total_innovativeness - match_innovativeness+total_objectives-match_objectives+total_actors - match_actors+total_outputs - match_outputs) +";" +str(match_innovativeness+match_objectives+match_actors+match_outputs)
-    print "IAA files count: "+str(kappa_files)
-    kappa_total_outputs = sklearn.metrics.cohen_kappa_score(ann1_annotations_outputs, ann2_annotations_outputs)
-    kappa_total_actors = sklearn.metrics.cohen_kappa_score(ann1_annotations_actors, ann2_annotations_actors)
-    kappa_total_objectives = sklearn.metrics.cohen_kappa_score(ann1_annotations_objectives, ann2_annotations_objectives)
-    kappa_total_innovativeness = sklearn.metrics.cohen_kappa_score(ann1_annotations_innovativeness, ann2_annotations_innovativeness)
-    print ""
-    print "Kappa totaly objectives: "+str(kappa_total_objectives)
-    print "Kappa totaly actors: " + str(kappa_total_actors)
-    print "Kappa totaly outputs: " + str(kappa_total_outputs)
-    print "Kappa totaly innovativeness: " + str(kappa_total_innovativeness)
+    # accuracy_spam = float(num_overlap_spam)/float(kappa_files)
+    # print "Agreement for detecting social innovation/spam: "+str(accuracy_spam)
+    # print "Percentage of spam projects (in IAA set): " + str(float(num_spam)/float(2*kappa_files))
+    # print "Percentage of spam projects (whole set): " + str(float(total_num_spam) / float(total_num_files))
+    # print ""
+    # print "IAA for Objectives: "+str(float(match_objectives)/float(total_objectives-match_objectives))
+    # print "Total and matches: "+str(total_objectives-match_objectives)+"; "+str(match_objectives)
+    # print "IAA for Actors: " + str(float(match_actors) / float(total_actors - match_actors))
+    # print "Total and matches: " + str(total_actors-match_actors) + "; " + str(match_actors)
+    # print "IAA for Outputs: " + str(float(match_outputs) / float(total_outputs - match_outputs))
+    # print "Total and matches: " + str(total_outputs-match_outputs) + "; " + str(match_outputs)
+    # print "IAA for Innovativeness: " + str(float(match_innovativeness) / float(total_innovativeness - match_innovativeness))
+    # print "Total and matches: " + str(total_innovativeness-match_innovativeness) + "; " + str(match_innovativeness)
+    # print "Total AII over all SL annotations: "+str(float(match_innovativeness+match_objectives+match_actors+match_outputs) / float(total_innovativeness - match_innovativeness+total_objectives-match_objectives+total_actors - match_actors+total_outputs - match_outputs))
+    # print "Total and matches: " + str(total_innovativeness - match_innovativeness+total_objectives-match_objectives+total_actors - match_actors+total_outputs - match_outputs) +";" +str(match_innovativeness+match_objectives+match_actors+match_outputs)
+    # print "IAA files count: "+str(kappa_files)
+    # kappa_total_outputs = sklearn.metrics.cohen_kappa_score(ann1_annotations_outputs, ann2_annotations_outputs)
+    # kappa_total_actors = sklearn.metrics.cohen_kappa_score(ann1_annotations_actors, ann2_annotations_actors)
+    # kappa_total_objectives = sklearn.metrics.cohen_kappa_score(ann1_annotations_objectives, ann2_annotations_objectives)
+    # kappa_total_innovativeness = sklearn.metrics.cohen_kappa_score(ann1_annotations_innovativeness, ann2_annotations_innovativeness)
+    # print ""
+    # print "Kappa totaly objectives: "+str(kappa_total_objectives)
+    # print "Kappa totaly actors: " + str(kappa_total_actors)
+    # print "Kappa totaly outputs: " + str(kappa_total_outputs)
+    # print "Kappa totaly innovativeness: " + str(kappa_total_innovativeness)
 
     print annotators
     doc_array = []
     text_array = []
     objectives = []
+    actors = []
+    outputs = []
+    innovativeness = []
     for ann in ds.Annotators:
         for doc in ann.documents:
             doc_array.append([doc.Text,doc.isProjectObjectiveSatisfied,doc.isProjectActorSatisfied,doc.isProjectOutputSatisfied,doc.isProjectInnovativenessSatisfied])
             objectives.append(doc.isProjectObjectiveSatisfied)
+            actors.append(doc.isProjectActorSatisfied)
+            outputs.append(doc.isProjectOutputSatisfied)
+            innovativeness.append(doc.isProjectInnovativenessSatisfied)
             text_array.append(doc.Text)
     tokenizer = Tokenizer(nb_words=max_words)
     tokenizer.fit_on_texts(text_array)
@@ -436,11 +522,12 @@ if __name__ == '__main__':
     data = data[indices]
     labels = labels[indices]
     nb_validation_samples = int(0.2 * data.shape[0])
-
-    x_train = data[:-nb_validation_samples]
-    y_train = labels[:-nb_validation_samples]
-    x_val = data[-nb_validation_samples:]
-    y_val = labels[-nb_validation_samples:]
+    x_train = data
+    y_train = labels
+    # x_train = data[:-nb_validation_samples]
+    # y_train = labels[:-nb_validation_samples]
+    # x_val = data[-nb_validation_samples:]
+    # y_val = labels[-nb_validation_samples:]
 
     embeddings_index = {}
     f = open(os.path.join(GLOVE_DIR, 'glove.6B.100d.txt'))
@@ -469,143 +556,70 @@ if __name__ == '__main__':
 
     model = Sequential()
     model.add(embedding_layer)
-    model.add(Conv1D(128,5,activation='relu'))
+    model.add(Conv1D(512,5,activation='relu'))
     model.add(MaxPooling1D(5))
-    model.add(Conv1D(128, 5, activation='relu'))
-    model.add(MaxPooling1D(5))
-    model.add(Conv1D(128, 5, activation='relu'))
-    model.add(MaxPooling1D(35))
+    model.add(Dropout(0.2))
+    # model.add(Conv1D(128, 5, activation='relu'))
+    # model.add(MaxPooling1D(5))
+    # model.add(Dropout(0.2))
+    # model.add(Conv1D(128, 5, activation='relu'))
+    # model.add(MaxPooling1D(35))
     model.add(Flatten())
 
-    model.add(Dense(128, input_shape=(max_words,)))
-    model.add(Activation('relu'))
-    model.add(Dropout(0.2))
-
-    model.add(Dense(128, input_shape=(max_words,)))
-    model.add(Activation('relu'))
-    model.add(Dropout(0.2))
+    # model.add(Dense(128, input_shape=(max_words,)))
+    # model.add(Activation('relu'))
+    # model.add(Dropout(0.2))
+    #
+    # model.add(Dense(128, input_shape=(max_words,)))
+    # model.add(Activation('relu'))
+    # model.add(Dropout(0.2))
 
     model.add(Dense(2))
     model.add(Activation('softmax'))
 
     model.compile(loss='binary_crossentropy',
                   optimizer='adam',
-                  metrics=['accuracy'])
+                  metrics=['accuracy',mcor,precision,recall, f1])
 
     history = model.fit(x_train, y_train,
                         batch_size=batch_size,
                         epochs=epochs,
                         verbose=1,
-                        validation_split=0.1,callbacks=[early_stopping])
-    score = model.evaluate(x_val, y_val,
-                           batch_size=batch_size, verbose=1)
-    score1 = score[0]
-    acc1 = score[1]
-    print('Test score:', score[0])
-    print('Test accuracy:', score[1])
-    #job.done()
-#print "Final score: "+str(float(score1/10))
-#print "Final accuracy:" + str(float(acc1/10))
-
-
+                        validation_split=0.2,callbacks=[early_stopping])
+    # score = model.evaluate(x_val, y_val,
+    #                        batch_size=batch_size, verbose=1)
+    # score1 = score[0]
+    # acc1 = score[1]
+    # print('Test score:', score[0])
+    # print('Test accuracy:', score[1])
+    # predictions = model.predict(x_val,batch_size,1)
+    # prec = precision(y_val,predictions)
+    # r = recall(y_val,predictions)
+    # f1_score = f1(y_val,predictions)
+    # TP = y_val*predictions
     #
-    # data_x = []
-    # data_y = []
-    # test_x = []
-    # test_y = []
-    # for x in doc_array:
-    #     data_x.append(x[0])
-    #     data_y.append(x[1])
-    # kf = KFold(n_splits=10)
-    #
-    # kf.get_n_splits(data_x,data_y)
-    # averages = []
-    # precisions = []
-    # recalls = []
-    # f1_scores = []
-    # num_classes = 2
-    # score1 = 0
-    # acc1 = 0
-    # #model = gensim.models.KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)
-    # #print model["hello"]
-    #
-    # for train_index, test_index in kf.split(data_x,data_y):
-    #     X_train = []
-    #     X_test = []
-    #     y_train = []
-    #     y_test = []
-    #     for train_i in train_index:
-    #         X_train.append(data_x[train_i])
-    #         y_train.append(data_y[train_i])
-    #
-    #     for test_i in test_index:
-    #         X_test.append(data_x[test_i])
-    #         y_test.append(data_y[test_i])
-    #
-    #     print('Vectorizing sequence data...')
-    #     tokenizer = Tokenizer(num_words=max_words)
-    #     X_train = tokenizer.sequences_to_matrix(X_train, mode='binary')
-    #     X_test = tokenizer.sequences_to_matrix(X_test, mode='binary')
-    #     print('x_train shape:', X_train.shape)
-    #     print('x_test shape:', X_test.shape)
-    #
-    #     print('Convert class vector to binary class matrix '
-    #           '(for use with categorical_crossentropy)')
-    #     y_train = keras.utils.to_categorical(y_train, num_classes)
-    #     y_test = keras.utils.to_categorical(y_test, num_classes)
-    #     print('y_train shape:', y_train.shape)
-    #     print('y_test shape:', y_test.shape)
-    #
-    #     print('Building model...')
-    #     model = Sequential()
-    #     #model.add(Embedding(1000, 64, input_length=1000))
-    #     model.add(Dense(512, input_shape=(max_words,)))
-    #     model.add(Activation('relu'))
-    #     model.add(Dropout(0.2))
-    #
-    #     model.add(Dense(512, input_shape=(max_words,)))
-    #     model.add(Activation('relu'))
-    #     model.add(Dropout(0.2))
-    #
-    #     model.add(Dense(256, input_shape=(max_words,)))
-    #     model.add(Activation('relu'))
-    #     model.add(Dropout(0.2))
-    #
-    #     model.add(Dense(256, input_shape=(max_words,)))
-    #     model.add(Activation('relu'))
-    #     model.add(Dropout(0.2))
-    #
-    #     model.add(Dense(128, input_shape=(max_words,)))
-    #     model.add(Activation('relu'))
-    #     model.add(Dropout(0.2))
-    #
-    #     model.add(Dense(64, input_shape=(max_words,)))
-    #     model.add(Activation('relu'))
-    #     model.add(Dropout(0.2))
-    #
-    #     model.add(Dense(32, input_shape=(max_words,)))
-    #     model.add(Activation('relu'))
-    #     model.add(Dropout(0.2))
-    #
-    #     model.add(Dense(num_classes))
-    #     model.add(Activation('softmax'))
-    #
-    #     model.compile(loss='mean_squared_error',
-    #                   optimizer='adam',
-    #                   metrics=['accuracy'])
-    #
-    #     history = model.fit(X_train, y_train,
-    #                         batch_size=batch_size,
-    #                         epochs=epochs,
-    #                         verbose=1,
-    #                         validation_split=0.1)
-    #     score = model.evaluate(X_test, y_test,
-    #                            batch_size=batch_size, verbose=1)
-    #     score1 = score1 + score[0]
-    #     acc1 = acc1 + score[1]
-    #     print('Test score:', score[0])
-    #     print('Test accuracy:', score[1])
-    # print "Final score: "+str(float(score1/10))
-    # print "Final accuracy:" + str(float(acc1/10))
-
-
+    # TP_sum = 0
+    # FP_sum = 0
+    # FN_sum = 0
+    # i = 0
+    # for pred in predictions:
+    #     print "Prediction: "+str(pred)
+    #     print "Y valuation: "+str(y_val[i])
+    #     if pred[0] == 1 and y_val[i][0] == 1:
+    #         TP_sum = TP_sum + 1
+    #     if pred[0] == 1 and y_val[i][0]==0:
+    #         FP_sum = FP_sum + 1
+    #     if pred[0] == 0 and y_val[i][0]==1:
+    #         FN_sum = FN_sum + 1
+    #     i = i+1
+    # number_samples = len(predictions)
+    # print "Number of samples:"+str(number_samples)
+    # print "True positives:"+str(TP_sum)
+    # print "False positives:" + str(FP_sum)
+    # print "False negatives:" + str(FN_sum)
+    # precision_s = float(TP_sum)/float(TP_sum+FP_sum)
+    # recall_s = float(TP_sum) / float(TP_sum + FN_sum)
+    # F_score_s = 2.0*precision_s*recall_s/(precision_s+recall_s)
+    # print "Precision: "+str(precision_s)
+    # print "Recall: "+str(recall_s)
+    # print "F1-score: "+str(F_score_s)
