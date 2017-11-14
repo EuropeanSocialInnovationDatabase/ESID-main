@@ -219,10 +219,10 @@ if __name__ == '__main__':
     max_words = 20000
     batch_size = 32
     epochs = 100
-    GLOVE_DIR = "Glove_dir"
+    GLOVE_DIR = "../../../Helpers/BratDataProcessing/Glove_dir"
     MAX_SEQUENCE_LENGTH = 1000
     EMBEDDING_DIM = 100
-    data_folder = "../FullDataset_Alina"
+    data_folder = "../../../Helpers/FullDataset_Alina"
     ds = DataSet()
     total_num_spam = 0
     sentences = []
@@ -462,32 +462,6 @@ if __name__ == '__main__':
         i = i+1
         j = i+1
 
-    # accuracy_spam = float(num_overlap_spam)/float(kappa_files)
-    # print "Agreement for detecting social innovation/spam: "+str(accuracy_spam)
-    # print "Percentage of spam projects (in IAA set): " + str(float(num_spam)/float(2*kappa_files))
-    # print "Percentage of spam projects (whole set): " + str(float(total_num_spam) / float(total_num_files))
-    # print ""
-    # print "IAA for Objectives: "+str(float(match_objectives)/float(total_objectives-match_objectives))
-    # print "Total and matches: "+str(total_objectives-match_objectives)+"; "+str(match_objectives)
-    # print "IAA for Actors: " + str(float(match_actors) / float(total_actors - match_actors))
-    # print "Total and matches: " + str(total_actors-match_actors) + "; " + str(match_actors)
-    # print "IAA for Outputs: " + str(float(match_outputs) / float(total_outputs - match_outputs))
-    # print "Total and matches: " + str(total_outputs-match_outputs) + "; " + str(match_outputs)
-    # print "IAA for Innovativeness: " + str(float(match_innovativeness) / float(total_innovativeness - match_innovativeness))
-    # print "Total and matches: " + str(total_innovativeness-match_innovativeness) + "; " + str(match_innovativeness)
-    # print "Total AII over all SL annotations: "+str(float(match_innovativeness+match_objectives+match_actors+match_outputs) / float(total_innovativeness - match_innovativeness+total_objectives-match_objectives+total_actors - match_actors+total_outputs - match_outputs))
-    # print "Total and matches: " + str(total_innovativeness - match_innovativeness+total_objectives-match_objectives+total_actors - match_actors+total_outputs - match_outputs) +";" +str(match_innovativeness+match_objectives+match_actors+match_outputs)
-    # print "IAA files count: "+str(kappa_files)
-    # kappa_total_outputs = sklearn.metrics.cohen_kappa_score(ann1_annotations_outputs, ann2_annotations_outputs)
-    # kappa_total_actors = sklearn.metrics.cohen_kappa_score(ann1_annotations_actors, ann2_annotations_actors)
-    # kappa_total_objectives = sklearn.metrics.cohen_kappa_score(ann1_annotations_objectives, ann2_annotations_objectives)
-    # kappa_total_innovativeness = sklearn.metrics.cohen_kappa_score(ann1_annotations_innovativeness, ann2_annotations_innovativeness)
-    # print ""
-    # print "Kappa totaly objectives: "+str(kappa_total_objectives)
-    # print "Kappa totaly actors: " + str(kappa_total_actors)
-    # print "Kappa totaly outputs: " + str(kappa_total_outputs)
-    # print "Kappa totaly innovativeness: " + str(kappa_total_innovativeness)
-
     print annotators
     doc_array = []
     text_array = []
@@ -518,7 +492,6 @@ if __name__ == '__main__':
 
     # split the data into a training set and a validation set
     indices = np.arange(data.shape[0])
-    np.random.shuffle(innovativeness)
     data = data[indices]
     labels = labels[indices]
     nb_validation_samples = int(0.1 * data.shape[0])
@@ -588,14 +561,20 @@ if __name__ == '__main__':
                         validation_split=0.1,callbacks=[early_stopping])
     score = model.evaluate(x_val, y_val,
                            batch_size=batch_size, verbose=1)
+
+    model_json = model.to_json()
+    with open("../Models/model_actors.json", "w") as json_file:
+        json_file.write(model_json)
+    # serialize weights to HDF5
+    model.save_weights("../Models/model_actors.h5")
+    print("Saved model to disk")
+
+
     score1 = score[0]
     acc1 = score[1]
     print('Test score:', score[0])
     print('Test accuracy:', score[1])
     predictions = model.predict(x_val,batch_size,1)
-    # prec = precision(y_val,predictions)
-    # r = recall(y_val,predictions)
-    # f1_score = f1(y_val,predictions)
     TP = y_val*predictions
 
     TP_sum = 0
