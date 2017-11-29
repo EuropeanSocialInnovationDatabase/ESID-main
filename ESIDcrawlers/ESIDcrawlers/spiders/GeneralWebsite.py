@@ -6,6 +6,7 @@ from lxml.html.clean import Cleaner
 from lxml.html.soupparser import fromstring
 from lxml.etree import tostring
 import re
+import BeautifulSoup
 
 from scrapy.spiders import Rule, CrawlSpider
 
@@ -69,23 +70,23 @@ class GeneralWebsitespider(CrawlSpider):
         pattern = "[a-zA-Z0-9]*[\.]{0,1}[a-zA-Z0-9]+[\.][a-zA-Z0-9]{0,4}"
         self.db = MySQLdb.connect(host, username, password, database, charset='utf8')
         self.cursor = self.db.cursor()
-        # sql = "Select idActors,ActorName,ActorWebsite from Actors"
-        # self.cursor.execute(sql)
-        # results = self.cursor.fetchall()
-        # for res in results:
-        #     ArtWeb = res[2]
-        #     if ArtWeb== None or "vk.com" in ArtWeb.lower() or "youtube" in ArtWeb.lower() or "twitter" in ArtWeb.lower() or "linkedin" in ArtWeb.lower() \
-        #         or "vimeo" in ArtWeb.lower() or "instagram" in ArtWeb.lower() or "plus.google" in ArtWeb.lower() or "facebook.com" in ArtWeb.lower() \
-        #             or "pinterest" in ArtWeb.lower() or "meetup" in ArtWeb.lower() or "wikipedia" in ArtWeb.lower():
-        #         continue
-        #
-        #     parsed_uri = urlparse(ArtWeb)
-        #     domain = '{uri.netloc}/'.format(uri=parsed_uri).replace("/","").replace("www.","")
-        #     prog = re.compile(pattern)
-        #     result = prog.match(domain)
-        #     if result == None:
-        #         continue
-        #     allowed_domains.append(domain)
+        sql = "Select idActors,ActorName,ActorWebsite from Actors"
+        self.cursor.execute(sql)
+        results = self.cursor.fetchall()
+        for res in results:
+            ArtWeb = res[2]
+            if ArtWeb== None or "vk.com" in ArtWeb.lower() or "youtube" in ArtWeb.lower() or "twitter" in ArtWeb.lower() or "linkedin" in ArtWeb.lower() \
+                or "vimeo" in ArtWeb.lower() or "instagram" in ArtWeb.lower() or "plus.google" in ArtWeb.lower() or "facebook.com" in ArtWeb.lower() \
+                    or "pinterest" in ArtWeb.lower() or "meetup" in ArtWeb.lower() or "wikipedia" in ArtWeb.lower():
+                continue
+
+            parsed_uri = urlparse(ArtWeb)
+            domain = '{uri.netloc}/'.format(uri=parsed_uri).replace("/","").replace("www.","")
+            prog = re.compile(pattern)
+            result = prog.match(domain)
+            if result == None:
+                continue
+            allowed_domains.append(domain)
         sql = "Select idProjects,ProjectName,ProjectWebpage from Projects"
         self.cursor.execute(sql)
         results = self.cursor.fetchall()
@@ -113,22 +114,22 @@ class GeneralWebsitespider(CrawlSpider):
         start_urls = []
         self.db = MySQLdb.connect(host, username, password, database, charset='utf8')
         self.cursor = self.db.cursor()
-        # sql = "Select idActors,ActorName,ActorWebsite from Actors"
-        # self.cursor.execute(sql)
-        # results = self.cursor.fetchall()
-        # urls = []
-        # for res in results:
-        #     idActor = res[0]
-        #     ArtName = res[1]
-        #     ArtWeb = res[2]
-        #     if ArtWeb== None or "vk.com" in ArtWeb.lower() or "youtube" in ArtWeb.lower() or "twitter" in ArtWeb.lower() or "linkedin" in ArtWeb.lower() \
-        #         or "vimeo" in ArtWeb.lower() or "instagram" in ArtWeb.lower() or "plus.google" in ArtWeb.lower() or "pinterest" in ArtWeb.lower() :
-        #         continue
-        #     prog = re.compile(pattern)
-        #     result = prog.match(ArtWeb.lower())
-        #     if result == None:
-        #         continue
-        #     start_urls.append(ArtWeb)
+        sql = "Select idActors,ActorName,ActorWebsite from Actors"
+        self.cursor.execute(sql)
+        results = self.cursor.fetchall()
+        urls = []
+        for res in results:
+            idActor = res[0]
+            ArtName = res[1]
+            ArtWeb = res[2]
+            if ArtWeb== None or "vk.com" in ArtWeb.lower() or "youtube" in ArtWeb.lower() or "twitter" in ArtWeb.lower() or "linkedin" in ArtWeb.lower() \
+                or "vimeo" in ArtWeb.lower() or "instagram" in ArtWeb.lower() or "plus.google" in ArtWeb.lower() or "pinterest" in ArtWeb.lower() :
+                continue
+            prog = re.compile(pattern)
+            result = prog.match(ArtWeb.lower())
+            if result == None:
+                continue
+            start_urls.append(ArtWeb)
         sql = "Select idProjects,ProjectName,ProjectWebpage from Projects"
         self.cursor.execute(sql)
         results = self.cursor.fetchall()
@@ -165,27 +166,32 @@ class GeneralWebsitespider(CrawlSpider):
         else:
             item.PageTitle = ""
         item.Content = response.body
-        s = fromstring(response.body)
-        cleaner = Cleaner()
-        cleaner.javascript = True  # This is True because we want to activate the javascript filter
-        cleaner.style = True
-        s2 = cleaner.clean_html(s)
-        inner_html = tostring(s2)
-        item.Text = strip_tags(inner_html)
+        try:
+            s = fromstring(response.body)
+            cleaner = Cleaner()
+            cleaner.javascript = True  # This is True because we want to activate the javascript filter
+            cleaner.style = True
+            s2 = cleaner.clean_html(s)
+            inner_html = tostring(s2)
+            item.Text = strip_tags(inner_html)
+        except:
+            inner_html = BeautifulSoup.BeautifulSoup(response.body).text
+            item.Text = strip_tags(inner_html)
+
         parsed_uri = urlparse(item.URL)
         domain = '{uri.netloc}/'.format(uri=parsed_uri).replace("/", "").replace("www.", "")
         isActor = False
-        # find_act_sql = "Select idActors,ActorName,ActorWebsite from Actors where ActorWebsite like '%" + domain + "%'"
-        # self.cursor.execute(find_act_sql)
-        # results = self.cursor.fetchall()
-        # isActor = False
-        # for res in results:
-        #     item.RelatedTo = "Actor"
-        #     item.DatabaseID = res[0]
-        #     item.Name = res[1]
-        #     isActor = True
-        #     print "This is Actor with domain "+domain
-        #     print item.Name
+        find_act_sql = "Select idActors,ActorName,ActorWebsite from Actors where ActorWebsite like '%" + domain + "%'"
+        self.cursor.execute(find_act_sql)
+        results = self.cursor.fetchall()
+        isActor = False
+        for res in results:
+            item.RelatedTo = "Actor"
+            item.DatabaseID = res[0]
+            item.Name = res[1]
+            isActor = True
+            print "This is Actor with domain "+domain
+            print item.Name
         if isActor == False:
             find_pro_sql = "Select idProjects,ProjectName,ProjectWebpage from Projects where ProjectWebpage like '%" + domain + "%'"
             self.cursor.execute(find_pro_sql)
@@ -201,7 +207,7 @@ class GeneralWebsitespider(CrawlSpider):
         client = MongoClient()
         db = client.ESID
 
-        result = db.projects.insert_one(
+        result = db.projects_actors.insert_one(
             {
                 "relatedTo": item.RelatedTo,
                 "mysql_databaseID": str(item.DatabaseID),

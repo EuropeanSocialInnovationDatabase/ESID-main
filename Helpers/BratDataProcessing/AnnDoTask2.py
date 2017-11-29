@@ -15,6 +15,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.metrics import precision_recall_fscore_support
 from sklearn.model_selection import KFold
 import numpy as np
+import  os
 import MySQLdb
 class DataSet:
     Annotators = []
@@ -178,6 +179,16 @@ class DocumentListItem:
 
 if __name__ == '__main__':
     data_folder = "../AnnotationWorkshop2"
+    conflict_folder = "../Conflicts2"
+    conflict_folder2 = "../Conflicts21"
+    agreeing_docs_objectives = {}
+    agreeing_docs_outputs = {}
+    agreeing_docs_actors = {}
+    agreeing_docs_innovativeness = {}
+    if not os.path.exists(conflict_folder):
+        os.makedirs(conflict_folder)
+    if not os.path.exists(conflict_folder2):
+        os.makedirs(conflict_folder2)
     spam_mark = 3
     ds = DataSet()
     total_num_spam = 0
@@ -468,6 +479,11 @@ if __name__ == '__main__':
     match_actors = 0
     match_innovativeness = 0
     dataset = ds
+    for doc in ds.Annotators[0].documents:
+        agreeing_docs_objectives[doc.DocumentName] = 0
+        agreeing_docs_outputs[doc.DocumentName] = 0
+        agreeing_docs_actors[doc.DocumentName] = 0
+        agreeing_docs_innovativeness[doc.DocumentName] = 0
     while i<len(ds.Annotators)-1:
         while j<len(ds.Annotators):
             interAnn = InterAnnotation()
@@ -538,12 +554,40 @@ if __name__ == '__main__':
 
                         if doc1.isProjectInnovativenessSatisfied == doc2.isProjectInnovativenessSatisfied:
                             interAnn.AgreementProjects_Innovativeness = interAnn.AgreementProjects_Innovativeness + 1
+                            agreeing_docs_innovativeness[doc1.DocumentName] = agreeing_docs_innovativeness[doc1.DocumentName]+1
+                        else:
+                            fname = doc1.DocumentName
+                            fcontent = doc1.Text
+                            file = open(conflict_folder+"/"+fname, "w")
+                            file.write(fcontent)
+                            file.close()
                         if doc1.isProjectOutputSatisfied == doc2.isProjectOutputSatisfied:
                             interAnn.AgreementProjects_Outputs = interAnn.AgreementProjects_Outputs + 1
+                            agreeing_docs_outputs[doc1.DocumentName] = agreeing_docs_outputs[doc1.DocumentName] + 1
+                        else:
+                            fname = doc1.DocumentName
+                            fcontent = doc1.Text
+                            file = open(conflict_folder +"/"+ fname, "w")
+                            file.write(fcontent)
+                            file.close()
                         if doc1.isProjectObjectiveSatisfied == doc2.isProjectObjectiveSatisfied:
                             interAnn.AgreementProjects_Objectives = interAnn.AgreementProjects_Objectives + 1
+                            agreeing_docs_objectives[doc1.DocumentName] = agreeing_docs_objectives[doc1.DocumentName] + 1
+                        else:
+                            fname = doc1.DocumentName
+                            fcontent = doc1.Text
+                            file = open(conflict_folder +"/"+ fname, "w")
+                            file.write(fcontent)
+                            file.close()
                         if doc1.isProjectActorSatisfied == doc2.isProjectActorSatisfied:
                             interAnn.AgreementProjects_Actors = interAnn.AgreementProjects_Actors + 1
+                            agreeing_docs_actors[doc1.DocumentName] = agreeing_docs_actors[doc1.DocumentName] + 1
+                        else:
+                            fname = doc1.DocumentName
+                            fcontent = doc1.Text
+                            file = open(conflict_folder +"/"+ fname, "w")
+                            file.write(fcontent)
+                            file.close()
                         if (doc1.isProjectActorSatisfied == doc2.isProjectActorSatisfied and doc1.isProjectObjectiveSatisfied == doc2.isProjectObjectiveSatisfied
                             and doc1.isProjectOutputSatisfied == doc2.isProjectOutputSatisfied and doc1.isProjectInnovativenessSatisfied == doc2.isProjectInnovativenessSatisfied
                             and doc1.isSpam==doc2.isSpam):
@@ -626,6 +670,47 @@ if __name__ == '__main__':
             j = j+1
         i = i+1
         j = i+1
+
+    for doc in agreeing_docs_objectives.keys():
+        if agreeing_docs_objectives[doc]==2:
+            fname = doc
+            fcontent = ""
+            for doca in ds.Annotators[0].documents:
+                if doca.DocumentName == doc:
+                    fcontent = doca.Text
+            file = open(conflict_folder2 + "/" + fname, "w")
+            file.write(fcontent)
+            file.close()
+    for doc in agreeing_docs_outputs.keys():
+        if agreeing_docs_outputs[doc]==2:
+            fname = doc
+            fcontent = ""
+            for doca in ds.Annotators[0].documents:
+                if doca.DocumentName == doc:
+                    fcontent = doca.Text
+            file = open(conflict_folder2 + "/" + fname, "w")
+            file.write(fcontent)
+            file.close()
+    for doc in agreeing_docs_actors.keys():
+        if agreeing_docs_actors[doc]==2:
+            fname = doc
+            fcontent = ""
+            for doca in ds.Annotators[0].documents:
+                if doca.DocumentName == doc:
+                    fcontent = doca.Text
+            file = open(conflict_folder2 + "/" + fname, "w")
+            file.write(fcontent)
+            file.close()
+    for doc in agreeing_docs_innovativeness.keys():
+        if agreeing_docs_innovativeness[doc]==2:
+            fname = doc
+            fcontent = ""
+            for doca in ds.Annotators[0].documents:
+                if doca.DocumentName == doc:
+                    fcontent = doca.Text
+            file = open(conflict_folder2 + "/" + fname, "w")
+            file.write(fcontent)
+            file.close()
 
     accuracy_spam = float(num_overlap_spam)/float(kappa_files)
     print "Agreement for detecting social innovation/spam: "+str(accuracy_spam)
@@ -830,65 +915,5 @@ if __name__ == '__main__':
     for key in spam_per_datasource:
         print key + ": " + str(spam_per_datasource[key])
 
-
-
-    # print annotators
-    # doc_array = []
-    # for ann in ds.Annotators:
-    #     for doc in ann.documents:
-    #         doc_array.append([doc.Text,doc.isProjectObjectiveSatisfied,doc.isProjectActorSatisfied,doc.isProjectOutputSatisfied,doc.isProjectInnovativenessSatisfied])
-    #
-    # data_x = []
-    # data_y = []
-    # test_x = []
-    # test_y = []
-    # for x in doc_array:
-    #     data_x.append(x[0])
-    #     data_y.append(x[1])
-    # kf = KFold(n_splits=10)
-    #
-    # text_clf = Pipeline([('vect', CountVectorizer()),
-    #                      ('tfidf', TfidfTransformer()),
-    #                      ('clf', MultinomialNB()),
-    #                      ])
-    #
-    # kf.get_n_splits(data_x,data_y)
-    # averages = []
-    # precisions = []
-    # recalls = []
-    # f1_scores = []
-    # for train_index, test_index in kf.split(data_x,data_y):
-    #     X_train = []
-    #     X_test = []
-    #     y_train = []
-    #     y_test = []
-    #     for train_i in train_index:
-    #         X_train.append(data_x[train_i])
-    #         y_train.append(data_y[train_i])
-    #
-    #     for test_i in test_index:
-    #         X_test.append(data_x[test_i])
-    #         y_test.append(data_y[test_i])
-    #
-    #     text_clf = text_clf.fit(X_train, y_train)
-    #     predicted = text_clf.predict(X_test)
-    #     averages.append(np.mean(predicted == y_test))
-    #     vals =  precision_recall_fscore_support(y_test,predicted,average='weighted')
-    #     precisions.append(vals[0])
-    #     recalls.append(vals[1])
-    #     f1_scores.append(vals[2])
-    # total_avg = 0
-    # total_recall = 0
-    # total_precision = 0
-    # total_fscore = 0
-    # for i in range(0,10):
-    #     total_avg = total_avg + averages[i]
-    #     total_precision = total_precision + precisions[i]
-    #     total_recall = total_recall + recalls[i]
-    #     total_fscore = total_fscore + f1_scores[i]
-    # print "Accuracy: "+str(float(total_avg/10))
-    # print "Precision: "+ str(float(total_precision/10))
-    # print "Recall: " + str(float(total_recall / 10))
-    # print "F1-Score: " + str(float(total_fscore / 10))
 
 
