@@ -207,7 +207,7 @@ class GeneralWebsitespider(CrawlSpider):
         client = MongoClient()
         db = client.ESID
 
-        result = db.projects_actors.insert_one(
+        result = db.projects_actors2.insert_one(
             {
                 "relatedTo": item.RelatedTo,
                 "mysql_databaseID": str(item.DatabaseID),
