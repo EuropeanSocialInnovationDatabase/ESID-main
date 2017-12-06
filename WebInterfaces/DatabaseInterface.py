@@ -12,7 +12,12 @@ def main():
                            title=title,
                            user=user)
 
-
+class Organisation:
+    def __init__(self):
+        self.name = ""
+        self.address = ""
+        self.country = ""
+        self.website = ""
 
 @app.route('/add',methods = ['POST', 'GET'])
 def add():
@@ -30,6 +35,24 @@ def add():
             end_date = "NULL"
         else:
             end_date = "'" + result['end_date'] + "'"
+        keydict = result.to_dict(flat=False).keys()
+        num_orgs = 0
+        organisations = []
+        for key in keydict:
+            if "org_name_" in key:
+                str_num = key.split("_")[2]
+                if (num_orgs<int(str_num)):
+                    num_orgs = int(str_num)
+        if num_orgs>0:
+            for i in range(1,num_orgs+1):
+                org = Organisation()
+                org.name = result['org_name_'+str(i)]
+                org.address = result['org_address_' + str(i)]
+                org.country = result['org_country_' + str(i)]
+                org.website = result['org_website_' + str(i)]
+                organisations.append(org)
+
+
         project_website = result['project_website']
         project_website2 = result['project_website1']
         project_website3 = result['project_website2']
@@ -96,6 +119,20 @@ def add():
                 tags_sql = "INSERT INTO EDSI.AdditionalProjectData (FieldName,Value,Projects_idProjects,DateObtained,SourceURL) Values" \
                                   "('{0}','{1}',{2},NOW(),'{3}')".format("Tags", tags, id_project, "Manual")
                 cursor.execute(tags_sql)
+                db.commit()
+            for org in organisations:
+                actor_sql = "INSERT INTO EDSI.Actors (ActorName,ActorWebsite,DataSources_idDataSources) Values" \
+                           "('{0}','{1}','{2}')".format(org.name, org.website, id_source)
+                cursor.execute(actor_sql)
+                db.commit()
+                id_actor = cursor.lastrowid
+                actor_loc_sql = "INSERT INTO EDSI.ActorLocation (Type,Address,Country,Actors_idActors) Values" \
+                            "('{0}','{1}','{2}','{3}')".format("Headquarter", org.address,org.country, id_actor)
+                cursor.execute(actor_loc_sql)
+                db.commit()
+                actor_project_rel = "INSERT INTO EDSI.Actors_has_Projects (Projects_idProjects,Actors_idActors) Values" \
+                                "('{0}','{1}')".format(id_project ,id_actor)
+                cursor.execute(actor_project_rel)
                 db.commit()
             pass
         except Exception as err:
