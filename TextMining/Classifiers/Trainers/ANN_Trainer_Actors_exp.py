@@ -540,13 +540,11 @@ if __name__ == '__main__':
         model.add(MaxPooling1D(20))
         model.add(Dropout(0.2))
         model.add(Flatten())
-        model.add(Dense(200))
-        model.add(Dense(200))
         model.add(Dense(2))
         model.add(Activation('softmax'))
 
         model.compile(loss='binary_crossentropy',
-                      optimizer='nadam',
+                      optimizer='adam',
                       metrics=['accuracy',mcor,precision,recall, f1])
 
         history = model.fit(x_train, y_train,
@@ -625,12 +623,13 @@ if __name__ == '__main__':
     model.add(MaxPooling1D(20))
     model.add(Dropout(0.2))
     model.add(Flatten())
+    model.add(Dense(200,activation = 'relu'))
 
     model.add(Dense(2))
     model.add(Activation('softmax'))
 
     model.compile(loss='binary_crossentropy',
-                  optimizer='nadam',
+                  optimizer='adam',
                   metrics=['accuracy',mcor,precision,recall, f1])
 
     history = model.fit(x_train, y_train,
