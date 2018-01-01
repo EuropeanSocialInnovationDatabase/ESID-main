@@ -543,9 +543,6 @@ if __name__ == '__main__':
         model.add(Conv1D(64, 5, activation='relu'))
         model.add(MaxPooling1D(20))
         model.add(Dropout(0.2))
-        model.add(Conv1D(32, 5, activation='relu'))
-        model.add(MaxPooling1D(20))
-        model.add(Dropout(0.2))
         model.add(Flatten())
 
         model.add(Dense(2))
