@@ -544,9 +544,9 @@ if __name__ == '__main__':
         model.add(MaxPooling1D(20))
         model.add(Dropout(0.2))
         model.add(Flatten())
-        model.add(Dense(200),activation="relu")
+        model.add(Dense(200),activation='relu')
 
-        model.add(Dense(2),activation = "softmax")
+        model.add(Dense(2),activation = 'softmax')
 
         model.compile(loss='binary_crossentropy',
                       optimizer='adam',
