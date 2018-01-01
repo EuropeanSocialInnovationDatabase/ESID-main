@@ -3,7 +3,7 @@ from os import listdir
 from os.path import isfile, join,isdir
 import csv
 import re
-import sklearn.metrics
+#import sklearn.metrics
 import os
 class DataSet:
     Annotators = []
@@ -109,7 +109,7 @@ class Annotation:
     LowLevelClass = ""
 
 if __name__ == '__main__':
-    data_folder = "../FullDataset_Alina"
+    data_folder = "FullDataset_Alina"
     ds = DataSet()
     total_num_spam = 0
     total_num_files = 0
@@ -321,10 +321,10 @@ if __name__ == '__main__':
                         ann2_annotations_actors.extend(ann2_actor)
                         ann1_annotations_innovativeness.extend(ann1_innovativeness)
                         ann2_annotations_innovativeness.extend(ann2_innovativeness)
-                        kappa_outputs = sklearn.metrics.cohen_kappa_score(ann1_output,ann2_output)
-                        kappa_objectives = sklearn.metrics.cohen_kappa_score(ann1_objective, ann2_objective)
-                        kappa_actors = sklearn.metrics.cohen_kappa_score(ann1_actor, ann2_actor)
-                        kappa_innovativeness = sklearn.metrics.cohen_kappa_score(ann1_innovativeness, ann2_innovativeness)
+                        #kappa_outputs = sklearn.metrics.cohen_kappa_score(ann1_output,ann2_output)
+                        #kappa_objectives = sklearn.metrics.cohen_kappa_score(ann1_objective, ann2_objective)
+                        #kappa_actors = sklearn.metrics.cohen_kappa_score(ann1_actor, ann2_actor)
+                        #kappa_innovativeness = sklearn.metrics.cohen_kappa_score(ann1_innovativeness, ann2_innovativeness)
                         print "Statistics for document:"+doc1.DocumentName
                         print "Annotators "+annotator1.Name+" and "+annotator2.Name
                         print "Spam by "+annotator1.Name+":"+str(doc1.isSpam)
@@ -335,10 +335,10 @@ if __name__ == '__main__':
                             num_spam = num_spam + 1
                         if doc2.isSpam:
                             num_spam = num_spam + 1
-                        print "Cohen Kappa for class Objectives: "+str(kappa_objectives)
-                        print "Cohen Kappa for class Actors: " + str(kappa_actors)
-                        print "Cohen Kappa for class Outputs: " + str(kappa_outputs)
-                        print "Cohen Kappa for class Innovativeness: " + str(kappa_innovativeness)
+                        #print "Cohen Kappa for class Objectives: "+str(kappa_objectives)
+                        #print "Cohen Kappa for class Actors: " + str(kappa_actors)
+                        #print "Cohen Kappa for class Outputs: " + str(kappa_outputs)
+                        #print "Cohen Kappa for class Innovativeness: " + str(kappa_innovativeness)
                         print "------------------------------------------------------------------"
                         kappa_files = kappa_files +1
             j = j+1
@@ -389,8 +389,8 @@ if __name__ == '__main__':
         os.makedirs(directory2)
     for x in doc_array:
         data_x.append(x[0])
-        data_y.append(x[3])
-        if x[3]== True:
+        data_y.append(x[4])
+        if x[4]== True:
             file = open(directory1+"/"+x[5],"w")
             file.write(x[0])
             file.close()
