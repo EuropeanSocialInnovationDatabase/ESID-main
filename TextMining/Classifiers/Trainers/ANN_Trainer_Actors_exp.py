@@ -218,7 +218,7 @@ if __name__ == '__main__':
     np.random.seed(523)
     max_words = 20000
     batch_size = 32
-    epochs =50
+    epochs =150
     GLOVE_DIR = "../../../Helpers/BratDataProcessing/Glove_dir"
     MAX_SEQUENCE_LENGTH = 1100
     EMBEDDING_DIM = 50
@@ -545,6 +545,7 @@ if __name__ == '__main__':
         model.add(Dropout(0.2))
         model.add(Flatten())
         model.add(Dense(200,activation='relu'))
+        model.add(Dense(200, activation='relu'))
 
         model.add(Dense(2,activation = 'softmax'))
 
