@@ -586,6 +586,10 @@ if __name__ == '__main__':
         Total_TP = Total_TP + TP_sum
         Total_FP = Total_FP + FP_sum
         Total_FN = Total_FN + FN_sum
+        if TP_sum == 0:
+            TP_sum = TP_sum + 1
+            FP_sum = FP_sum + 1
+            FN_sum = FN_sum + 1
         precision_s = float(TP_sum)/float(TP_sum+FP_sum)
         recall_s = float(TP_sum) / float(TP_sum + FN_sum)
         F_score_s = 2.0*precision_s*recall_s/(precision_s+recall_s)
