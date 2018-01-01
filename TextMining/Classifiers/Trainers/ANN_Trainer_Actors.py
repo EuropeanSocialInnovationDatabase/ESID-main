@@ -494,7 +494,7 @@ if __name__ == '__main__':
     indices = np.arange(data.shape[0])
     data = data[indices]
     labels = labels[indices]
-    nb_validation_samples = int(0.1 * data.shape[0])
+    nb_validation_samples = int(0.33 * data.shape[0])
     # x_train = data
     # y_train = labels
     total_precision = 0.0
@@ -525,7 +525,7 @@ if __name__ == '__main__':
     Total_FP = 0
     Total_FN = 0
 
-    for i in range(1,10):
+    for i in range(1,3):
         x_train = np.concatenate((data[0:(i-1)*nb_validation_samples],data[(i-1)*nb_validation_samples+nb_validation_samples:]), axis=0)
         y_train = np.concatenate((labels[0:(i-1)*nb_validation_samples],labels[(i-1)*nb_validation_samples+nb_validation_samples:]), axis=0)
         x_val = data[(i-1)*nb_validation_samples:(i-1)*nb_validation_samples+nb_validation_samples]
@@ -619,7 +619,7 @@ if __name__ == '__main__':
     model = None
     model = Sequential()
     model.add(embedding_layer)
-    model.add(Conv1D(64,5,activation='relu'))
+    model.add(Conv1D(128,5,activation='relu'))
     model.add(MaxPooling1D(20))
     model.add(Dropout(0.2))
     model.add(Flatten())
@@ -648,14 +648,14 @@ if __name__ == '__main__':
 
 
     print "Overall results"
-    prec = total_precision/10
+    prec = total_precision/3
     print "True positives: "+str(Total_TP)
     print "False positives: "+str(Total_FP)
     print "False negatives: "+str(Total_FN)
     print "Precision:"+str(prec)
-    rec = total_recall/10
+    rec = total_recall/3
     print "Recall:"+str(rec)
-    f1s = total_fscore/10
+    f1s = total_fscore/3
     print "F1-score:"+str(f1s)
 
 
