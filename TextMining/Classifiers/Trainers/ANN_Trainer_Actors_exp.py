@@ -536,21 +536,15 @@ if __name__ == '__main__':
         model = None
         model = Sequential()
         model.add(embedding_layer)
-        model.add(Conv1D(EMBEDDING_DIM, 5, activation='relu'))
+        model.add(Conv1D(128, 5, activation='relu'))
         model.add(MaxPooling1D(20))
         model.add(Dropout(0.2))
-        model.add(Conv1D(EMBEDDING_DIM/2, 5, activation='relu'))
-        model.add(MaxPooling1D(20))
-        model.add(Dropout(0.2))
-        model.add(Conv1D(EMBEDDING_DIM/4, 5, activation='relu'))
-        model.add(MaxPooling1D(20))
-        model.add(Dropout(0.2))
-        model.add(Conv1D(EMBEDDING_DIM/8, 5, activation='relu'))
+        model.add(Conv1D(64, 5, activation='relu'))
         model.add(MaxPooling1D(20))
         model.add(Dropout(0.2))
         model.add(Flatten())
+
         model.add(Dense(2))
-        model.add(Activation('softmax'))
 
         model.compile(loss='binary_crossentropy',
                       optimizer='adam',
