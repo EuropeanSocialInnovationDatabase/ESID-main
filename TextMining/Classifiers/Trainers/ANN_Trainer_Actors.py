@@ -571,11 +571,11 @@ if __name__ == '__main__':
         for pred in predictions:
             print "Prediction: "+str(pred)
             print "Y valuation: "+str(y_val[i])
-            if pred[0] < 0.5 and y_val[i][0] == 1:
+            if pred[0] > 0.5 and y_val[i][0] == 1:
                 TP_sum = TP_sum + 1
-            if pred[0] < 0.5 and y_val[i][0]==0:
+            if pred[0] > 0.5 and y_val[i][0]==0:
                 FP_sum = FP_sum + 1
-            if pred[0] > 0.5 and y_val[i][0]==1:
+            if pred[0] < 0.5 and y_val[i][0]==1:
                 FN_sum = FN_sum + 1
             i = i+1
         number_samples = len(predictions)
