@@ -533,7 +533,7 @@ if __name__ == '__main__':
     #ds.update_test_indices(test_size=0.2)
     ds.save('dataset')
     tokenizer1 = WordTokenizer()
-    tokenizer1.build_vocab(data)
+    tokenizer1.build_vocab(text_array)
     # RNN models can use `max_tokens=None` to indicate variable length words per mini-batch.
     factory = TokenModelFactory(1, tokenizer1.token_index, max_tokens=100, embedding_type='glove.6B.100d')
     word_encoder_model = YoonKimCNN()
