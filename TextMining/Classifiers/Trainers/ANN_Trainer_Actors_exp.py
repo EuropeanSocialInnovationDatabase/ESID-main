@@ -537,7 +537,7 @@ if __name__ == '__main__':
         model = Sequential()
         model.add(embedding_layer)
 
-        model.add(Conv1D(128, 5, activation='relu'))
+        model.add(Conv1D(256, 5, activation='relu'))
         model.add(MaxPooling1D(30))
         # model.add(Dropout(0.2))
         # model.add(Conv1D(64, 5, activation='relu'))
