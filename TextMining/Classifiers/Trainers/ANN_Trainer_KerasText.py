@@ -529,7 +529,7 @@ if __name__ == '__main__':
     Total_FN = 0
 
     ds = Dataset(data, labels, tokenizer=tokenizer)
-    ds.update_test_indices(test_size=0.1)
+    #ds.update_test_indices(test_size=0.2)
     ds.save('dataset')
 
     # RNN models can use `max_tokens=None` to indicate variable length words per mini-batch.
