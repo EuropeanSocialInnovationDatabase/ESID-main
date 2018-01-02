@@ -546,8 +546,6 @@ if __name__ == '__main__':
     model.summary()
     print("Traning Model...")
     print str(ds.X.shape)
-    Samples = ds.train_val_split(0.2)
 
-
-    model.fit(X_train, y_train, batch_size=batch_size, epochs=epochs, verbose=1,
-              validation_data=(X_test, y_test))
+    model.fit(data[ds.train_indices], labels[ds.train_indices], batch_size=batch_size, epochs=epochs, verbose=1,
+              validation_data=(data[ds.test_indices], labels[ds.test_indices]))
