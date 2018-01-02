@@ -31,6 +31,7 @@ from keras import backend as K
 from keras_text.data import Dataset
 from keras_text.models import TokenModelFactory
 from keras_text.models import YoonKimCNN, AttentionRNN, StackedRNN
+from keras_text.processing import WordTokenizer
 
 
 
@@ -531,9 +532,10 @@ if __name__ == '__main__':
     ds = Dataset(data, labels, tokenizer=tokenizer)
     #ds.update_test_indices(test_size=0.2)
     ds.save('dataset')
-
+    tokenizer1 = WordTokenizer()
+    tokenizer1.build_vocab(data)
     # RNN models can use `max_tokens=None` to indicate variable length words per mini-batch.
-    factory = TokenModelFactory(1, tokenizer.token_index, max_tokens=100, embedding_type='glove.6B.100d')
+    factory = TokenModelFactory(1, tokenizer1.token_index, max_tokens=100, embedding_type='glove.6B.100d')
     word_encoder_model = YoonKimCNN()
     model = factory.build_model(token_encoder_model=word_encoder_model)
     model.compile(optimizer='adam', loss='categorical_crossentropy')
