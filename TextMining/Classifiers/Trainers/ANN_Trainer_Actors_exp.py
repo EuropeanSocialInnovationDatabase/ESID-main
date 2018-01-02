@@ -221,7 +221,7 @@ if __name__ == '__main__':
     epochs =100
     GLOVE_DIR = "../../../Helpers/BratDataProcessing/Glove_dir"
     MAX_SEQUENCE_LENGTH = 1100
-    EMBEDDING_DIM = 100
+    EMBEDDING_DIM = 50
     data_folder = "../../../Helpers/FullDataset_Alina"
     ds = DataSet()
     total_num_spam = 0
@@ -501,7 +501,7 @@ if __name__ == '__main__':
     total_recall = 0.0
     total_fscore = 0.0
     embeddings_index = {}
-    f = open(os.path.join(GLOVE_DIR, 'glove.6B.100d.txt'))
+    f = open(os.path.join(GLOVE_DIR, 'glove.6B.50d.txt'))
     for line in f:
         values = line.split()
         word = values[0]
@@ -538,7 +538,7 @@ if __name__ == '__main__':
         model.add(embedding_layer)
 
         model.add(Conv1D(256, 5, activation='relu'))
-        model.add(MaxPooling1D(10))
+        model.add(MaxPooling1D(20))
         # model.add(Dropout(0.2))
         # model.add(Conv1D(64, 5, activation='relu'))
         # model.add(MaxPooling1D(30))
