@@ -220,7 +220,7 @@ if __name__ == '__main__':
     batch_size = 32
     epochs =10
     GLOVE_DIR = "../../../Helpers/BratDataProcessing/Glove_dir"
-    MAX_SEQUENCE_LENGTH = 20000
+    MAX_SEQUENCE_LENGTH = 50000
     EMBEDDING_DIM = 100
     data_folder = "../../../Helpers/FullDataset_Alina"
     ds = DataSet()
