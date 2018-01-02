@@ -525,7 +525,7 @@ if __name__ == '__main__':
     Total_FP = 0
     Total_FN = 0
 
-    for i in range(1,1):
+    for i in range(1,2):
         x_train = np.concatenate((data[0:(i-1)*nb_validation_samples],data[(i-1)*nb_validation_samples+nb_validation_samples:]), axis=0)
         y_train = np.concatenate((labels[0:(i-1)*nb_validation_samples],labels[(i-1)*nb_validation_samples+nb_validation_samples:]), axis=0)
         x_val = data[(i-1)*nb_validation_samples:(i-1)*nb_validation_samples+nb_validation_samples]
