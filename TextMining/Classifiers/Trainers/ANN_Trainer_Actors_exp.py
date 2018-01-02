@@ -525,99 +525,98 @@ if __name__ == '__main__':
     Total_FP = 0
     Total_FN = 0
 
-    for i in range(1,2):
-        x_train = np.concatenate((data[0:(i-1)*nb_validation_samples],data[(i-1)*nb_validation_samples+nb_validation_samples:]), axis=0)
-        y_train = np.concatenate((labels[0:(i-1)*nb_validation_samples],labels[(i-1)*nb_validation_samples+nb_validation_samples:]), axis=0)
-        x_val = data[(i-1)*nb_validation_samples:(i-1)*nb_validation_samples+nb_validation_samples]
-        y_val = labels[(i-1)*nb_validation_samples:(i-1)*nb_validation_samples+nb_validation_samples]
-        print len(x_train)
-        early_stopping = EarlyStopping(monitor='binary_crossentropy', patience=5)
+    x_train = data[0:9*nb_validation_samples]
+    y_train = labels[0:9*nb_validation_samples]
+    x_val = data[9*nb_validation_samples:]
+    y_val = labels[9*nb_validation_samples:]
+    print len(x_train)
+    early_stopping = EarlyStopping(monitor='binary_crossentropy', patience=5)
 
-        model = None
-        model = Sequential()
-        model.add(embedding_layer)
+    model = None
+    model = Sequential()
+    model.add(embedding_layer)
 
-        model.add(Conv1D(256, 5, activation='relu'))
-        model.add(MaxPooling1D(20))
-        # model.add(Dropout(0.2))
-        # model.add(Conv1D(64, 5, activation='relu'))
-        # model.add(MaxPooling1D(30))
-        # model.add(Dropout(0.2))
-        model.add(Flatten())
-        # model.add(Dense(200,activation='relu'))
-        # model.add(Dense(200, activation='relu'))
+    model.add(Conv1D(256, 5, activation='relu'))
+    model.add(MaxPooling1D(20))
+    # model.add(Dropout(0.2))
+    # model.add(Conv1D(64, 5, activation='relu'))
+    # model.add(MaxPooling1D(30))
+    # model.add(Dropout(0.2))
+    model.add(Flatten())
+    # model.add(Dense(200,activation='relu'))
+    # model.add(Dense(200, activation='relu'))
 
-        model.add(Dense(2,activation = 'softmax'))
+    model.add(Dense(2,activation = 'softmax'))
 
-        model.compile(loss='binary_crossentropy',
-                      optimizer='adam',
-                      metrics=['accuracy',precision,recall, f1])
+    model.compile(loss='binary_crossentropy',
+                  optimizer='adam',
+                  metrics=['accuracy',precision,recall, f1])
 
-        history = model.fit(x_train, y_train,
-                            batch_size=batch_size,
-                            epochs=epochs,
-                            verbose=1,
-                            validation_split=0.1,
-                            callbacks=[early_stopping]
-                            )
-        score = model.evaluate(x_val, y_val,
-                               batch_size=batch_size, verbose=1)
+    history = model.fit(x_train, y_train,
+                        batch_size=batch_size,
+                        epochs=epochs,
+                        verbose=1,
+                        validation_split=0.1,
+                        callbacks=[early_stopping]
+                        )
+    score = model.evaluate(x_val, y_val,
+                           batch_size=batch_size, verbose=1)
 
-        score1 = score[0]
-        acc1 = score[1]
-        print('Test score:', score[0])
-        print('Test accuracy:', score[1])
-        predictions = model.predict(x_val,batch_size,1)
-        TP = y_val*predictions
+    score1 = score[0]
+    acc1 = score[1]
+    print('Test score:', score[0])
+    print('Test accuracy:', score[1])
+    predictions = model.predict(x_val,batch_size,1)
+    TP = y_val*predictions
 
-        TP_sum = 0
-        FP_sum = 0
-        FN_sum = 0
-        i = 0
-        for pred in predictions:
-            print "Prediction: "+str(pred)
-            print "Y valuation: "+str(y_val[i])
-            if pred[1] > 0.5 and y_val[i][1] == 1:
-                TP_sum = TP_sum + 1
-            if pred[1] > 0.5 and y_val[i][1]==0:
-                FP_sum = FP_sum + 1
-            if pred[1] < 0.5 and y_val[i][1]==1:
-                FN_sum = FN_sum + 1
-            i = i+1
-        number_samples = len(predictions)
-        print "Number of samples:"+str(number_samples)
-        print "True positives:"+str(TP_sum)
-        print "False positives:" + str(FP_sum)
-        print "False negatives:" + str(FN_sum)
-        Total_TP = Total_TP + TP_sum
-        Total_FP = Total_FP + FP_sum
-        Total_FN = Total_FN + FN_sum
-        if TP_sum == 0:
+    TP_sum = 0
+    FP_sum = 0
+    FN_sum = 0
+    i = 0
+    for pred in predictions:
+        print "Prediction: "+str(pred)
+        print "Y valuation: "+str(y_val[i])
+        if pred[1] > 0.5 and y_val[i][1] == 1:
             TP_sum = TP_sum + 1
+        if pred[1] > 0.5 and y_val[i][1]==0:
             FP_sum = FP_sum + 1
+        if pred[1] < 0.5 and y_val[i][1]==1:
             FN_sum = FN_sum + 1
-        precision_s = float(TP_sum)/float(TP_sum+FP_sum)
-        recall_s = float(TP_sum) / float(TP_sum + FN_sum)
-        F_score_s = 2.0*precision_s*recall_s/(precision_s+recall_s)
-        print "Precision: "+str(precision_s)
-        print "Recall: "+str(recall_s)
-        print "F1-score: "+str(F_score_s)
-        total_precision = total_precision + precision_s
-        total_recall = total_recall + recall_s
-        total_fscore = total_fscore + F_score_s
+        i = i+1
+    number_samples = len(predictions)
+    print "Number of samples:"+str(number_samples)
+    print "True positives:"+str(TP_sum)
+    print "False positives:" + str(FP_sum)
+    print "False negatives:" + str(FN_sum)
+    Total_TP = Total_TP + TP_sum
+    Total_FP = Total_FP + FP_sum
+    Total_FN = Total_FN + FN_sum
+    if TP_sum == 0:
+        TP_sum = TP_sum + 1
+        FP_sum = FP_sum + 1
+        FN_sum = FN_sum + 1
+    precision_s = float(TP_sum)/float(TP_sum+FP_sum)
+    recall_s = float(TP_sum) / float(TP_sum + FN_sum)
+    F_score_s = 2.0*precision_s*recall_s/(precision_s+recall_s)
+    print "Precision: "+str(precision_s)
+    print "Recall: "+str(recall_s)
+    print "F1-score: "+str(F_score_s)
+    total_precision = total_precision + precision_s
+    total_recall = total_recall + recall_s
+    total_fscore = total_fscore + F_score_s
 
-        X = [""""""]
-        Y = [1, 0]
+    X = [""""""]
+    Y = [1, 0]
 
-        tokenizer = Tokenizer(num_words=max_words)
-        tokenizer.fit_on_texts(X)
-        sequences = tokenizer.texts_to_sequences(X)
+    tokenizer = Tokenizer(num_words=max_words)
+    tokenizer.fit_on_texts(X)
+    sequences = tokenizer.texts_to_sequences(X)
 
-        word_index = tokenizer.word_index
-        print('Found %s unique tokens.' % len(word_index))
+    word_index = tokenizer.word_index
+    print('Found %s unique tokens.' % len(word_index))
 
-        predictions = model.predict(x_val, batch_size, 1)
-        print predictions
+    predictions = model.predict(x_val, batch_size, 1)
+    print predictions
 
     # x_train = data
     # y_train = labels
