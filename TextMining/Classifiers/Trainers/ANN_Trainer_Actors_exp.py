@@ -619,42 +619,42 @@ if __name__ == '__main__':
         predictions = model.predict(x_val, batch_size, 1)
         print predictions
 
-    x_train = data
-    y_train = labels
+    # x_train = data
+    # y_train = labels
+    #
+    # model = None
+    # model = Sequential()
+    # model.add(embedding_layer)
+    # model.add(Conv1D(128,5,activation='relu'))
+    # model.add(MaxPooling1D(20))
+    # # model.add(Dropout(0.2))
+    # # model.add(Conv1D(64, 5, activation='relu'))
+    # # model.add(MaxPooling1D(20))
+    # # model.add(Dropout(0.2))
+    # model.add(Flatten())
+    # #model.add(Dense(200,activation = 'relu'))
+    #
+    # model.add(Dense(2))
+    # model.add(Activation('softmax'))
+    #
+    # model.compile(loss='binary_crossentropy',
+    #               optimizer='adam',
+    #               metrics=['accuracy',mcor,precision,recall, f1])
+    #
+    # history = model.fit(x_train, y_train,
+    #                     batch_size=batch_size,
+    #                     epochs=epochs,
+    #                     verbose=1,
+    #                     validation_split=0.1,
+    #                     #callbacks=[early_stopping]
+    #                     )
 
-    model = None
-    model = Sequential()
-    model.add(embedding_layer)
-    model.add(Conv1D(128,5,activation='relu'))
-    model.add(MaxPooling1D(20))
-    model.add(Dropout(0.2))
-    model.add(Conv1D(64, 5, activation='relu'))
-    model.add(MaxPooling1D(20))
-    model.add(Dropout(0.2))
-    model.add(Flatten())
-    model.add(Dense(200,activation = 'relu'))
-
-    model.add(Dense(2))
-    model.add(Activation('softmax'))
-
-    model.compile(loss='binary_crossentropy',
-                  optimizer='adam',
-                  metrics=['accuracy',mcor,precision,recall, f1])
-
-    history = model.fit(x_train, y_train,
-                        batch_size=batch_size,
-                        epochs=epochs,
-                        verbose=1,
-                        validation_split=0.1,
-                        #callbacks=[early_stopping]
-                        )
-
-    model_json = model.to_json()
-    with open("../Models/model_actors.json", "w") as json_file:
-        json_file.write(model_json)
-    # serialize weights to HDF5
-    model.save_weights("../Models/model_actors.h5")
-    print("Saved model to disk")
+    # model_json = model.to_json()
+    # with open("../Models/model_actors.json", "w") as json_file:
+    #     json_file.write(model_json)
+    # # serialize weights to HDF5
+    # model.save_weights("../Models/model_actors.h5")
+    # print("Saved model to disk")
 
 
     print "Overall results"
