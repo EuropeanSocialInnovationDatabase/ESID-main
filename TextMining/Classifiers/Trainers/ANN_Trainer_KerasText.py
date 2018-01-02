@@ -1,4 +1,3 @@
-import nltk
 from os import listdir
 from os.path import isfile, join,isdir
 import csv
@@ -28,6 +27,10 @@ import os
 import numpy as np
 import time
 from keras import backend as K
+
+from keras_text.data import Dataset
+from keras_text.models import TokenModelFactory
+from keras_text.models import YoonKimCNN, AttentionRNN, StackedRNN
 
 
 
@@ -218,7 +221,7 @@ if __name__ == '__main__':
     np.random.seed(523)
     max_words = 20000
     batch_size = 32
-    epochs =20
+    epochs =100
     GLOVE_DIR = "../../../Helpers/BratDataProcessing/Glove_dir"
     MAX_SEQUENCE_LENGTH = 1100
     EMBEDDING_DIM = 50
@@ -525,140 +528,17 @@ if __name__ == '__main__':
     Total_FP = 0
     Total_FN = 0
 
-    for i in range(1,3):
-        x_train = np.concatenate((data[0:(i-1)*nb_validation_samples],data[(i-1)*nb_validation_samples+nb_validation_samples:]), axis=0)
-        y_train = np.concatenate((labels[0:(i-1)*nb_validation_samples],labels[(i-1)*nb_validation_samples+nb_validation_samples:]), axis=0)
-        x_val = data[(i-1)*nb_validation_samples:(i-1)*nb_validation_samples+nb_validation_samples]
-        y_val = labels[(i-1)*nb_validation_samples:(i-1)*nb_validation_samples+nb_validation_samples]
-        print len(x_train)
-        early_stopping = EarlyStopping(monitor='binary_crossentropy', patience=5)
+    ds = Dataset(data, labels, tokenizer=tokenizer)
+    ds.update_test_indices(test_size=0.1)
+    ds.save('dataset')
 
-        model = None
-        model = Sequential()
-        model.add(embedding_layer)
-        model.add(Conv1D(512,5,activation='relu'))
-        model.add(MaxPooling1D(20))
-        model.add(Dropout(0.2))
-        model.add(Flatten())
-        model.add(Dense(2))
-        model.add(Activation('softmax'))
-
-        model.compile(loss='binary_crossentropy',
-                      optimizer='nadam',
-                      metrics=['accuracy',mcor,precision,recall, f1])
-
-        history = model.fit(x_train, y_train,
-                            batch_size=batch_size,
-                            epochs=epochs,
-                            verbose=1,
-                            validation_split=0.1,
-                            callbacks=[early_stopping]
-                            )
-        score = model.evaluate(x_val, y_val,
-                               batch_size=batch_size, verbose=1)
-
-        score1 = score[0]
-        acc1 = score[1]
-        print('Test score:', score[0])
-        print('Test accuracy:', score[1])
-        predictions = model.predict(x_val,batch_size,1)
-        TP = y_val*predictions
-
-        TP_sum = 0
-        FP_sum = 0
-        FN_sum = 0
-        i = 0
-        for pred in predictions:
-            print "Prediction: "+str(pred)
-            print "Y valuation: "+str(y_val[i])
-            if pred[1] > 0.5 and y_val[i][1] == 1:
-                TP_sum = TP_sum + 1
-            if pred[1] > 0.5 and y_val[i][1]==0:
-                FP_sum = FP_sum + 1
-            if pred[1] < 0.5 and y_val[i][1]==1:
-                FN_sum = FN_sum + 1
-            i = i+1
-        number_samples = len(predictions)
-        print "Number of samples:"+str(number_samples)
-        print "True positives:"+str(TP_sum)
-        print "False positives:" + str(FP_sum)
-        print "False negatives:" + str(FN_sum)
-        Total_TP = Total_TP + TP_sum
-        Total_FP = Total_FP + FP_sum
-        Total_FN = Total_FN + FN_sum
-        if TP_sum == 0:
-            TP_sum = TP_sum + 1
-            FP_sum = FP_sum + 1
-            FN_sum = FN_sum + 1
-        precision_s = float(TP_sum)/float(TP_sum+FP_sum)
-        recall_s = float(TP_sum) / float(TP_sum + FN_sum)
-        F_score_s = 2.0*precision_s*recall_s/(precision_s+recall_s)
-        print "Precision: "+str(precision_s)
-        print "Recall: "+str(recall_s)
-        print "F1-score: "+str(F_score_s)
-        total_precision = total_precision + precision_s
-        total_recall = total_recall + recall_s
-        total_fscore = total_fscore + F_score_s
-
-        X = [""""""]
-        Y = [1, 0]
-
-        tokenizer = Tokenizer(num_words=max_words)
-        tokenizer.fit_on_texts(X)
-        sequences = tokenizer.texts_to_sequences(X)
-
-        word_index = tokenizer.word_index
-        print('Found %s unique tokens.' % len(word_index))
-
-        predictions = model.predict(x_val, batch_size, 1)
-        print predictions
-
-    x_train = data
-    y_train = labels
-
-    model = None
-    model = Sequential()
-    model.add(embedding_layer)
-    model.add(Conv1D(128,5,activation='relu'))
-    model.add(MaxPooling1D(20))
-    model.add(Dropout(0.2))
-    model.add(Flatten())
-
-    model.add(Dense(2))
-    model.add(Activation('softmax'))
-
-    model.compile(loss='binary_crossentropy',
-                  optimizer='nadam',
-                  metrics=['accuracy',mcor,precision,recall, f1])
-
-    history = model.fit(x_train, y_train,
-                        batch_size=batch_size,
-                        epochs=epochs,
-                        verbose=1,
-                        validation_split=0.1,
-                        #callbacks=[early_stopping]
-                        )
-
-    model_json = model.to_json()
-    with open("../Models/model_actors.json", "w") as json_file:
-        json_file.write(model_json)
-    # serialize weights to HDF5
-    model.save_weights("../Models/model_actors.h5")
-    print("Saved model to disk")
-
-
-    print "Overall results"
-    prec = total_precision/3
-    print "True positives: "+str(Total_TP)
-    print "False positives: "+str(Total_FP)
-    print "False negatives: "+str(Total_FN)
-    print "Precision:"+str(prec)
-    rec = total_recall/3
-    print "Recall:"+str(rec)
-    f1s = total_fscore/3
-    print "F1-score:"+str(f1s)
-
-
-
-
-
+    # RNN models can use `max_tokens=None` to indicate variable length words per mini-batch.
+    factory = TokenModelFactory(1, tokenizer.token_index, max_tokens=100, embedding_type='glove.6B.100d')
+    word_encoder_model = YoonKimCNN()
+    model = factory.build_model(token_encoder_model=word_encoder_model)
+    model.compile(optimizer='adam', loss='categorical_crossentropy')
+    model.summary()
+    print("Traning Model...")
+    X_train, y_train,X_test, y_test = ds.train_val_split(0.2)
+    model.fit(X_train, y_train, batch_size=batch_size, epochs=epochs, verbose=1,
+              validation_data=(X_test, y_test))
