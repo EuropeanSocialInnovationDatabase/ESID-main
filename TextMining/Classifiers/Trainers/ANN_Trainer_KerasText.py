@@ -480,7 +480,7 @@ if __name__ == '__main__':
             actors.append(doc.isProjectActorSatisfied)
             outputs.append(doc.isProjectOutputSatisfied)
             innovativeness.append(doc.isProjectInnovativenessSatisfied)
-            text_array.append(doc.Text)
+            text_array.append(unicode(doc.Text))
     tokenizer = Tokenizer(num_words=max_words)
     tokenizer.fit_on_texts(text_array)
     sequences = tokenizer.texts_to_sequences(text_array)
