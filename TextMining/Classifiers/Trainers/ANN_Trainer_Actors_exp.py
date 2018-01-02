@@ -551,7 +551,7 @@ if __name__ == '__main__':
 
         model.compile(loss='binary_crossentropy',
                       optimizer='adam',
-                      metrics=['accuracy'])#,mcor,precision,recall, f1])
+                      metrics=[precision])#'accuracy'])#,mcor,precision,recall, f1])
 
         history = model.fit(x_train, y_train,
                             batch_size=batch_size,
