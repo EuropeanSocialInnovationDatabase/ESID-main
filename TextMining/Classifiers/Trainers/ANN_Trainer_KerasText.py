@@ -480,7 +480,7 @@ if __name__ == '__main__':
             actors.append(doc.isProjectActorSatisfied)
             outputs.append(doc.isProjectOutputSatisfied)
             innovativeness.append(doc.isProjectInnovativenessSatisfied)
-            text_array.append(unicode(doc.Text))
+            text_array.append(doc.Text)
     tokenizer = Tokenizer(num_words=max_words)
     tokenizer.fit_on_texts(text_array)
     sequences = tokenizer.texts_to_sequences(text_array)
@@ -533,7 +533,11 @@ if __name__ == '__main__':
     #ds.update_test_indices(test_size=0.2)
     ds.save('dataset')
     tokenizer1 = WordTokenizer()
-    tokenizer1.build_vocab(text_array)
+    t_array = []
+    for text in text_array:
+        t = unicode(text,errors='ignore')
+        t_array.append(t)
+    tokenizer1.build_vocab(t_array)
     # RNN models can use `max_tokens=None` to indicate variable length words per mini-batch.
     factory = TokenModelFactory(1, tokenizer1.token_index, max_tokens=100, embedding_type='glove.6B.100d')
     word_encoder_model = YoonKimCNN()
