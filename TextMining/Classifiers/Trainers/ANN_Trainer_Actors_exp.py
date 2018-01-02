@@ -218,10 +218,10 @@ if __name__ == '__main__':
     np.random.seed(523)
     max_words = 20000
     batch_size = 32
-    epochs =150
+    epochs =100
     GLOVE_DIR = "../../../Helpers/BratDataProcessing/Glove_dir"
     MAX_SEQUENCE_LENGTH = 1100
-    EMBEDDING_DIM = 50
+    EMBEDDING_DIM = 100
     data_folder = "../../../Helpers/FullDataset_Alina"
     ds = DataSet()
     total_num_spam = 0
@@ -501,7 +501,7 @@ if __name__ == '__main__':
     total_recall = 0.0
     total_fscore = 0.0
     embeddings_index = {}
-    f = open(os.path.join(GLOVE_DIR, 'glove.6B.50d.txt'))
+    f = open(os.path.join(GLOVE_DIR, 'glove.6B.100d.txt'))
     for line in f:
         values = line.split()
         word = values[0]
