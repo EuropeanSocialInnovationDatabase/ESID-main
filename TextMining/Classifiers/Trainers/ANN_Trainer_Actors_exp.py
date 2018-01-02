@@ -218,9 +218,9 @@ if __name__ == '__main__':
     np.random.seed(523)
     max_words = 20000
     batch_size = 32
-    epochs =20
+    epochs =10
     GLOVE_DIR = "../../../Helpers/BratDataProcessing/Glove_dir"
-    MAX_SEQUENCE_LENGTH = 20000
+    MAX_SEQUENCE_LENGTH = 10000
     EMBEDDING_DIM = 100
     data_folder = "../../../Helpers/FullDataset_Alina"
     ds = DataSet()
