@@ -545,6 +545,9 @@ if __name__ == '__main__':
     model.compile(optimizer='adam', loss='categorical_crossentropy')
     model.summary()
     print("Traning Model...")
+    print str(ds.X.shape)
     X_train, y_train,X_test, y_test = ds.train_val_split(0.2)
+
+
     model.fit(X_train, y_train, batch_size=batch_size, epochs=epochs, verbose=1,
               validation_data=(X_test, y_test))
