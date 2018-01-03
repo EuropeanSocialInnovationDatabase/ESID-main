@@ -469,7 +469,7 @@ if __name__ == '__main__':
     actors = []
     outputs = []
     innovativeness = []
-    for i in range(0,10):
+    for i in range(0,2):
         for ann in ds.Annotators:
             for doc in ann.documents:
                 doc_array.append([doc.Text,doc.isProjectObjectiveSatisfied,doc.isProjectActorSatisfied,doc.isProjectOutputSatisfied,doc.isProjectInnovativenessSatisfied])
