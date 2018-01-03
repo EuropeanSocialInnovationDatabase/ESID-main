@@ -221,7 +221,7 @@ if __name__ == '__main__':
     epochs =10
     GLOVE_DIR = "../../../Helpers/BratDataProcessing/Glove_dir"
     MAX_SEQUENCE_LENGTH = 20000
-    EMBEDDING_DIM = 200
+    EMBEDDING_DIM = 300
     data_folder = "../../../Helpers/FullDataset_Alina"
     ds = DataSet()
     total_num_spam = 0
