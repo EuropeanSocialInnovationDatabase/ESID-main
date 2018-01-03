@@ -220,8 +220,8 @@ if __name__ == '__main__':
     batch_size = 32
     epochs =10
     GLOVE_DIR = "../../../Helpers/BratDataProcessing/Glove_dir"
-    MAX_SEQUENCE_LENGTH = 50000
-    EMBEDDING_DIM = 100
+    MAX_SEQUENCE_LENGTH = 20000
+    EMBEDDING_DIM = 200
     data_folder = "../../../Helpers/FullDataset_Alina"
     ds = DataSet()
     total_num_spam = 0
@@ -506,7 +506,7 @@ if __name__ == '__main__':
     total_recall = 0.0
     total_fscore = 0.0
     embeddings_index = {}
-    f = open(os.path.join(GLOVE_DIR, 'glove.6B.100d.txt'))
+    f = open(os.path.join(GLOVE_DIR, 'glove.6B.200d.txt'))
     for line in f:
         values = line.split()
         word = values[0]
