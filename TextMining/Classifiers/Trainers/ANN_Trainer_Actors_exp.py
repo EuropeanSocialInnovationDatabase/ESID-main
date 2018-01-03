@@ -469,20 +469,22 @@ if __name__ == '__main__':
     actors = []
     outputs = []
     innovativeness = []
-    for i in range(0,2):
-        for ann in ds.Annotators:
-            for doc in ann.documents:
-                doc_array.append([doc.Text,doc.isProjectObjectiveSatisfied,doc.isProjectActorSatisfied,doc.isProjectOutputSatisfied,doc.isProjectInnovativenessSatisfied])
-                objectives.append(doc.isProjectObjectiveSatisfied)
-                actors.append(doc.isProjectActorSatisfied)
-                outputs.append(doc.isProjectOutputSatisfied)
-                innovativeness.append(doc.isProjectInnovativenessSatisfied)
+    for ann in ds.Annotators:
+        for doc in ann.documents:
+            doc_array.append([doc.Text,doc.isProjectObjectiveSatisfied,doc.isProjectActorSatisfied,doc.isProjectOutputSatisfied,doc.isProjectInnovativenessSatisfied])
+            objectives.append(doc.isProjectObjectiveSatisfied)
+            actors.append(doc.isProjectActorSatisfied)
+            outputs.append(doc.isProjectOutputSatisfied)
+            innovativeness.append(doc.isProjectInnovativenessSatisfied)
+            text_array.append(doc.Text)
+            if doc.isProjectActorSatisfied==True:
                 text_array.append(doc.Text)
-                if doc.isProjectActorSatisfied==True:
-                    text_array.append(doc.Text)
-                    actors.append(True)
-                    text_array.append(doc.Text)
-                    actors.append(True)
+                actors.append(True)
+                text_array.append(doc.Text)
+                actors.append(True)
+            else:
+                text_array.append(doc.Text)
+                actors.append(False)
     tokenizer = Tokenizer(num_words=max_words)
     tokenizer.fit_on_texts(text_array)
     sequences = tokenizer.texts_to_sequences(text_array)
