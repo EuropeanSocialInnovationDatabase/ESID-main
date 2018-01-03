@@ -506,7 +506,7 @@ if __name__ == '__main__':
     total_recall = 0.0
     total_fscore = 0.0
     embeddings_index = {}
-    f = open(os.path.join(GLOVE_DIR, 'glove.6B.200d.txt'))
+    f = open(os.path.join(GLOVE_DIR, 'glove.6B.300d.txt'))
     for line in f:
         values = line.split()
         word = values[0]
