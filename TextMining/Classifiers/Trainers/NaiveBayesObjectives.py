@@ -11,6 +11,7 @@ from os import listdir
 from os.path import  join,isdir
 from sklearn.utils import resample
 from sklearn.model_selection import cross_val_score
+import pickle
 
 from sklearn.utils import resample
 
@@ -393,3 +394,7 @@ for score in scores:
     final = final + score
 print scores
 print "Final:" + str(final/10)
+
+text_clf.fit( df_upsampled.text, df_upsampled.classa)
+filename = '../Models/naive_bayes_objectives.sav'
+pickle.dump(text_clf, open(filename, 'wb'))
