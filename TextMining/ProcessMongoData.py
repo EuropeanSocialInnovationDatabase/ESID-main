@@ -7,6 +7,8 @@ from database_access import *
 from NER.StanfordNER import StanfordTagger
 import requests
 import json
+from langdetect import detect
+from mtranslate import translate
 
 class Project:
     def __init__(self):
@@ -50,7 +52,25 @@ if __name__ == '__main__':
             project_text = project_text + "\n===============================\n\n"
             project_text = project_text + doc["text"]
 
-
+        if project_text == "":
+            continue
+        language = detect(project_text)
+        print "Language:"+str(language)
+        if language!="en":
+            tokens = nltk.word_tokenize(project_text)
+            i = 0
+            text_to_translate = ""
+            translated = ""
+            while i < len(tokens):
+                for j in range(0,100):
+                    if i>=len(tokens):
+                        continue
+                    text_to_translate = text_to_translate + " "+tokens[i]
+                    i= i + 1
+                en_text = translate(text_to_translate,"en","auto")
+                translated = translated +" "+ en_text
+                text_to_translate = ""
+            print translated
         classified_text = st.tag_text(project_text)
         print(classified_text)
         extracted_locations = []
@@ -87,8 +107,7 @@ if __name__ == '__main__':
         print extracted_orgs
         print "-----------"
         print extracted_locations
-        if project_text == "":
-            continue
+
         r = requests.post("http://services.gate.ac.uk/knowmak/classifier/project", data=project_text.encode('utf-8').strip())
         print(r.status_code, r.reason)
         print(r.text)
