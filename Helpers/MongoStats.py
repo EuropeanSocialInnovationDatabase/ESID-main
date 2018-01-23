@@ -21,7 +21,7 @@ if __name__ == '__main__':
             project_wordcount[name] = project_wordcount[name] + len(tokens)
         else:
             project_wordcount[name] = len(tokens)
-    print "Writing files"
+    print("Writing files")
     with open('res_pagecount3.csv', 'wb') as csvfile:
         res1 = csv.writer(csvfile, delimiter=',',
                                 quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -32,5 +32,5 @@ if __name__ == '__main__':
                                 quotechar='"', quoting=csv.QUOTE_MINIMAL)
         for item in project_wordcount:
             res2.writerow([item.encode('utf-8').strip(),project_wordcount[item]])
-    print "Done"
+    print("Done")
 
