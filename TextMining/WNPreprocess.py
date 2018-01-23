@@ -6,10 +6,10 @@ from os.path import isfile, join,isdir
 from nltk.stem import WordNetLemmatizer
 import nltk
 import  os
-reload(sys)
+#reload(sys)
 sys.setdefaultencoding('utf8')
 wordnet_lemmatizer = WordNetLemmatizer()
-print wordnet_lemmatizer.lemmatize('dogs')
+print(wordnet_lemmatizer.lemmatize('dogs'))
 
 
 PATH_good = "../Helpers/BratDataProcessing/WekaDataSet/Actor/Good"
@@ -23,7 +23,7 @@ if not os.path.exists(directory2):
     os.makedirs(directory2)
 onlyfiles = [f for f in listdir(PATH_good) if (f.endswith(".txt"))]
 for file in onlyfiles:
-    print file
+    print(file)
     fl = open(PATH_good + '/' + file, 'r')
     content = fl.read()
     tokens = nltk.word_tokenize(content)
@@ -42,7 +42,7 @@ for file in onlyfiles:
 
 onlyfiles = [f for f in listdir(PATH_bad) if (f.endswith(".txt"))]
 for file in onlyfiles:
-    print file
+    print(file)
     fl = open(PATH_bad + '/' + file, 'r')
     content = fl.read()
     tokens = nltk.word_tokenize(content)
@@ -59,4 +59,4 @@ for file in onlyfiles:
     f2.close()
     fl.close()
 
-print wn.synsets('innovative')
+print(wn.synsets('innovative'))

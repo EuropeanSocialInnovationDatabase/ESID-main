@@ -40,11 +40,11 @@ if __name__ == '__main__':
                 project_text[id]=project_text[id]+"---------------------------------------\r\nNEW PAGE: "+page_title+ "\r\n\r\n"+pro["text"]
             else:
                 project_text[id]="---------------------------------------\r\nNEW PAGE: "+page_title+ "\r\n\r\n"+pro["text"]
-            print "item "+str(i)
+            print("item "+str(i))
             i = i+1
         except:
-            print "Exception: Record ignored"
-    print "Writing files"
+            print("Exception: Record ignored")
+    print("Writing files")
     db.projects3.close()
     for item in project_text:
         sql = "SELECT * from Projects where idProjects = "+item
@@ -74,4 +74,4 @@ if __name__ == '__main__':
         f.close()
 
 
-    print "Done"
+    print("Done")

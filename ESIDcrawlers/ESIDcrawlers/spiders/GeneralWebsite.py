@@ -70,7 +70,7 @@ class GeneralWebsitespider(CrawlSpider):
         pattern = "[a-zA-Z0-9]*[\.]{0,1}[a-zA-Z0-9]+[\.][a-zA-Z0-9]{0,4}"
         self.db = MySQLdb.connect(host, username, password, database, charset='utf8')
         self.cursor = self.db.cursor()
-        sql = "Select idActors,ActorName,ActorWebsite from Actors"
+        sql = "Select idActors,ActorName,ActorWebsite from Actors where DataSources_idDataSources>16"
         self.cursor.execute(sql)
         results = self.cursor.fetchall()
         for res in results:
@@ -87,7 +87,7 @@ class GeneralWebsitespider(CrawlSpider):
             if result == None:
                 continue
             allowed_domains.append(domain)
-        sql = "Select idProjects,ProjectName,ProjectWebpage from Projects"
+        sql = "Select idProjects,ProjectName,ProjectWebpage from Projects where DataSources_idDataSources>16"
         self.cursor.execute(sql)
         results = self.cursor.fetchall()
         for res in results:
@@ -114,7 +114,7 @@ class GeneralWebsitespider(CrawlSpider):
         start_urls = []
         self.db = MySQLdb.connect(host, username, password, database, charset='utf8')
         self.cursor = self.db.cursor()
-        sql = "Select idActors,ActorName,ActorWebsite from Actors"
+        sql = "Select idActors,ActorName,ActorWebsite from Actors where DataSources_idDataSources>16"
         self.cursor.execute(sql)
         results = self.cursor.fetchall()
         urls = []
@@ -130,7 +130,7 @@ class GeneralWebsitespider(CrawlSpider):
             if result == None:
                 continue
             start_urls.append(ArtWeb)
-        sql = "Select idProjects,ProjectName,ProjectWebpage from Projects"
+        sql = "Select idProjects,ProjectName,ProjectWebpage from Projects where DataSources_idDataSources>16"
         self.cursor.execute(sql)
         results = self.cursor.fetchall()
         urls = []
