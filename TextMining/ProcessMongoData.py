@@ -9,6 +9,8 @@ import requests
 import json
 from langdetect import detect
 from mtranslate import translate
+import csv
+from nltk.metrics.distance import edit_distance
 
 class Project:
     def __init__(self):
@@ -18,9 +20,32 @@ class Project:
         self.first_datasource_id = -1
         self.idProject = -1
 
+def find_org(org,tokens):
+    org_tokens = nltk.word_tokenize(org)
+    l_org_tokens = len(org_tokens)
+    for i in range(0,len(tokens)-l_org_tokens+1):
+        pot = tokens[i:(i+l_org_tokens)]
+        pot_s = ' '.join(pot)
+        distance = edit_distance(pot_s.lower(),org.lower())
+        if float(distance)/float(len(org))<0.1:
+            return True
+    return False
+
 if __name__ == '__main__':
     project_names = []
     actor_names = []
+    orglist_names = []
+    with open('Resources/orgreg_hei_export_.csv', 'rb') as csvfile:
+        spamreader = csv.reader(csvfile, delimiter=';', quotechar='"')
+        a = 0
+        for row in spamreader:
+            if a<2:
+                a = a+1
+                continue
+            orglist_names.append(row[3])
+            orglist_names.append(row[4])
+            orglist_names.append(row[6])
+            a = a+1
     project_list = []
     print("Processing database")
     db = MySQLdb.connect(host, username, password, database, charset='utf8')
@@ -71,10 +96,18 @@ if __name__ == '__main__':
                 translated = translated +" "+ en_text
                 text_to_translate = ""
             print translated
+            project_text = translated
+        project_text = project_text.encode('utf-8').strip()
         classified_text = st.tag_text(project_text)
-        print(classified_text)
         extracted_locations = []
         extracted_orgs = []
+        for o in orglist_names:
+            if o.lower() in project_text.lower():
+                extracted_orgs.append(o)
+            # This performs lexicon matching with calculating Levenstein's distance, however because of the low performance it is not usable
+            # if find_org(o, nltk.word_tokenize(project_text)) == True:
+            #     extracted_orgs.append(o)
+        print(classified_text)
         loc_full_name = ""
         org_full_name = ""
         was_prev_loc = False
@@ -119,7 +152,3 @@ if __name__ == '__main__':
             print "Keywords"
             for key in data["classification"][clas]["keywords"]:
                 print key + ":" + str(data["classification"][clas]["keywords"][key])
-
-
-
-
