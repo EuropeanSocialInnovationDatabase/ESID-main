@@ -11,6 +11,7 @@ from langdetect import detect
 from mtranslate import translate
 import csv
 from nltk.metrics.distance import edit_distance
+import pickle
 
 class Project:
     def __init__(self):
@@ -32,6 +33,13 @@ def find_org(org,tokens):
     return False
 
 if __name__ == '__main__':
+    output_file = open("output.txt",'w')
+    objectives_model = pickle.load(open('Classifiers/Models/naive_bayes_objectives.sav', 'rb'))
+    actors_model = pickle.load(open('Classifiers/Models/naive_bayes_actors.sav', 'rb'))
+    outputs_model = pickle.load(open('Classifiers/Models/naive_bayes_outputs.sav', 'rb'))
+    innovativeness_model = pickle.load(open('Classifiers/Models/naive_bayes_innovativeness.sav', 'rb'))
+
+
     project_names = []
     actor_names = []
     orglist_names = []
@@ -55,7 +63,7 @@ if __name__ == '__main__':
     results = cursor.fetchall()
     for res in results:
         actor_names.append(res[0])
-    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects limit 10"
+    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects"
     cursor.execute(sql_projects)
     results = cursor.fetchall()
     mongo_client = MongoClient()
@@ -63,6 +71,9 @@ if __name__ == '__main__':
     st = StanfordTagger()
     for res in results:
         project_names.append(res[0])
+        output_file.write("\n================================\n")
+        output_file.write("Project name: "+res[0])
+        output_file.write("\nWebpage: "+res[1])
         pro = Project()
         pro.name = res[0]
         pro.webpage = res[1]
@@ -92,17 +103,26 @@ if __name__ == '__main__':
                         continue
                     text_to_translate = text_to_translate + " "+tokens[i]
                     i= i + 1
-                en_text = translate(text_to_translate,"en","auto")
+                en_text = translate(text_to_translate.encode('utf-8').strip(),"en","auto")
                 translated = translated +" "+ en_text
                 text_to_translate = ""
             print translated
             project_text = translated
         project_text = project_text.encode('utf-8').strip()
+        objective_pred = objectives_model.predict([project_text])
+        actor_pred = actors_model.predict([project_text])
+        outputs_pred = outputs_model.predict([project_text])
+        innovativeness_pred = innovativeness_model.predict([project_text])
+        output_file.write("\nPrediction Objective: "+str(objective_pred))
+        output_file.write("\nPrediction Actors: " + str(actor_pred))
+        output_file.write("\nPrediction Outputs: " + str(outputs_pred))
+        output_file.write("\nPrediction Innovativeness: "+str(innovativeness_pred))
+        project_text = project_text.decode('utf-8','ignore').strip()
         classified_text = st.tag_text(project_text)
         extracted_locations = []
         extracted_orgs = []
         for o in orglist_names:
-            if o.lower() in project_text.lower():
+            if o.lower() in project_text.encode('utf-8','ignore').strip().lower():
                 extracted_orgs.append(o)
             # This performs lexicon matching with calculating Levenstein's distance, however because of the low performance it is not usable
             # if find_org(o, nltk.word_tokenize(project_text)) == True:
@@ -140,8 +160,16 @@ if __name__ == '__main__':
         print extracted_orgs
         print "-----------"
         print extracted_locations
+        output_file.write("\nLocations:")
+        output_file.write("\n")
+        output_file.write(str(set(extracted_locations)))
+        output_file.write("\nOrganisations:")
+        output_file.write("\n")
+        output_file.write(str(set(extracted_orgs)))
 
-        r = requests.post("http://services.gate.ac.uk/knowmak/classifier/project", data=project_text.encode('utf-8').strip())
+
+        output_file.write("\nOntology topics and keywords:")
+        r = requests.post("http://services.gate.ac.uk/knowmak/classifier/project", data=project_text.encode('ascii','ignore'))
         print(r.status_code, r.reason)
         print(r.text)
         if "Error" in r.text :
@@ -149,6 +177,11 @@ if __name__ == '__main__':
         data = json.loads(r.text)
         for clas in data["classification"]:
             print "Class:" + clas + ":" + str(data["classification"][clas]["score"])
+            output_file.write("\nTopic:"+clas+"  "+str(data["classification"][clas]["score"]))
             print "Keywords"
+            output_file.write("\nKeywords:")
             for key in data["classification"][clas]["keywords"]:
                 print key + ":" + str(data["classification"][clas]["keywords"][key])
+                output_file.write("\n")
+                output_file.write(key + "   " + str(data["classification"][clas]["keywords"][key]))
+    output_file.close()
