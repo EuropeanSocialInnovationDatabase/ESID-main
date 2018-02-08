@@ -3,10 +3,10 @@
 from pymongo import MongoClient
 import nltk
 import MySQLdb
-from database_access import *
-from NER.StanfordNER import StanfordTagger
+from TextMining.NER.StanfordNER import StanfordTagger
 import requests
 import json
+from database_access import *
 from langdetect import detect
 from mtranslate import translate
 import csv
@@ -14,7 +14,51 @@ from nltk.metrics.distance import edit_distance
 import pickle
 from commonregex import CommonRegex
 
+class Organisation:
+    def __init__(self):
+        self.organisation_id = ""
+        self.database_id = -1
+        self.organisation_name = "" # ActorName
+        self.website = "" #ActorWebsite
+        self.short_description = "" # ActorsAdditionalData-ActorShortDescription
+        self.long_description = ""# ActorsAdditionalData-ActorLongDescription
+        self.country ="" # Location.Country
+        self.region = "" #Location.City
+        self.latitude = -1 #Location.Latitude
+        self.longitude = -1#Location.Longitude
+        self.address = ""#Location.address
+        self.organisation_type = ""#Actor.Type
+        self.organisation_size= ""#Size
+        self.start_date = ""#StartDate
+        self.linked_project_ids = [] # Actors_has_projects
+        self.tags = [] # ActorsAdditionalData
+        self.network_tags = [] #ActorsAdditionalData
+        self.facebook = None # ActorFacebookPage
+
+
 class Project:
+    def __init__(self):
+        self.project_id = ""
+        self.database_id = -1
+        self.project_name = "" # ProjectName
+        self.website = "" # ProjectWebpage
+        self.short_description = "" # AdditionalProjectData
+        self.long_description = "" # AdditionalProjectData
+        self.social_impact = "" #OutreachImpact
+        self.start_date = "" #DateStart
+        self.end_date = "" #DateEnd
+        self.country = "" # ProjectLocation
+        self.region = "" # City
+        self.latitude = -1 #Longitude
+        self.longitude = -1 # Latitude
+        self.linked_organisation_ids = [] #Actor_has_Projects
+        self.who_we_help_tags = [] #AdditionalProjectData.WhoWeHelp
+        self.support_tags = [] # AdditionalProjectData.SupportTags
+        self.focus = [] # AdditionalProjectData.Focus
+        self.technology = [] # AdditionalProjectData.Technology
+        self.facebook = None
+
+class Project_ne:
     def __init__(self):
         self.name = ""
         self.webpage = ""
@@ -35,16 +79,73 @@ def find_org(org,tokens):
 
 if __name__ == '__main__':
     output_file = open("output.txt",'w')
-    objectives_model = pickle.load(open('Classifiers/Models/naive_bayes_objectives.sav', 'rb'))
-    actors_model = pickle.load(open('Classifiers/Models/naive_bayes_actors.sav', 'rb'))
-    outputs_model = pickle.load(open('Classifiers/Models/naive_bayes_outputs.sav', 'rb'))
-    innovativeness_model = pickle.load(open('Classifiers/Models/naive_bayes_innovativeness.sav', 'rb'))
+    objectives_model = pickle.load(open('../Classifiers/Models/naive_bayes_objectives.sav', 'rb'))
+    actors_model = pickle.load(open('../Classifiers/Models/naive_bayes_actors.sav', 'rb'))
+    outputs_model = pickle.load(open('../Classifiers/Models/naive_bayes_outputs.sav', 'rb'))
+    innovativeness_model = pickle.load(open('../Classifiers/Models/naive_bayes_innovativeness.sav', 'rb'))
 
+    organisations_arg = "../../ESIDcrawlers/DownloadedDatabaseTransformers/organisations.csv"
+    projects_arg = "../../ESIDcrawlers/DownloadedDatabaseTransformers/projects.csv"
+    organisations = []
+    with open(organisations_arg, 'rb') as csvfile:
+        orgreader = csv.reader(csvfile, delimiter=',', quotechar='"')
+        i = 0
+        for row in orgreader:
+            if(i==0):
+                i+=1
+                continue
+            org = Organisation()
+            org.organisation_id = row[0]
+            org.organisation_name = row[1]
+            org.website = row[2]
+            org.short_description = row[3]
+            org.long_description = row[4]
+            org.country = row[5]
+            org.region = row[6]
+            org.latitude=row[7]
+            org.longitude = row[8]
+            org.address = row[9]
+            org.organisation_type = row[10]
+            org.organisation_size = row[11]
+            org.start_date = row[12]
+            org.linked_project_ids = row[13].replace('"','').split(',')
+            org.tags = row[14].replace('"','').split(',')
+            org.network_tags = row[15].replace('"','').split(',')
+            organisations.append(org)
+            i+=1
+    projects = []
+    with open(projects_arg, 'rb') as csvfile:
+        proreader = csv.reader(csvfile, delimiter=',', quotechar='"')
+        i = 0
+        for row in proreader:
+            if (i == 0):
+                i += 1
+                continue
+            pro = Project()
+            pro.project_id = row[0]
+            pro.project_name = row[1]
+            pro.website = row[2]
+            pro.short_description = row[3]
+            pro.long_description = row[4]
+            pro.social_impact = row[5]
+            pro.start_date = row[6]
+            pro.end_date = row[7]
+            pro.country = row[8]
+            pro.region = row[9]
+            pro.latitude = row[10]
+            pro.longitude = row[11]
+            pro.linked_organisation_ids = row[12].replace('"','').split(',')
+            pro.who_we_help_tags = row[13].replace('"','').split(',')
+            pro.support_tags = row[14].replace('"','').split(',')
+            pro.focus = row[15].replace('"','').split(',')
+            pro.technology = row[16].replace('"','').split(',')
+            projects.append(pro)
+            i += 1
 
     project_names = []
     actor_names = []
     orglist_names = []
-    with open('Resources/orgreg_hei_export_.csv', 'rb') as csvfile:
+    with open('../Resources/orgreg_hei_export_.csv', 'rb') as csvfile:
         spamreader = csv.reader(csvfile, delimiter=';', quotechar='"')
         a = 0
         for row in spamreader:
@@ -64,7 +165,7 @@ if __name__ == '__main__':
     results = cursor.fetchall()
     for res in results:
         actor_names.append(res[0])
-    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects limit 30"
+    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects where DataSources_idDataSources=1 limit 50"
     cursor.execute(sql_projects)
     results = cursor.fetchall()
     mongo_client = MongoClient()
@@ -77,6 +178,16 @@ if __name__ == '__main__':
         output_file.write("Project name: "+res[0])
         output_file.write("\nWebpage: "+res[1])
         pro = Project()
+        project_db = None
+        for pro in projects:
+            if pro.project_name == res[0]:
+                project_db = pro
+        real_org_names = []
+        for id in project_db.linked_organisation_ids:
+            for org in organisations:
+                if id == org.organisation_id:
+                    real_org_names.append(org.organisation_name)
+
         pro.name = res[0]
         pro.webpage = res[1]
         pro.first_datasource = res[2]
@@ -122,11 +233,11 @@ if __name__ == '__main__':
         output_file.write("\nPrediction Actors: " + str(actor_pred))
         output_file.write("\nPrediction Outputs: " + str(outputs_pred))
         output_file.write("\nPrediction Innovativeness: "+str(innovativeness_pred))
-        output_file.write("\n\nLinks: " + common_regex_processed.links)
-        output_file.write("\n\nEmails: " + common_regex_processed.emails)
-        output_file.write("\n\nPhones: " + common_regex_processed.phones)
+        output_file.write("\n\nLinks: " + str(common_regex_processed.links))
+        output_file.write("\n\nEmails: " + str(common_regex_processed.emails))
+        output_file.write("\n\nPhones: " + str(common_regex_processed.phones))
         project_text = project_text.decode('utf-8','ignore').strip()
-        st = StanfordTagger()
+        st = StanfordTagger('../Resources')
         short_texts = project_text.splitlines()
         classified_text = []
         for t in short_texts:
@@ -137,9 +248,6 @@ if __name__ == '__main__':
         for o in orglist_names:
             if o.lower() in project_text.encode('utf-8','ignore').strip().lower():
                 extracted_orgs.append(o)
-            # This performs lexicon matching with calculating Levenstein's distance, however because of the low performance it is not usable
-            # if find_org(o, nltk.word_tokenize(project_text)) == True:
-            #     extracted_orgs.append(o)
         print(classified_text)
         loc_full_name = ""
         org_full_name = ""
@@ -180,27 +288,8 @@ if __name__ == '__main__':
         output_file.write("\nOrganisations:")
         output_file.write("\n")
         output_file.write(str(set(extracted_orgs)))
-
-
-        output_file.write("\nOntology topics and keywords:")
-        r = requests.post("http://services.gate.ac.uk/knowmak/classifier/project", data=project_text.encode('ascii','ignore'))
-        print(r.status_code, r.reason)
-        print(r.text)
-        if "Error" in r.text :
-            continue
-        data = json.loads(r.text)
-        for clas in data["classification"]:
-            print "Class:" + clas + ":" + str(data["classification"][clas]["score"])
-            f_gate.write("\nTopic:"+clas+"  "+str(data["classification"][clas]["score"]))
-            output_file.write("\nTopic:"+clas+"  "+str(data["classification"][clas]["score"]))
-            print "Keywords"
-            output_file.write("\nKeywords:")
-            f_gate.write("\nKeywords:")
-            for key in data["classification"][clas]["keywords"]:
-                print key + ":" + str(data["classification"][clas]["keywords"][key])
-                output_file.write("\n")
-                output_file.write(key + "   " + str(data["classification"][clas]["keywords"][key]))
-                f_gate.write("\n")
-                f_gate.write(key + "   " + str(data["classification"][clas]["keywords"][key]))
+        output_file.write("\nReal Organisations:")
+        output_file.write("\n")
+        output_file.write(str(set(real_org_names)))
         f_gate.close()
     output_file.close()

@@ -7,6 +7,10 @@ class StanfordTagger:
 		self.st = StanfordNERTagger('Resources/stanford-ner-2017-06-09/classifiers/english.all.3class.distsim.crf.ser.gz',
 							   'Resources/stanford-ner-2017-06-09/stanford-ner.jar',
 							   encoding='utf-8')
+	def __init__(self,res_path):
+		self.st = StanfordNERTagger(res_path+'/stanford-ner-2017-06-09/classifiers/english.all.3class.distsim.crf.ser.gz',
+									res_path+'/stanford-ner-2017-06-09/stanford-ner.jar',
+							   encoding='utf-8')
 
 	def tag_text(self,text):
 		tokenized_text = word_tokenize(text)
