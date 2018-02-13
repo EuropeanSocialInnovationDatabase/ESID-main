@@ -13,6 +13,9 @@ import csv
 from nltk.metrics.distance import edit_distance
 import pickle
 from commonregex import CommonRegex
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 class Project:
     def __init__(self):
@@ -44,17 +47,10 @@ if __name__ == '__main__':
     project_names = []
     actor_names = []
     orglist_names = []
-    with open('Resources/orgreg_hei_export_.csv', 'rb') as csvfile:
-        spamreader = csv.reader(csvfile, delimiter=';', quotechar='"')
-        a = 0
-        for row in spamreader:
-            if a<2:
-                a = a+1
-                continue
-            orglist_names.append(row[3])
-            orglist_names.append(row[4])
-            orglist_names.append(row[6])
-            a = a+1
+    all_organisations = []
+    with open('Resources/org_gazzeteer.txt', 'rb') as csvfile:
+        spamreader = csvfile.readlines()
+        orglist_names = spamreader
     project_list = []
     print("Processing database")
     db = MySQLdb.connect(host, username, password, database, charset='utf8')
@@ -64,7 +60,9 @@ if __name__ == '__main__':
     results = cursor.fetchall()
     for res in results:
         actor_names.append(res[0])
-    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects limit 30"
+    all_organisations = orglist_names
+    all_organisations.extend(actor_names)
+    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects limit 150"
     cursor.execute(sql_projects)
     results = cursor.fetchall()
     mongo_client = MongoClient()
@@ -112,6 +110,11 @@ if __name__ == '__main__':
             project_text = translated
 
         project_text = project_text.encode('utf-8').strip()
+        sql_desc = "SELECT * FROM EDSI.AdditionalProjectData where FieldName like '%Desc%' and Projects_idProjects="+str(pro.idProject)
+        cursor.execute(sql_desc)
+        f_desc = cursor.fetchall()
+        for d in f_desc:
+            project_text = project_text+ " \n\n "+d[2].encode('utf-8').strip()
         common_regex_processed = CommonRegex(project_text)
         f_gate.write(project_text)
         objective_pred = objectives_model.predict([project_text])
@@ -122,11 +125,11 @@ if __name__ == '__main__':
         output_file.write("\nPrediction Actors: " + str(actor_pred))
         output_file.write("\nPrediction Outputs: " + str(outputs_pred))
         output_file.write("\nPrediction Innovativeness: "+str(innovativeness_pred))
-        output_file.write("\n\nLinks: " + common_regex_processed.links)
-        output_file.write("\n\nEmails: " + common_regex_processed.emails)
-        output_file.write("\n\nPhones: " + common_regex_processed.phones)
+        output_file.write("\n\nLinks: " +  str(common_regex_processed.links))
+        output_file.write("\n\nEmails: " + str(common_regex_processed.emails))
+        output_file.write("\n\nPhones: " + str(common_regex_processed.phones))
         project_text = project_text.decode('utf-8','ignore').strip()
-        st = StanfordTagger()
+        st = StanfordTagger('Resources')
         short_texts = project_text.splitlines()
         classified_text = []
         for t in short_texts:
@@ -134,8 +137,9 @@ if __name__ == '__main__':
         st = None
         extracted_locations = []
         extracted_orgs = []
-        for o in orglist_names:
-            if o.lower() in project_text.encode('utf-8','ignore').strip().lower():
+        for o in all_organisations:
+            o = o.lower()
+            if o.encode('utf-8','ignore').strip().lower() in project_text.encode('utf-8','ignore').strip().lower():
                 extracted_orgs.append(o)
             # This performs lexicon matching with calculating Levenstein's distance, however because of the low performance it is not usable
             # if find_org(o, nltk.word_tokenize(project_text)) == True:
@@ -171,9 +175,9 @@ if __name__ == '__main__':
                     org_full_name = ""
                 was_prev_org = False
 
-        print extracted_orgs
+        print "Organisations:"+str(extracted_orgs)
         print "-----------"
-        print extracted_locations
+        print "Locations:"+str(extracted_locations)
         output_file.write("\nLocations:")
         output_file.write("\n")
         output_file.write(str(set(extracted_locations)))
