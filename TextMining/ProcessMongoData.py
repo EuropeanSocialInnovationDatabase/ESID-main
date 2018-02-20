@@ -62,7 +62,7 @@ if __name__ == '__main__':
         actor_names.append(res[0])
     all_organisations = orglist_names
     all_organisations.extend(actor_names)
-    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects limit 150"
+    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects  limit 30,30"
     cursor.execute(sql_projects)
     results = cursor.fetchall()
     mongo_client = MongoClient()

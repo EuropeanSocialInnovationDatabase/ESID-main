@@ -213,12 +213,16 @@ class Annotation:
     HighLevelClass = ""
     LowLevelClass = ""
 
+def build_tensor(data):
+    for d in data:
+        print d
+
 if __name__ == '__main__':
     os.environ['PYTHONHASHSEED'] = '4'
     np.random.seed(523)
-    max_words = 20000
+    max_words = 400000
     batch_size = 32
-    epochs =10
+    epochs =50
     GLOVE_DIR = "../../../Helpers/BratDataProcessing/Glove_dir"
     MAX_SEQUENCE_LENGTH = 20000
     EMBEDDING_DIM = 300
@@ -530,11 +534,11 @@ if __name__ == '__main__':
     Total_FP = 0
     Total_FN = 0
 
+
     x_train = data[0:9*nb_validation_samples]
     y_train = labels[0:9*nb_validation_samples]
     x_val = data[9*nb_validation_samples:]
     y_val = labels[9*nb_validation_samples:]
-    print len(x_train)
     early_stopping = EarlyStopping(monitor='binary_crossentropy', patience=5)
 
     model = None
