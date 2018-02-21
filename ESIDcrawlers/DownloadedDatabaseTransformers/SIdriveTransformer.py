@@ -37,15 +37,15 @@ if __name__ == '__main__':
             newURL = True
             projectname_en = pro['projectname_en']
             if projectname_en!= None:
-                projectname_en = projectname_en.replace('"','').replace("'",'').replace('%','')
+                projectname_en = projectname_en.encode('utf-8').replace('"','').replace("'",'').replace('%','')
             else:
-                projectname_en=pro['projectname_orig']
+                projectname_en=pro['projectname_orig'].encode('utf-8')
             print projectname_en
             projectname_orig = pro['projectname_orig']
             if projectname_orig==None:
                 projectname_orig = projectname_en
             else:
-                projectname_orig = projectname_orig.replace("'",'').replace('"','')
+                projectname_orig = projectname_orig.encode('utf-8').replace("'",'').replace('"','')
             existing_pro = "SELECT * from Projects where ProjectName like '%"+projectname_en+"%' or ProjectName like '%"+projectname_orig+"%'"
             cursor.execute(existing_pro)
             rows_affected = cursor.rowcount
@@ -59,14 +59,16 @@ if __name__ == '__main__':
                 matchingUrl = "SELECT * from Projects where ProjectWebpage like '" + website + "'"
                 cursor.execute(matchingUrl)
                 rows_affected_url = cursor.rowcount
+                website = website.encode('utf-8')
                 if rows_affected_url != 0:
                     url_overlap = url_overlap + 1
                     newURL = False
             year = pro['year']
-            date = year + "-01-01"
+            date = str(year) + "-01-01"
             if newProject:
-                newProjectQuery = "Insert into Projects (ProjectName,DateStart,ProjectWebpage,FirstDataSource,DataSources_idDataSources) VALUES (%s,%s,%s,%s,%s,%s)"
-                cursor.execute(newProjectQuery,(projectname_en,date,website,"SI-drive",idDataSource))
+                print(projectname_en+" "+date+ " "+str(website))
+                newProjectQuery = "Insert into Projects (ProjectName,DateStart,ProjectWebpage,FirstDataSource,DataSources_idDataSources) VALUES ('{0}','{1}','{2}','{3}',{4})".format(projectname_en,date,website,"SI-drive",idDataSource)
+                cursor.execute(newProjectQuery)
                 projectid = cursor.lastrowid
                 db.commit()
             else:
@@ -74,14 +76,18 @@ if __name__ == '__main__':
                 cursor.execute(UpdateProjectQuery)
                 projectid = cursor.lastrowid
                 db.commit()
-            InsertLocation = "Insert into ProjectLocation (Type,City,Country,Longitude,Latitude,Projects_idProjects) VALUES (%s,%s,%s,%s,%s,%s)"
-            cursor.execute(InsertLocation,("Main",city,country,longitude,latitude,projectid))
+            InsertLocation = "Insert into ProjectLocation (Type,City,Country,Longitude,Latitude,Projects_idProjects) VALUES ('{0}','{1}','{2}',{3},{4},{5})".format("Main",city.encode('utf-8').replace("'",""),country.encode('utf-8').replace("'",""),longitude,latitude,str(projectid))
+            cursor.execute(InsertLocation)
             db.commit()
             partner_main = pro['partners']['main']
             if partner_main != {}:
-                main_partner_name = partner_main['name']
+                main_partner_name = partner_main['name'].encode('utf-8').replace("'",'')
                 main_partner_sector = partner_main['sector']
+                if main_partner_sector!= None:
+                    main_partner_sector = main_partner_sector.encode('utf-8')
                 main_partner_country = partner_main['country']
+                if main_partner_country != None:
+                    main_partner_country = main_partner_country.encode('utf-8').replace("'", "")
                 PartnerExists = False
                 SelectPartner  = "Select * from Actors where ActorName like '%"+main_partner_name+"%'"
                 cursor.execute(SelectPartner)
@@ -91,40 +97,42 @@ if __name__ == '__main__':
                     parner_id = row[0]
                 else:
                     InsertParner = "Insert into Actors (ActorName,Type,SubType,SourceOriginallyObtained,DataSources_idDataSources)" \
-                                   " Values (%s,%s,%s,%s,%s)"
-                    cursor.execute(InsertParner,(main_partner_name,"S",main_partner_sector,"SI-Drive",idDataSource))
+                                   " Values ('{0}','{1}','{2}','{3}',{4})".format(main_partner_name,"S",main_partner_sector,"SI-Drive",str(idDataSource))
+                    cursor.execute(InsertParner)
                     db.commit()
                     parner_id = cursor.lastrowid
-                    ParnerLocation = "Insert into ActorLocation (Type,Country, Actors_idActors) Values(%s,%s,%s)"
-                    cursor.execute(ParnerLocation,("Headquarters",main_partner_country,parner_id))
+                    ParnerLocation = "Insert into ActorLocation (Type,Country, Actors_idActors) Values('{0}','{1}',{2})".format("Headquarters",main_partner_country,str(parner_id))
+                    cursor.execute(ParnerLocation)
                     db.commit()
-                Connection = "Insert into Actors_has_Projects (Actors_idActors,Projects_idProjects,OrganisationRole) Values (%s,%s,%s)"
-                cursor.execute(Connection,(parner_id,projectid,"Main partner"))
+                Connection = "Insert into Actors_has_Projects (Actors_idActors,Projects_idProjects,OrganisationRole) Values ({0},{1},'{2}')".format(parner_id,projectid,"Main partner")
+                cursor.execute(Connection)
                 db.commit()
             other_partners = pro['partners']['others']
             for o_partner in other_partners:
-                o_partner_name = o_partner['name']
+                o_partner_name = o_partner['name'].encode('utf-8').replace("'","")
                 o_partner_sector = o_partner['sector']
                 o_partner_country = o_partner['country']
                 SelectPartner2 = "Select * from Actors where ActorName like '%" + o_partner_name + "%'"
                 cursor.execute(SelectPartner2)
                 rows_affected_oPartner = cursor.rowcount
-                if rows_affected_mainPartner > 0:
+                if rows_affected_oPartner > 0:
                     row = cursor.fetchone()
                     parner_id = row[0]
                 else:
                     InsertParner = "Insert into Actors (ActorName,Type,SubType,SourceOriginallyObtained,DataSources_idDataSources)" \
-                                   " Values (%s,%s,%s,%s,%s)"
-                    cursor.execute(InsertParner,
-                                   (o_partner_name, "S", o_partner_sector, "SI-Drive", idDataSource))
+                                   " Values ('{0}','{1}','{2}','{3}',{4})".format(o_partner_name, "S", o_partner_sector, "SI-Drive", str(idDataSource))
+                    cursor.execute(InsertParner)
                     db.commit()
                     parner_id = cursor.lastrowid
-                    ParnerLocation = "Insert into ActorLocation (Type,Country, Actors_idActors) Values(%s,%s,%s)"
-                    cursor.execute(ParnerLocation, ("Headquarters", o_partner_country, parner_id))
+                    ParnerLocation = "Insert into ActorLocation (Type,Country, Actors_idActors) Values('{0}','{1}',{2})".format("Headquarters", o_partner_country, str(parner_id))
+                    cursor.execute(ParnerLocation)
                     db.commit()
-                Connection = "Insert into Actors_has_Projects (Actors_idActors,Projects_idProjects,OrganisationRole) Values (%s,%s,%s)"
-                cursor.execute(Connection, (parner_id, projectid, "Other partner"))
-                db.commit()
+                try:
+                    Connection = "Insert into Actors_has_Projects (Actors_idActors,Projects_idProjects,OrganisationRole) Values ({0},{1},'{2}')".format(str(parner_id), str(projectid), "Other partner")
+                    cursor.execute(Connection)
+                    db.commit()
+                except Exception:
+                    print "Existing pair"
     print project_overlap
     print url_overlap
 
