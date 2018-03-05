@@ -64,7 +64,7 @@ if __name__ == '__main__':
     # all_organisations = orglist_names
     # all_organisations.extend(actor_names)
     print("Selecting projects from mysql")
-    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects where idProjects>4598"
+    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects where idProjects>7584 and idProjects<7676"
     cursor.execute(sql_projects)
     results = cursor.fetchall()
     print("Initializing Mongo")
@@ -99,7 +99,10 @@ if __name__ == '__main__':
         if project_text == "":
             language = 'en'
         else:
-            language = detect(project_text)
+            try:
+                language = detect(project_text)
+            except:
+                continue
 
         print "Language:"+str(language)
         if language!="en":
