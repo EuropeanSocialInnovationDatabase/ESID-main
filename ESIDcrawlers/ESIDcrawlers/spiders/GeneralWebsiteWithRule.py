@@ -70,7 +70,7 @@ class GeneralWebsiteRulespider(CrawlSpider):
         pattern = "[a-zA-Z0-9]*[\.]{0,1}[a-zA-Z0-9]+[\.][a-zA-Z0-9]{0,4}"
         self.db = MySQLdb.connect(host, username, password, database, charset='utf8')
         self.cursor = self.db.cursor()
-        sql = "Select idActors,ActorName,ActorWebsite from Actors where DataSources_idDataSources>55"
+        sql = "Select idActors,ActorName,ActorWebsite from Actors"
         self.cursor.execute(sql)
         results = self.cursor.fetchall()
         for res in results:
@@ -87,7 +87,7 @@ class GeneralWebsiteRulespider(CrawlSpider):
             if result == None:
                 continue
             allowed_domains.append(domain)
-        sql = "Select idProjects,ProjectName,ProjectWebpage from Projects where DataSources_idDataSources>55"
+        sql = "Select idProjects,ProjectName,ProjectWebpage from Projects"
         self.cursor.execute(sql)
         results = self.cursor.fetchall()
         for res in results:
@@ -114,7 +114,7 @@ class GeneralWebsiteRulespider(CrawlSpider):
         start_urls = []
         self.db = MySQLdb.connect(host, username, password, database, charset='utf8')
         self.cursor = self.db.cursor()
-        sql = "Select idActors,ActorName,ActorWebsite from Actors where DataSources_idDataSources>55"
+        sql = "Select idActors,ActorName,ActorWebsite from Actors"
         self.cursor.execute(sql)
         results = self.cursor.fetchall()
         urls = []
@@ -130,7 +130,7 @@ class GeneralWebsiteRulespider(CrawlSpider):
             if result == None:
                 continue
             start_urls.append(ArtWeb)
-        sql = "Select idProjects,ProjectName,ProjectWebpage from Projects where DataSources_idDataSources>55"
+        sql = "Select idProjects,ProjectName,ProjectWebpage from Projects"
         self.cursor.execute(sql)
         results = self.cursor.fetchall()
         urls = []
@@ -216,7 +216,7 @@ class GeneralWebsiteRulespider(CrawlSpider):
         client = MongoClient()
         db = client.ESID
 
-        result = db.SI_drive.insert_one(
+        result = db.all_with_rule.insert_one(
             {
                 "timestamp":time.time(),
                 "relatedTo": item.RelatedTo,

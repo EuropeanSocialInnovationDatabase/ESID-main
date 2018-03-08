@@ -202,35 +202,35 @@ for ann in annotators:
                 mark = sp_split_ann[2].replace('\n', '')
                 if (mark_name == "DL_Outputs_3a"):
                     doc.Project_Mark_Outputs_3A = int(mark)
-                    if int(mark) >= 2:
+                    if int(mark) >= 1:
                         doc.isProjectOutputSatisfied = True
                 if (mark_name == "DL_Objective_1a"):
                     doc.Project_Mark_Objective_1A = int(mark)
-                    if int(mark) >= 2:
+                    if int(mark) >= 1:
                         doc.isProjectObjectiveSatisfied = True
-                if (mark_name == "DL_Objective_1b"):
+                if (mark_name == "DL_Objective_1b" or mark_name == "DL_Objective"):
                     doc.Project_Mark_Objective_1B = int(mark)
-                    if int(mark) >= 2:
+                    if int(mark) >= 1:
                         doc.isProjectObjectiveSatisfied = True
                 if (mark_name == "DL_Objective_1c"):
                     doc.Project_Mark_Objective_1C = int(mark)
-                    if int(mark) >= 2:
+                    if int(mark) >= 1:
                         doc.isProjectObjectiveSatisfied = True
-                if (mark_name == "DL_Innovativeness_4a"):
+                if (mark_name == "DL_Innovativeness_4a" or mark_name == "DL_Innovativeness"):
                     doc.Project_Mark_Innovativeness_3A = int(mark)
-                    if int(mark) >= 2:
+                    if int(mark) >= 1:
                         doc.isProjectInnovativenessSatisfied = True
-                if (mark_name == "DL_Actors_2a"):
+                if (mark_name == "DL_Actors_2a" or mark_name == "DL_Actors"):
                     doc.Project_Mark_Actors_2A = int(mark)
-                    if int(mark) >= 2:
+                    if int(mark) >= 1:
                         doc.isProjectActorSatisfied = True
                 if (mark_name == "DL_Actors_2b"):
                     doc.Project_Mark_Actors_2B = int(mark)
-                    if int(mark) >= 2:
+                    if int(mark) >= 1:
                         doc.isProjectActorSatisfied = True
                 if (mark_name == "DL_Actors_2c"):
                     doc.Project_Mark_Actors_2C = int(mark)
-                    if int(mark) >= 2:
+                    if int(mark) >= 1:
                         doc.isProjectActorSatisfied = True
         if (
                                             doc.Project_Mark_Objective_1A == 0 and doc.Project_Mark_Objective_1B == 0 and doc.Project_Mark_Objective_1C == 0 and doc.Project_Mark_Actors_2A == 0
