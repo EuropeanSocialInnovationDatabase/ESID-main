@@ -216,11 +216,11 @@ for ann in annotators:
                     doc.Project_Mark_Objective_1C = int(mark)
                     if int(mark) >= 1:
                         doc.isProjectObjectiveSatisfied = True
-                if (mark_name == "DL_Innovativeness_4a" or mark_name == "DL_Innovativeness"):
+                if (mark_name == "DL_Innovativeness_4a" or mark_name=="DL_Innovativeness"):
                     doc.Project_Mark_Innovativeness_3A = int(mark)
                     if int(mark) >= 1:
                         doc.isProjectInnovativenessSatisfied = True
-                if (mark_name == "DL_Actors_2a" or mark_name == "DL_Actors"):
+                if (mark_name == "DL_Actors_2a" or mark_name=="DL_Actors"):
                     doc.Project_Mark_Actors_2A = int(mark)
                     if int(mark) >= 1:
                         doc.isProjectActorSatisfied = True
@@ -233,7 +233,7 @@ for ann in annotators:
                     if int(mark) >= 1:
                         doc.isProjectActorSatisfied = True
         if (
-                                            doc.Project_Mark_Objective_1A == 0 and doc.Project_Mark_Objective_1B == 0 and doc.Project_Mark_Objective_1C == 0 and doc.Project_Mark_Actors_2A == 0
+            doc.Project_Mark_Objective_1A == 0 and doc.Project_Mark_Objective_1B == 0 and doc.Project_Mark_Objective_1C == 0 and doc.Project_Mark_Actors_2A == 0
                         and doc.Project_Mark_Actors_2B == 0 and doc.Project_Mark_Actors_2B == 0 and doc.Project_Mark_Actors_2C == 0 and doc.Project_Mark_Outputs_3A == 0
         and doc.Project_Mark_Innovativeness_3A == 0):
             doc.isSpam = True
@@ -362,7 +362,7 @@ for ann in ds.Annotators:
         outputs.append(doc.isProjectOutputSatisfied)
         innovativeness.append(doc.isProjectInnovativenessSatisfied)
         text_array.append(doc.Text)
-df = pd.DataFrame({'text':text_array,'classa':actors})
+df = pd.DataFrame({'text':text_array,'classa':innovativeness})
 df_majority = df[df.classa==0]
 df_minority = df[df.classa==1]
 df_minority_upsampled = resample(df_minority,
@@ -373,15 +373,67 @@ df_upsampled = pd.concat([df_majority, df_minority_upsampled])
 
 # Display new class counts
 print df_upsampled.classa.value_counts()
+TP = 0
+FP = 0
+FN = 0
+classes = df_upsampled.classa
+i = 0
+for sample in doc_array:
+    if "innovation" in sample[0] or "innovative" in sample[0] or "novelty" in sample[0]:
+        if sample[4] == True:
+            TP = TP+1
+        if sample[4] == False:
+            FP = FP+1
+    else:
+        if sample[4]==True:
+            FN = FN + 1
+    i = i + 1
 
+precision = float(TP)/float(TP+FP)
+recall = float(TP)/float(TP+FN)
+f_score = 2*precision*recall/(precision+recall)
+print "Innovation rule classifier"
+print "False positives:"+str(FP)
+print "False negatives:"+str(FN)
+print "True positive:"+str(TP)
+print "Precision: "+str(precision)
+print "Recall: "+str(recall)
+print "F1-score: "+str(f_score)
+
+TP = 0
+FP = 0
+FN = 0
+i = 0
+for sample in doc_array:
+    if ("new" in sample[0] or "novel" in sample[0] or "alternative" in sample[0] or "improved" in sample[0] or "cutting edge" in sample[0] or "better" in sample[0])\
+            and ("method" in sample[0] or "product" in sample[0] or "service" in sample[0] or "application" in sample[0] or "technology" in sample[0] or "practice" in sample[0]):
+        if sample[4] == True:
+            TP = TP+1
+        if sample[4] == False:
+            FP = FP+1
+    else:
+        if sample[4]==True:
+            FN = FN + 1
+    i = i + 1
+precision = float(TP)/float(TP+FP)
+recall = float(TP)/float(TP+FN)
+f_score = 2*precision*recall/(precision+recall)
+print "Other rule classifier"
+print "False positives:"+str(FP)
+print "False negatives:"+str(FN)
+print "True positive:"+str(TP)
+print "Precision: "+str(precision)
+print "Recall: "+str(recall)
+print "F1-score: "+str(f_score)
+#scores = cross_val_score(text_clf, df_upsampled.text, df_upsampled.classa, cv=10,scoring='f1')
 
 train = text_array[0:int(0.8*len(text_array))]
-train_Y = actors[0:int(0.8*len(actors))]
+train_Y = innovativeness[0:int(0.8*len(actors))]
 
 test = text_array[int(0.8*len(text_array)):]
-test_Y = actors[int(0.8*len(actors)):]
+test_Y = innovativeness[int(0.8*len(actors)):]
 
-categories = ['non actor', 'actor']
+#categories = ['non actor', 'actor']
 
 text_clf = Pipeline([('vect', CountVectorizer()),
                       ('tfidf', TfidfTransformer()),
@@ -394,7 +446,30 @@ for score in scores:
     final = final + score
 print scores
 print "Final:" + str(final/10)
+text_clf.fit(train,train_Y)
 
-text_clf.fit( df_upsampled.text, df_upsampled.classa)
-filename = '../Models/naive_bayes_actors.sav'
-pickle.dump(text_clf, open(filename, 'wb'))
+TP = 0
+FP = 0
+FN = 0
+i = 0
+outcome = text_clf.predict(test)
+for i in range(0,len(test)):
+    if test_Y[i] == True and outcome[i] == True:
+        TP = TP+1
+    if test_Y[i] == False and outcome[i]==True:
+        FP = FP+1
+    if test_Y[i]==True and outputs[i]==False:
+        FN = FN + 1
+    i = i + 1
+precision = float(TP)/float(TP+FP)
+recall = float(TP)/float(TP+FN)
+f_score = 2*precision*recall/(precision+recall)
+print "ML based rule classifier"
+print "False positives:"+str(FP)
+print "False negatives:"+str(FN)
+print "True positive:"+str(TP)
+print "Precision: "+str(precision)
+print "Recall: "+str(recall)
+print "F1-score: "+str(f_score)
+
+
