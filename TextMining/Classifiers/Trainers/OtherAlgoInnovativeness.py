@@ -401,7 +401,8 @@ stop_words1 = text.ENGLISH_STOP_WORDS.union(["than","facebook","these","been","i
                                              "15","org","11","17","25","14","18","l4a","usemp","google","16","kaitiaki","www","nemethi","50",
                                              "kommune","http","des","le","wheeliz","der","rfrc","wequest","et","piazza","mit","es","que","von",
                                              "lavoro","likta","german","ffit","oct","october","caps","nous","angelo","noen","crowdacting","nowwemove",
-                                             "che","jun","ok","si","henpower","does","29","home","english","href","koninklijke","rrafo","su"])
+                                             "che","jun","ok","si","henpower","does","29","home","english","href","koninklijke","rrafo","su",
+                                             "nostra","bank4all","du","76"])
 count_vect = CountVectorizer(stop_words=stop_words1)
 #stop_words=stop_words1
 X_train_counts = count_vect.fit_transform(train)
@@ -486,7 +487,7 @@ print(metrics.classification_report(test_Y, predicted))
 print(metrics.confusion_matrix(test_Y,predicted,labels=[False,True]))
 
 print "MultiLayeredPerceptron"
-clf = MLPClassifier(solver='lbfgs', alpha=1e-5,hidden_layer_sizes=(40, 2), random_state=1).fit(X_train_tfidf, train_Y)
+clf = MLPClassifier(solver='lbfgs', alpha=1e-5,hidden_layer_sizes=(40, 5), random_state=1).fit(X_train_tfidf, train_Y)
 X_new_counts = count_vect.transform(test)
 X_new_tfidf = tfidf_transformer.transform(X_new_counts)
 predicted = clf.predict(X_new_tfidf)
@@ -501,7 +502,7 @@ clf2 = tree.DecisionTreeClassifier().fit(X_train_tfidf, train_Y)
 clf3 = svm.SVC(random_state=8,probability=True).fit(X_train_tfidf, train_Y)
 clf4 = MultinomialNB().fit(X_train_tfidf, train_Y)
 clf5 = MLPClassifier(solver='lbfgs', alpha=1e-5,hidden_layer_sizes=(40, 2), random_state=1).fit(X_train_tfidf, train_Y)
-eclf = VotingClassifier(estimators=[('rf', clf1), ('svc', clf3),('nb',clf4),('mlp',clf5)], voting='soft',weights=[6,1,5,5],n_jobs=3).fit(X_train_tfidf, train_Y)
+eclf = VotingClassifier(estimators=[('rf', clf1), ('nb',clf4),('mlp',clf5)], voting='soft',weights=[1,1,2],n_jobs=3).fit(X_train_tfidf, train_Y)
 X_new_counts = count_vect.transform(test)
 X_new_tfidf = tfidf_transformer.transform(X_new_counts)
 predicted = eclf.predict(X_new_tfidf)
