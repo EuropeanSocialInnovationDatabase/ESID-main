@@ -425,51 +425,96 @@ print "True positive:"+str(TP)
 print "Precision: "+str(precision)
 print "Recall: "+str(recall)
 print "F1-score: "+str(f_score)
-#scores = cross_val_score(text_clf, df_upsampled.text, df_upsampled.classa, cv=10,scoring='f1')
 
-train = text_array[0:int(0.8*len(text_array))]
-train_Y = innovativeness[0:int(0.8*len(actors))]
-
-test = text_array[int(0.8*len(text_array)):]
-test_Y = innovativeness[int(0.8*len(actors)):]
-
-#categories = ['non actor', 'actor']
-
-text_clf = Pipeline([('vect', CountVectorizer()),
-                      ('tfidf', TfidfTransformer()),
-                      ('clf', MultinomialNB()),
- ])
-
-scores = cross_val_score(text_clf, df_upsampled.text, df_upsampled.classa, cv=10,scoring='f1')
-final = 0
-for score in scores:
-    final = final + score
-print scores
-print "Final:" + str(final/10)
-text_clf.fit(train,train_Y)
 
 TP = 0
 FP = 0
 FN = 0
 i = 0
-outcome = text_clf.predict(test)
-for i in range(0,len(test)):
-    if test_Y[i] == True and outcome[i] == True:
-        TP = TP+1
-    if test_Y[i] == False and outcome[i]==True:
-        FP = FP+1
-    if test_Y[i]==True and outputs[i]==False:
-        FN = FN + 1
-    i = i + 1
+for sample in doc_array:
+    isInnovative = False
+    if ("method" in sample[0] or "product" in sample[0] or "service" in sample[0] or "application" in sample[0] or "technology" in sample[0] or "practice" in sample[0]):
+        list_items = ["method","product","service","application","technology","practice"]
+        index_list = []
+        for item in list_items:
+            indexes = [m.start() for m in re.finditer(item, sample[0])]
+            index_list.extend(indexes)
+
+        for index in index_list:
+            end = len(sample[0])
+            start = 0
+            if index - 500>0:
+                start = index - 500
+            if index + 500<len(sample[0]):
+                end = index + 500
+            substr = sample[0][start:end]
+            if ("new" in substr or "novel" in substr or "alternative" in substr or "improved" in substr or "cutting edge" in substr or "better" in substr):
+                isInnovative = True
+
+        if isInnovative:
+            if sample[4] == True:
+                TP = TP+1
+            if sample[4] == False:
+                FP = FP+1
+        else:
+            if sample[4]==True:
+                FN = FN + 1
 precision = float(TP)/float(TP+FP)
 recall = float(TP)/float(TP+FN)
 f_score = 2*precision*recall/(precision+recall)
-print "ML based rule classifier"
+print "Third rule classifier"
 print "False positives:"+str(FP)
 print "False negatives:"+str(FN)
 print "True positive:"+str(TP)
 print "Precision: "+str(precision)
 print "Recall: "+str(recall)
 print "F1-score: "+str(f_score)
+
+#scores = cross_val_score(text_clf, df_upsampled.text, df_upsampled.classa, cv=10,scoring='f1')
+
+# train = text_array[0:int(0.8*len(text_array))]
+# train_Y = innovativeness[0:int(0.8*len(actors))]
+#
+# test = text_array[int(0.8*len(text_array)):]
+# test_Y = innovativeness[int(0.8*len(actors)):]
+#
+# #categories = ['non actor', 'actor']
+#
+# text_clf = Pipeline([('vect', CountVectorizer()),
+#                       ('tfidf', TfidfTransformer()),
+#                       ('clf', MultinomialNB()),
+#  ])
+#
+# scores = cross_val_score(text_clf, df_upsampled.text, df_upsampled.classa, cv=10,scoring='f1')
+# final = 0
+# for score in scores:
+#     final = final + score
+# print scores
+# print "Final:" + str(final/10)
+# text_clf.fit(train,train_Y)
+#
+# TP = 0
+# FP = 0
+# FN = 0
+# i = 0
+# outcome = text_clf.predict(test)
+# for i in range(0,len(test)):
+#     if test_Y[i] == True and outcome[i] == True:
+#         TP = TP+1
+#     if test_Y[i] == False and outcome[i]==True:
+#         FP = FP+1
+#     if test_Y[i]==True and outputs[i]==False:
+#         FN = FN + 1
+#     i = i + 1
+# precision = float(TP)/float(TP+FP)
+# recall = float(TP)/float(TP+FN)
+# f_score = 2*precision*recall/(precision+recall)
+# print "ML based rule classifier"
+# print "False positives:"+str(FP)
+# print "False negatives:"+str(FN)
+# print "True positive:"+str(TP)
+# print "Precision: "+str(precision)
+# print "Recall: "+str(recall)
+# print "F1-score: "+str(f_score)
 
 
