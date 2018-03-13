@@ -72,7 +72,7 @@ if __name__ == '__main__':
         project_names.append(res[0])
         output_file.write("\n================================\n")
         output_file.write("Project name: "+res[0])
-        output_file.write("\nWebpage: "+res[1])
+        #output_file.write("\nWebpage: "+res[1])
         pro = Project()
         pro.name = res[0]
         pro.webpage = res[1]
