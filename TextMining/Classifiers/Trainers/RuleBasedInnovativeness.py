@@ -521,7 +521,7 @@ print ""
 print "Innovative 1:"+str(innovative_1)
 print "Innovative 2:"+str(innovative_2)
 print "Innovative 3:"+str(innovative_3)
-print "Innovative 4:"+str(innovative_4)
+print "Innovative 4 (1+3):"+str(innovative_4)
 
 #scores = cross_val_score(text_clf, df_upsampled.text, df_upsampled.classa, cv=10,scoring='f1')
 
