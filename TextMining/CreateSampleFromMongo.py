@@ -68,7 +68,7 @@ if __name__ == '__main__':
     mongo_db = mongo_client.ESID
 
     for res in results:
-        f_gate = open("Outputs/p_"+res[0]+".txt",'w')
+        #f_gate = open("Outputs/p_"+res[0]+".txt",'w')
         project_names.append(res[0])
         output_file.write("\n================================\n")
         output_file.write("Project name: "+res[0])
