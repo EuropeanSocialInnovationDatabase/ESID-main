@@ -378,8 +378,12 @@ FP = 0
 FN = 0
 classes = df_upsampled.classa
 i = 0
+innovative_1 = 0
+innovative_2 = 0
+innovative_3 = 0
 for sample in doc_array:
     if "innovation" in sample[0] or "innovative" in sample[0] or "novelty" in sample[0]:
+        innovative_1 = innovative_1 + 1
         if sample[4] == True:
             TP = TP+1
         if sample[4] == False:
@@ -407,6 +411,7 @@ i = 0
 for sample in doc_array:
     if ("new" in sample[0] or "novel" in sample[0] or "alternative" in sample[0] or "improved" in sample[0] or "cutting edge" in sample[0] or "better" in sample[0])\
             and ("method" in sample[0] or "product" in sample[0] or "service" in sample[0] or "application" in sample[0] or "technology" in sample[0] or "practice" in sample[0]):
+        innovative_2 = innovative_2 +1
         if sample[4] == True:
             TP = TP+1
         if sample[4] == False:
@@ -434,6 +439,7 @@ i = 0
 for sample in doc_array:
     isInnovative = False
     if ("method" in sample[0] or "product" in sample[0] or "service" in sample[0] or "application" in sample[0] or "technology" in sample[0] or "practice" in sample[0]):
+
         list_items = ["method","product","service","application","technology","practice"]
         index_list = []
         for item in list_items:
@@ -451,7 +457,9 @@ for sample in doc_array:
             if ("new" in substr or "novel" in substr or "alternative" in substr or "improved" in substr or "cutting edge" in substr or "better" in substr):
                 isInnovative = True
 
+
         if isInnovative:
+            innovative_3 = innovative_3 + 1
             if sample[4] == True:
                 TP = TP+1
             if sample[4] == False:
@@ -469,6 +477,10 @@ print "True positive:"+str(TP)
 print "Precision: "+str(precision)
 print "Recall: "+str(recall)
 print "F1-score: "+str(f_score)
+print ""
+print "Innovative 1:"+str(innovative_1)
+print "Innovative 2:"+str(innovative_2)
+print "Innovative 3:"+str(innovative_3)
 
 #scores = cross_val_score(text_clf, df_upsampled.text, df_upsampled.classa, cv=10,scoring='f1')
 
