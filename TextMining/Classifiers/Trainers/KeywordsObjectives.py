@@ -1,21 +1,15 @@
-from compiler.ast import Mul
-
 from sklearn.datasets import fetch_20newsgroups
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.naive_bayes import MultinomialNB
-from sklearn import svm,tree
 from sklearn import metrics
 from sklearn.pipeline import Pipeline
 import numpy as np
-from sklearn.neural_network import MLPClassifier
 import pandas as pd
 import re
 from os import listdir
 from os.path import  join,isdir
-import graphviz
 from sklearn.feature_extraction import text
-from sklearn.ensemble import RandomForestClassifier,VotingClassifier,AdaBoostClassifier
 from sklearn.utils import resample
 from sklearn.model_selection import cross_val_score
 import pickle
@@ -391,18 +385,11 @@ print df_upsampled.classa.value_counts()
 
 
 train = text_array[0:int(0.8*len(text_array))]
-train_Y = innovativeness[0:int(0.8*len(innovativeness))]
+train_Y = objectives[0:int(0.8*len(objectives))]
 
 test = text_array[int(0.8*len(text_array)):]
-test_Y = innovativeness[int(0.8*len(innovativeness)):]
-stop_words1 = text.ENGLISH_STOP_WORDS.union(["than","facebook","these","been","ithaca","eu","di","wikihouse","mouse4all","public","european","nbsp","uk",
-                                             "la","com","00","en","und","30","il","hakisa","blitab","scribeasy","mazi","del","bazaar","edukit",
-                                             "les","balu","000","tyze","solomon","10","twitter","fitforkids","20","28","https","24","40","12",
-                                             "15","org","11","17","25","14","18","l4a","usemp","google","16","kaitiaki","www","nemethi","50",
-                                             "kommune","http","des","le","wheeliz","der","rfrc","wequest","et","piazza","mit","es","que","von",
-                                             "lavoro","likta","german","ffit","oct","october","caps","nous","angelo","noen","crowdacting","nowwemove",
-                                             "che","jun","ok","si","henpower","does","29","home","english","href","koninklijke","rrafo","su",
-                                             "nostra","bank4all","du","76"])
+test_Y = objectives[int(0.8*len(objectives)):]
+stop_words1 = text.ENGLISH_STOP_WORDS.union([])
 count_vect = CountVectorizer(stop_words=stop_words1)
 #stop_words=stop_words1
 X_train_counts = count_vect.fit_transform(train)
@@ -414,8 +401,6 @@ X_train_tf.shape
 tfidf_transformer = TfidfTransformer()
 X_train_tfidf = tfidf_transformer.fit_transform(X_train_counts)
 X_train_tfidf.shape
-
-print "NaiveBayers"
 clf = MultinomialNB().fit(X_train_tfidf, train_Y)
 
 X_new_counts = count_vect.transform(test)
@@ -423,91 +408,7 @@ X_new_tfidf = tfidf_transformer.transform(X_new_counts)
 predicted = clf.predict(X_new_tfidf)
 # for doc, category in zip(test, predicted):
 #     print('%r => %s' % (doc, test_Y.target_names[category]))
-#show_most_informative_features(count_vect,clf,100)
+show_most_informative_features(count_vect,clf,100)
 print np.mean(predicted ==test_Y)
 print(metrics.classification_report(test_Y, predicted))
 print(metrics.confusion_matrix(test_Y,predicted,labels=[False,True]))
-
-print "SVC"
-clf = svm.SVC(random_state=8).fit(X_train_tfidf, train_Y)
-
-X_new_counts = count_vect.transform(test)
-X_new_tfidf = tfidf_transformer.transform(X_new_counts)
-predicted = clf.predict(X_new_tfidf)
-# for doc, category in zip(test, predicted):
-#     print('%r => %s' % (doc, test_Y.target_names[category]))
-#show_most_informative_features(count_vect,clf,100)
-print np.mean(predicted ==test_Y)
-print(metrics.classification_report(test_Y, predicted))
-print(metrics.confusion_matrix(test_Y,predicted,labels=[False,True]))
-
-
-# TREE CLASSIFIER
-
-print "DecisionTree"
-clf = tree.DecisionTreeClassifier().fit(X_train_tfidf, train_Y)
-
-X_new_counts = count_vect.transform(test)
-X_new_tfidf = tfidf_transformer.transform(X_new_counts)
-predicted = clf.predict(X_new_tfidf)
-# for doc, category in zip(test, predicted):
-#     print('%r => %s' % (doc, test_Y.target_names[category]))
-#show_most_informative_features(count_vect,clf,100)
-print np.mean(predicted ==test_Y)
-print(metrics.classification_report(test_Y, predicted))
-print(metrics.confusion_matrix(test_Y,predicted,labels=[False,True]))
-
-#dot_data = tree.export_graphviz(clf, out_file=None,feature_names=count_vect.get_feature_names(),class_names=["False","True"])
-#graph = graphviz.Source(dot_data)
-#graph.render("InnovationDecisionTree")
-
-
-# RandomForest CLASSIFIER
-print "Random Forest"
-clf = RandomForestClassifier(n_estimators=500, max_depth=None, random_state=0).fit(X_train_tfidf, train_Y)
-
-X_new_counts = count_vect.transform(test)
-X_new_tfidf = tfidf_transformer.transform(X_new_counts)
-predicted = clf.predict(X_new_tfidf)
-# for doc, category in zip(test, predicted):
-#     print('%r => %s' % (doc, test_Y.target_names[category]))
-#show_most_informative_features(count_vect,clf,100)
-print np.mean(predicted ==test_Y)
-print(metrics.classification_report(test_Y, predicted))
-print(metrics.confusion_matrix(test_Y,predicted,labels=[False,True]))
-
-print "AdaBoost"
-nb = MultinomialNB()
-clf = AdaBoostClassifier(n_estimators=500,base_estimator=nb,learning_rate=0.9,random_state=5).fit(X_train_tfidf, train_Y)
-X_new_counts = count_vect.transform(test)
-X_new_tfidf = tfidf_transformer.transform(X_new_counts)
-predicted = clf.predict(X_new_tfidf)
-print np.mean(predicted ==test_Y)
-print(metrics.classification_report(test_Y, predicted))
-print(metrics.confusion_matrix(test_Y,predicted,labels=[False,True]))
-
-print "MultiLayeredPerceptron"
-clf = MLPClassifier(solver='lbfgs', alpha=1e-5,hidden_layer_sizes=(40, 5), random_state=1).fit(X_train_tfidf, train_Y)
-X_new_counts = count_vect.transform(test)
-X_new_tfidf = tfidf_transformer.transform(X_new_counts)
-predicted = clf.predict(X_new_tfidf)
-print np.mean(predicted ==test_Y)
-print(metrics.classification_report(test_Y, predicted))
-print(metrics.confusion_matrix(test_Y,predicted,labels=[False,True]))
-
-
-print "Voting classifier"
-clf1 = RandomForestClassifier(n_estimators=500, max_depth=None, random_state=0).fit(X_train_tfidf, train_Y)
-clf2 = tree.DecisionTreeClassifier().fit(X_train_tfidf, train_Y)
-clf3 = svm.SVC(random_state=8,probability=True).fit(X_train_tfidf, train_Y)
-clf4 = MultinomialNB().fit(X_train_tfidf, train_Y)
-clf5 = MLPClassifier(solver='lbfgs', alpha=1e-5,hidden_layer_sizes=(40, 2), random_state=1).fit(X_train_tfidf, train_Y)
-eclf = VotingClassifier(estimators=[('rf', clf1), ('nb',clf4),('mlp',clf5)], voting='soft',weights=[1,1,2],n_jobs=3).fit(X_train_tfidf, train_Y)
-X_new_counts = count_vect.transform(test)
-X_new_tfidf = tfidf_transformer.transform(X_new_counts)
-predicted = eclf.predict(X_new_tfidf)
-print np.mean(predicted ==test_Y)
-print(metrics.classification_report(test_Y, predicted))
-print(metrics.confusion_matrix(test_Y,predicted,labels=[False,True]))
-
-

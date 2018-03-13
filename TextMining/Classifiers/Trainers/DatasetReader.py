@@ -1,10 +1,15 @@
-import nltk
-from os import listdir
-from os.path import isfile, join,isdir
-import csv
 import re
-#import sklearn.metrics
-import os
+from os import listdir
+from os.path import  join,isdir
+
+
+def show_most_informative_features(vectorizer, clf, n=20):
+    feature_names = vectorizer.get_feature_names()
+    coefs_with_fns = sorted(zip(clf.coef_[0], feature_names))
+    top = zip(coefs_with_fns[:n], coefs_with_fns[:-(n + 1):-1])
+    for (coef_1, fn_1), (coef_2, fn_2) in top:
+        print "\t%.4f\t%-15s\t\t%.4f\t%-15s" % (coef_1, fn_1, coef_2, fn_2)
+
 class DataSet:
     Annotators = []
     def __init__(self):
@@ -108,31 +113,33 @@ class Annotation:
     HighLevelClass = ""
     LowLevelClass = ""
 
-if __name__ == '__main__':
-    data_folder = "FullDataset_Alina"
+def read_dataset():
+    data_folder = "../../../Helpers/FullDataset_Alina/"
     ds = DataSet()
     total_num_spam = 0
+    sentences = []
     total_num_files = 0
+    # job = aetros.backend.start_job('nikolamilosevic86/GloveModel')
     annotators = [f for f in listdir(data_folder) if isdir(join(data_folder, f))]
     for ann in annotators:
-        folder = data_folder+"/"+ann
+        folder = data_folder + "/" + ann
         Annot = Annotator()
         Annot.Name = ann
         ds.Annotators.append(Annot)
         onlyfiles = [f for f in listdir(folder) if (f.endswith(".txt"))]
         for file in onlyfiles:
-            Annot.files.append(data_folder+"/"+ann+'/'+file)
+            Annot.files.append(data_folder + "/" + ann + '/' + file)
             doc = Document()
             total_num_files = total_num_files + 1
             doc.Lines = []
-            #doc.Annotations = []
-            doc.DocumentName= file
+            # doc.Annotations = []
+            doc.DocumentName = file
             Annot.documents.append(doc)
-            if(file.startswith('a') or file.startswith('t')):
+            if (file.startswith('a') or file.startswith('t')):
                 continue
             print file
             doc.DatabaseID = file.split("_")[1].split(".")[0]
-            fl = open(data_folder+"/"+ann+'/'+file,'r')
+            fl = open(data_folder + "/" + ann + '/' + file, 'r')
             content = fl.read()
             doc.Text = content
             lines = content.split('\n')
@@ -140,22 +147,22 @@ if __name__ == '__main__':
             for line in lines:
                 l = Line()
                 l.StartSpan = line_index
-                l.EndSpan = line_index+len(line)
+                l.EndSpan = line_index + len(line)
                 l.Text = line
-                line_index = line_index+len(line)+1
+                line_index = line_index + len(line) + 1
+                sentences.append(line)
                 doc.Lines.append(l)
 
-
-            an = open(data_folder+"/"+ann+'/'+file.replace(".txt",".ann"),'r')
+            an = open(data_folder + "/" + ann + '/' + file.replace(".txt", ".ann"), 'r')
             annotations = an.readlines()
             for a in annotations:
-                a = re.sub(r'\d+;\d+','',a).replace('  ',' ')
+                a = re.sub(r'\d+;\d+', '', a).replace('  ', ' ')
                 split_ann = a.split('\t')
                 if (split_ann[0].startswith("T")):
                     id = split_ann[0]
                     sp_split_ann = split_ann[1].split(' ')
                     low_level_ann = sp_split_ann[0]
-                    if low_level_ann=="ProjectMark":
+                    if low_level_ann == "ProjectMark":
                         continue
                     span_start = sp_split_ann[1]
                     span_end = sp_split_ann[2]
@@ -167,72 +174,69 @@ if __name__ == '__main__':
                     Ann.FromAnnotator = Annot.Name
                     Ann.FromFile = file
                     Ann.LowLevelClass = low_level_ann
-                    if(low_level_ann == "SL_Outputs_3a"):
+                    if (low_level_ann == "SL_Outputs_3a"):
                         Ann.HighLevelClass = "Outputs"
-                    if (low_level_ann == "SL_Objective_1a" or low_level_ann == "SL_Objective_1b" or low_level_ann == "SL_Objective_1c"):
+                    if (
+                                low_level_ann == "SL_Objective_1a" or low_level_ann == "SL_Objective_1b" or low_level_ann == "SL_Objective_1c"):
                         Ann.HighLevelClass = "Objectives"
-                    if (low_level_ann == "SL_Actors_2a" or low_level_ann == "SL_Actors_2b" or low_level_ann == "SL_Actors_2c"):
+                    if (
+                                low_level_ann == "SL_Actors_2a" or low_level_ann == "SL_Actors_2b" or low_level_ann == "SL_Actors_2c"):
                         Ann.HighLevelClass = "Actors"
                     if (low_level_ann == "SL_Innovativeness_4a"):
                         Ann.HighLevelClass = "Innovativeness"
                     doc.Annotations.append(Ann)
                     for line in doc.Lines:
-                        if line.StartSpan<=Ann.StartSpan and line.EndSpan>=Ann.EndSpan:
+                        if line.StartSpan <= Ann.StartSpan and line.EndSpan >= Ann.EndSpan:
                             line.Annotations.append(Ann)
+
                 else:
                     id = split_ann[0]
                     sp_split_ann = split_ann[1].split(' ')
                     mark_name = sp_split_ann[0]
-                    if (len(sp_split_ann)<=2):
+                    if (len(sp_split_ann) <= 2):
                         continue
-                    mark = sp_split_ann[2].replace('\n','')
-                    if(mark_name=="DL_Outputs_3a"):
+                    mark = sp_split_ann[2].replace('\n', '')
+                    if (mark_name == "DL_Outputs_3a"):
                         doc.Project_Mark_Outputs_3A = int(mark)
-                        if int(mark)>=2:
+                        if int(mark) >= 1:
                             doc.isProjectOutputSatisfied = True
                     if (mark_name == "DL_Objective_1a"):
                         doc.Project_Mark_Objective_1A = int(mark)
-                        if int(mark)>=2:
+                        if int(mark) >= 1:
                             doc.isProjectObjectiveSatisfied = True
-                    if (mark_name == "DL_Objective_1b"):
+                    if (mark_name == "DL_Objective_1b" or mark_name == "DL_Objective"):
                         doc.Project_Mark_Objective_1B = int(mark)
-                        if int(mark)>=2:
+                        if int(mark) >= 1:
                             doc.isProjectObjectiveSatisfied = True
                     if (mark_name == "DL_Objective_1c"):
                         doc.Project_Mark_Objective_1C = int(mark)
-                        if int(mark)>=2:
+                        if int(mark) >= 1:
                             doc.isProjectObjectiveSatisfied = True
-                    if (mark_name == "DL_Innovativeness_4a"):
+                    if (mark_name == "DL_Innovativeness_4a" or mark_name == "DL_Innovativeness"):
                         doc.Project_Mark_Innovativeness_3A = int(mark)
-                        if int(mark)>=2:
+                        if int(mark) >= 1:
                             doc.isProjectInnovativenessSatisfied = True
-                    if (mark_name == "DL_Actors_2a"):
+                    if (mark_name == "DL_Actors_2a" or mark_name == "DL_Actors"):
                         doc.Project_Mark_Actors_2A = int(mark)
-                        if int(mark)>=2:
+                        if int(mark) >= 1:
                             doc.isProjectActorSatisfied = True
                     if (mark_name == "DL_Actors_2b"):
                         doc.Project_Mark_Actors_2B = int(mark)
-                        if int(mark)>=2:
+                        if int(mark) >= 1:
                             doc.isProjectActorSatisfied = True
                     if (mark_name == "DL_Actors_2c"):
                         doc.Project_Mark_Actors_2C = int(mark)
-                        if int(mark)>=2:
+                        if int(mark) >= 1:
                             doc.isProjectActorSatisfied = True
-            if(doc.Project_Mark_Objective_1A==0 and doc.Project_Mark_Objective_1B == 0 and doc.Project_Mark_Objective_1C==0 and doc.Project_Mark_Actors_2A==0
-                and doc.Project_Mark_Actors_2B==0 and doc.Project_Mark_Actors_2B==0 and doc.Project_Mark_Actors_2C==0 and doc.Project_Mark_Outputs_3A == 0
-                and doc.Project_Mark_Innovativeness_3A==0):
+            if (
+                                                doc.Project_Mark_Objective_1A == 0 and doc.Project_Mark_Objective_1B == 0 and doc.Project_Mark_Objective_1C == 0 and doc.Project_Mark_Actors_2A == 0
+                            and doc.Project_Mark_Actors_2B == 0 and doc.Project_Mark_Actors_2B == 0 and doc.Project_Mark_Actors_2C == 0 and doc.Project_Mark_Outputs_3A == 0
+            and doc.Project_Mark_Innovativeness_3A == 0):
                 doc.isSpam = True
                 total_num_spam = total_num_spam + 1
 
-    with open('annotations.csv', 'wb') as csvfile:
-        spamwriter = csv.writer(csvfile, delimiter=',',
-                                quotechar='\"', quoting=csv.QUOTE_MINIMAL)
-        for ann in ds.Annotators:
-            for doc in ann.documents:
-                for annot in doc.Annotations:
-                    spamwriter.writerow([annot.FromFile,annot.FromAnnotator,annot.AnnotationText,annot.LowLevelClass,annot.HighLevelClass,annot.StartSpan,annot.EndSpan])
     i = 0
-    j = i+1
+    j = i + 1
     kappa_files = 0
 
     done_documents = []
@@ -255,8 +259,9 @@ if __name__ == '__main__':
     match_outputs = 0
     match_actors = 0
     match_innovativeness = 0
-    while i<len(ds.Annotators)-1:
-        while j<len(ds.Annotators):
+
+    while i < len(ds.Annotators) - 1:
+        while j < len(ds.Annotators):
             annotator1 = ds.Annotators[i]
             annotator2 = ds.Annotators[j]
             for doc1 in annotator1.documents:
@@ -273,8 +278,8 @@ if __name__ == '__main__':
                         ann2_actor = [0] * len(doc2.Lines)
                         ann1_innovativeness = [0] * len(doc1.Lines)
                         ann2_innovativeness = [0] * len(doc2.Lines)
-                        while line_num<len(doc1.Lines):
-                            if len(doc1.Lines[line_num].Annotations)>0:
+                        while line_num < len(doc1.Lines):
+                            if len(doc1.Lines[line_num].Annotations) > 0:
                                 for a in doc1.Lines[line_num].Annotations:
                                     if a.HighLevelClass == "Objectives":
                                         ann1_objective[line_num] = 1
@@ -298,7 +303,7 @@ if __name__ == '__main__':
                                                 match_actors = match_actors + 1
                                             if a1.HighLevelClass == "Innovativeness":
                                                 match_innovativeness = match_innovativeness + 1
-                            if len(doc2.Lines[line_num].Annotations)>0:
+                            if len(doc2.Lines[line_num].Annotations) > 0:
                                 for a in doc2.Lines[line_num].Annotations:
                                     if a.HighLevelClass == "Objectives":
                                         ann2_objective[line_num] = 1
@@ -321,85 +326,36 @@ if __name__ == '__main__':
                         ann2_annotations_actors.extend(ann2_actor)
                         ann1_annotations_innovativeness.extend(ann1_innovativeness)
                         ann2_annotations_innovativeness.extend(ann2_innovativeness)
-                        #kappa_outputs = sklearn.metrics.cohen_kappa_score(ann1_output,ann2_output)
-                        #kappa_objectives = sklearn.metrics.cohen_kappa_score(ann1_objective, ann2_objective)
-                        #kappa_actors = sklearn.metrics.cohen_kappa_score(ann1_actor, ann2_actor)
-                        #kappa_innovativeness = sklearn.metrics.cohen_kappa_score(ann1_innovativeness, ann2_innovativeness)
-                        print "Statistics for document:"+doc1.DocumentName
-                        print "Annotators "+annotator1.Name+" and "+annotator2.Name
-                        print "Spam by "+annotator1.Name+":"+str(doc1.isSpam)
+                        print "Statistics for document:" + doc1.DocumentName
+                        print "Annotators " + annotator1.Name + " and " + annotator2.Name
+                        print "Spam by " + annotator1.Name + ":" + str(doc1.isSpam)
                         print "Spam by " + annotator2.Name + ":" + str(doc2.isSpam)
-                        if(doc1.isSpam == doc2.isSpam):
-                            num_overlap_spam = num_overlap_spam+1
+                        if (doc1.isSpam == doc2.isSpam):
+                            num_overlap_spam = num_overlap_spam + 1
                         if doc1.isSpam:
                             num_spam = num_spam + 1
                         if doc2.isSpam:
                             num_spam = num_spam + 1
-                        #print "Cohen Kappa for class Objectives: "+str(kappa_objectives)
-                        #print "Cohen Kappa for class Actors: " + str(kappa_actors)
-                        #print "Cohen Kappa for class Outputs: " + str(kappa_outputs)
-                        #print "Cohen Kappa for class Innovativeness: " + str(kappa_innovativeness)
-                        print "------------------------------------------------------------------"
-                        kappa_files = kappa_files +1
-            j = j+1
-        i = i+1
-        j = i+1
-
-    # accuracy_spam = float(num_overlap_spam)/float(kappa_files)
-    # print "Agreement for detecting social innovation/spam: "+str(accuracy_spam)
-    # print "Percentage of spam projects (in IAA set): " + str(float(num_spam)/float(2*kappa_files))
-    # print "Percentage of spam projects (whole set): " + str(float(total_num_spam) / float(total_num_files))
-    # print ""
-    # print "IAA for Objectives: "+str(float(match_objectives)/float(total_objectives-match_objectives))
-    # print "Total and matches: "+str(total_objectives-match_objectives)+"; "+str(match_objectives)
-    # print "IAA for Actors: " + str(float(match_actors) / float(total_actors - match_actors))
-    # print "Total and matches: " + str(total_actors-match_actors) + "; " + str(match_actors)
-    # print "IAA for Outputs: " + str(float(match_outputs) / float(total_outputs - match_outputs))
-    # print "Total and matches: " + str(total_outputs-match_outputs) + "; " + str(match_outputs)
-    # print "IAA for Innovativeness: " + str(float(match_innovativeness) / float(total_innovativeness - match_innovativeness))
-    # print "Total and matches: " + str(total_innovativeness-match_innovativeness) + "; " + str(match_innovativeness)
-    # print "Total AII over all SL annotations: "+str(float(match_innovativeness+match_objectives+match_actors+match_outputs) / float(total_innovativeness - match_innovativeness+total_objectives-match_objectives+total_actors - match_actors+total_outputs - match_outputs))
-    # print "Total and matches: " + str(total_innovativeness - match_innovativeness+total_objectives-match_objectives+total_actors - match_actors+total_outputs - match_outputs) +";" +str(match_innovativeness+match_objectives+match_actors+match_outputs)
-    # print "IAA files count: "+str(kappa_files)
-    # kappa_total_outputs = sklearn.metrics.cohen_kappa_score(ann1_annotations_outputs, ann2_annotations_outputs)
-    # kappa_total_actors = sklearn.metrics.cohen_kappa_score(ann1_annotations_actors, ann2_annotations_actors)
-    # kappa_total_objectives = sklearn.metrics.cohen_kappa_score(ann1_annotations_objectives, ann2_annotations_objectives)
-    # kappa_total_innovativeness = sklearn.metrics.cohen_kappa_score(ann1_annotations_innovativeness, ann2_annotations_innovativeness)
-    # print ""
-    # print "Kappa totaly objectives: "+str(kappa_total_objectives)
-    # print "Kappa totaly actors: " + str(kappa_total_actors)
-    # print "Kappa totaly outputs: " + str(kappa_total_outputs)
-    # print "Kappa totaly innovativeness: " + str(kappa_total_innovativeness)
+                        kappa_files = kappa_files + 1
+            j = j + 1
+        i = i + 1
+        j = i + 1
 
     print annotators
     doc_array = []
+    text_array = []
+    objectives = []
+    actors = []
+    outputs = []
+    innovativeness = []
     for ann in ds.Annotators:
         for doc in ann.documents:
-            doc_array.append([doc.Text,doc.isProjectObjectiveSatisfied,doc.isProjectActorSatisfied,doc.isProjectOutputSatisfied,doc.isProjectInnovativenessSatisfied,doc.DocumentName])
-
-    data_x = []
-    data_y = []
-    test_x = []
-    test_y = []
-    directory1 = "Good"
-    directory2 = "Bad"
-    if not os.path.exists(directory1):
-        os.makedirs(directory1)
-    if not os.path.exists(directory2):
-        os.makedirs(directory2)
-    for x in doc_array:
-        data_x.append(x[0])
-        data_y.append(x[4])
-        if x[1]==True and x[2] == True and x[4]== True:
-            file = open(directory1+"/"+x[5],"w")
-            file.write(x[0])
-            file.close()
-        else:
-            file = open(directory2 + "/" + x[5],"w")
-            file.write(x[0])
-            file.close()
-
-
-
-
-
+            doc_array.append(
+                [doc.Text, doc.isProjectObjectiveSatisfied, doc.isProjectActorSatisfied, doc.isProjectOutputSatisfied,
+                 doc.isProjectInnovativenessSatisfied])
+            objectives.append(doc.isProjectObjectiveSatisfied)
+            actors.append(doc.isProjectActorSatisfied)
+            outputs.append(doc.isProjectOutputSatisfied)
+            innovativeness.append(doc.isProjectInnovativenessSatisfied)
+            text_array.append(doc.Text)
+    return doc_array,text_array,objectives,actors,outputs,innovativeness
