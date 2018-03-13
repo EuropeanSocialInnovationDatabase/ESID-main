@@ -61,7 +61,7 @@ if __name__ == '__main__':
         actor_names.append(res[0])
     all_organisations = orglist_names
     all_organisations.extend(actor_names)
-    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects order by RAND() limit 200"
+    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects order by RAND() limit 500"
     cursor.execute(sql_projects)
     results = cursor.fetchall()
     mongo_client = MongoClient()
@@ -80,7 +80,7 @@ if __name__ == '__main__':
         pro.first_datasource_id = res[3]
         pro.idProject = res[4]
         project_list.append(pro)
-        documents = mongo_db.projects_actors2.find({"mysql_databaseID":str(pro.idProject)},no_cursor_timeout=True).batch_size(30)
+        documents = mongo_db.projects_actors2.find({"mysql_databaseID":str(pro.idProject)},no_cursor_timeout=True).batch_size(50)
         project_text = ""
         for doc in documents:
             project_text = project_text +  doc["page_title"]
@@ -92,6 +92,7 @@ if __name__ == '__main__':
         language = detect(project_text)
         print "Language:"+str(language)
         if language!="en":
+            continue
             tokens = nltk.word_tokenize(project_text)
             i = 0
             text_to_translate = ""
