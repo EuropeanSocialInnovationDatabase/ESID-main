@@ -469,9 +469,6 @@ clf = RandomForestClassifier(n_estimators=500, max_depth=None, random_state=0).f
 X_new_counts = count_vect.transform(test)
 X_new_tfidf = tfidf_transformer.transform(X_new_counts)
 predicted = clf.predict(X_new_tfidf)
-# for doc, category in zip(test, predicted):
-#     print('%r => %s' % (doc, test_Y.target_names[category]))
-#show_most_informative_features(count_vect,clf,100)
 print np.mean(predicted ==test_Y)
 print(metrics.classification_report(test_Y, predicted))
 print(metrics.confusion_matrix(test_Y,predicted,labels=[False,True]))
@@ -509,5 +506,3 @@ predicted = eclf.predict(X_new_tfidf)
 print np.mean(predicted ==test_Y)
 print(metrics.classification_report(test_Y, predicted))
 print(metrics.confusion_matrix(test_Y,predicted,labels=[False,True]))
-
-
