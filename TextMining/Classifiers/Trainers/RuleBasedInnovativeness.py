@@ -477,10 +477,51 @@ print "True positive:"+str(TP)
 print "Precision: "+str(precision)
 print "Recall: "+str(recall)
 print "F1-score: "+str(f_score)
+
+TP = 0
+FP = 0
+FN = 0
+i = 0
+innovative_4 = 0
+for sample in doc_array:
+    isInnovative = False
+    if "innovation" in sample[0] or "innovative" in sample[0] or "novelty" in sample[0]:
+        isInnovative = True
+    if ("method" in sample[0] or "product" in sample[0] or "service" in sample[0] or "application" in sample[0] or "technology" in sample[0] or "practice" in sample[0]):
+
+        list_items = ["method","product","service","application","technology","practice"]
+        index_list = []
+        for item in list_items:
+            indexes = [m.start() for m in re.finditer(item, sample[0])]
+            index_list.extend(indexes)
+
+        for index in index_list:
+            end = len(sample[0])
+            start = 0
+            if index - 500>0:
+                start = index - 500
+            if index + 500<len(sample[0]):
+                end = index + 500
+            substr = sample[0][start:end]
+            if ("new" in substr or "novel" in substr or "alternative" in substr or "improved" in substr or "cutting edge" in substr or "better" in substr):
+                isInnovative = True
+
+
+    if isInnovative:
+        innovative_4 = innovative_4 + 1
+        if sample[4] == True:
+            TP = TP+1
+        if sample[4] == False:
+            FP = FP+1
+    else:
+        if sample[4]==True:
+            FN = FN + 1
+
 print ""
 print "Innovative 1:"+str(innovative_1)
 print "Innovative 2:"+str(innovative_2)
 print "Innovative 3:"+str(innovative_3)
+print "Innovative 4:"+str(innovative_4)
 
 #scores = cross_val_score(text_clf, df_upsampled.text, df_upsampled.classa, cv=10,scoring='f1')
 
