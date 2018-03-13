@@ -115,7 +115,7 @@ if __name__ == '__main__':
         f_desc = cursor.fetchall()
         for d in f_desc:
             project_text = project_text+ " \n\n "+d[2].encode('utf-8').strip()
-        f_gate.write(project_text)
+        #f_gate.write(project_text)
 
         project_text = project_text.decode('utf-8','ignore').strip()
         f = open("Sample/"+str(pro.idProject)+".txt","w")
