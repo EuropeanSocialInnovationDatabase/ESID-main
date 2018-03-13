@@ -118,6 +118,7 @@ if __name__ == '__main__':
         #f_gate.write(project_text)
 
         project_text = project_text.decode('utf-8','ignore').strip()
-        f = open("Sample/"+str(pro.idProject)+".txt","w")
-        f.write(project_text)
-        f.close()
+        if len(project_text)>500:
+            f = open("Sample/"+str(pro.idProject)+".txt","w")
+            f.write(project_text)
+            f.close()
