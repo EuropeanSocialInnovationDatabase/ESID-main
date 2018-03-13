@@ -385,10 +385,10 @@ print df_upsampled.classa.value_counts()
 
 
 train = text_array[0:int(0.8*len(text_array))]
-train_Y = innovativeness[0:int(0.8*len(actors))]
+train_Y = innovativeness[0:int(0.8*len(innovativeness))]
 
 test = text_array[int(0.8*len(text_array)):]
-test_Y = innovativeness[int(0.8*len(actors)):]
+test_Y = innovativeness[int(0.8*len(innovativeness)):]
 stop_words1 = text.ENGLISH_STOP_WORDS.union(["than","facebook","these","been","ithaca","eu","di","wikihouse","mouse4all","public","european","nbsp","uk",
                                              "la","com","00","en","und","30","il","hakisa","blitab","scribeasy","mazi","del","bazaar","edukit",
                                              "les","balu","000","tyze","solomon","10","twitter","fitforkids","20","28","https","24","40","12",
@@ -421,13 +421,14 @@ print(metrics.confusion_matrix(test_Y,predicted,labels=[False,True]))
 
 
 #categories = ['non actor', 'actor']
-#
-# text_clf = Pipeline([('vect', CountVectorizer()),
-#                       ('tfidf', TfidfTransformer()),
-#                       ('clf', MultinomialNB()),
-#  ])
-#
-# scores = cross_val_score(text_clf, df_upsampled.text, df_upsampled.classa, cv=10,scoring='f1')
+
+text_clf = Pipeline([('vect', CountVectorizer()),
+                      ('tfidf', TfidfTransformer()),
+                      ('clf', MultinomialNB()),
+ ])
+
+scores = cross_val_score(text_clf, df_upsampled.text, df_upsampled.classa, cv=10,scoring='f1')
+print scores
 #
 # #show_most_informative_features(text_clf,text_clf,100)
 # print text_clf.get_params(True)
