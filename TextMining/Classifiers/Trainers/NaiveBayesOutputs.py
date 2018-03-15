@@ -233,9 +233,9 @@ for ann in annotators:
                     if int(mark) >= 1:
                         doc.isProjectActorSatisfied = True
         if (
-                                            doc.Project_Mark_Objective_1A == 0 and doc.Project_Mark_Objective_1B == 0 and doc.Project_Mark_Objective_1C == 0 and doc.Project_Mark_Actors_2A == 0
-                        and doc.Project_Mark_Actors_2B == 0 and doc.Project_Mark_Actors_2B == 0 and doc.Project_Mark_Actors_2C == 0 and doc.Project_Mark_Outputs_3A == 0
-        and doc.Project_Mark_Innovativeness_3A == 0):
+                                                    doc.Project_Mark_Objective_1A == 0 and doc.Project_Mark_Objective_1B == 0 and doc.Project_Mark_Objective_1C == 0 and doc.Project_Mark_Actors_2A == 0
+                                and doc.Project_Mark_Actors_2B == 0 and doc.Project_Mark_Actors_2B == 0 and doc.Project_Mark_Actors_2C == 0 and doc.Project_Mark_Outputs_3A == 0
+                and doc.Project_Mark_Innovativeness_3A == 0):
             doc.isSpam = True
             total_num_spam = total_num_spam + 1
 
