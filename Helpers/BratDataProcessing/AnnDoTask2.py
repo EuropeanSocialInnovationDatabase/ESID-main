@@ -318,6 +318,7 @@ if __name__ == '__main__':
                         if line.StartSpan<=Ann.StartSpan and line.EndSpan>=Ann.EndSpan:
                             line.Annotations.append(Ann)
                 else:
+                    print split_ann
                     id = split_ann[0]
                     sp_split_ann = split_ann[1].split(' ')
                     mark_name = sp_split_ann[0]
