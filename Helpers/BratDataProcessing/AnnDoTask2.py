@@ -5,7 +5,7 @@ import csv
 import re
 import sklearn.metrics
 import numpy
-from database_access import *
+#from database_access import *
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.naive_bayes import MultinomialNB
@@ -318,7 +318,7 @@ if __name__ == '__main__':
                         if line.StartSpan<=Ann.StartSpan and line.EndSpan>=Ann.EndSpan:
                             line.Annotations.append(Ann)
                 else:
-                    print split_ann
+                    #print split_ann
                     id = split_ann[0]
                     sp_split_ann = split_ann[1].split(' ')
                     mark_name = sp_split_ann[0]
@@ -480,11 +480,12 @@ if __name__ == '__main__':
     match_actors = 0
     match_innovativeness = 0
     dataset = ds
-    for doc in ds.Annotators[0].documents:
-        agreeing_docs_objectives[doc.DocumentName] = 0
-        agreeing_docs_outputs[doc.DocumentName] = 0
-        agreeing_docs_actors[doc.DocumentName] = 0
-        agreeing_docs_innovativeness[doc.DocumentName] = 0
+    for ann in ds.Annotators:
+        for doc in ann.documents:
+            agreeing_docs_objectives[doc.DocumentName] = 0
+            agreeing_docs_outputs[doc.DocumentName] = 0
+            agreeing_docs_actors[doc.DocumentName] = 0
+            agreeing_docs_innovativeness[doc.DocumentName] = 0
     while i<len(ds.Annotators)-1:
         while j<len(ds.Annotators):
             interAnn = InterAnnotation()
