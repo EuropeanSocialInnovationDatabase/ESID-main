@@ -178,7 +178,7 @@ class DocumentListItem:
         self.innovativness_sd = 0
 
 if __name__ == '__main__':
-    data_folder = "../AnnotationWorkshop2"
+    data_folder = "../AnnotationsFinal"
     conflict_folder = "../Conflicts2"
     conflict_folder2 = "../Conflicts21"
     agreeing_docs_objectives = {}
