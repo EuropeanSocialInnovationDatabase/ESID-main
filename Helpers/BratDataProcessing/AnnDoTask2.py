@@ -440,20 +440,20 @@ if __name__ == '__main__':
                 doc.isSpam = True
                 doc.isSpam_mark_based = True
                 total_num_spam = total_num_spam + 1
-    db = MySQLdb.connect(host, username, password, database, charset='utf8')
-    cursor = db.cursor()
-    with open('annotations.csv', 'wb') as csvfile:
-        spamwriter = csv.writer(csvfile, delimiter=',',
-                                quotechar='\"', quoting=csv.QUOTE_MINIMAL)
-        for ann in ds.Annotators:
-            for doc in ann.documents:
-                sql = "SELECT * from Projects where idProjects='{0}' or ProjectWebpage like '%{1}%'".format(doc.URL,doc.URL)
-                cursor.execute(sql)
-                results = cursor.fetchall()
-                for res in results:
-                    doc.FromDataset = res[15]
-                for annot in doc.Annotations:
-                    spamwriter.writerow([annot.FromFile,annot.FromAnnotator,annot.AnnotationText,annot.LowLevelClass,annot.HighLevelClass,annot.StartSpan,annot.EndSpan])
+    # db = MySQLdb.connect(host, username, password, database, charset='utf8')
+    # cursor = db.cursor()
+    # with open('annotations.csv', 'wb') as csvfile:
+    #     spamwriter = csv.writer(csvfile, delimiter=',',
+    #                             quotechar='\"', quoting=csv.QUOTE_MINIMAL)
+        # for ann in ds.Annotators:
+        #     for doc in ann.documents:
+        #         sql = "SELECT * from Projects where idProjects='{0}' or ProjectWebpage like '%{1}%'".format(doc.URL,doc.URL)
+        #         cursor.execute(sql)
+        #         results = cursor.fetchall()
+        #         for res in results:
+        #             doc.FromDataset = res[15]
+        #         for annot in doc.Annotations:
+        #             spamwriter.writerow([annot.FromFile,annot.FromAnnotator,annot.AnnotationText,annot.LowLevelClass,annot.HighLevelClass,annot.StartSpan,annot.EndSpan])
     i = 0
     j = i+1
     kappa_files = 0
