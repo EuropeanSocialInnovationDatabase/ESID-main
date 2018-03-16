@@ -44,6 +44,7 @@ if __name__ == '__main__':
     print("Initializing Mongo")
     mongo_client = MongoClient()
     mongo_db = mongo_client.ESID
+    translationTimeout = 0
 
     for res in results:
         #project_names.append(res[0])
@@ -95,7 +96,11 @@ if __name__ == '__main__':
                         continue
                     text_to_translate = text_to_translate + " "+tokens[i]
                     i= i + 1
-                en_text = translate(text_to_translate.encode('utf-8').strip(),"en","auto")
+                try:
+                    en_text = translate(text_to_translate.encode('utf-8').strip(),"en","auto")
+                except:
+                    print "Timeout translation"
+                    translationTimeout = translationTimeout + 1
                 translated = translated +" "+ en_text
                 text_to_translate = ""
             print translated
@@ -136,4 +141,5 @@ if __name__ == '__main__':
                 "DescriptionLength":str(description_len),
                 "Language":language
             })
+    print "Translation timeouts on: "+str(translationTimeout)+" pages"
 
