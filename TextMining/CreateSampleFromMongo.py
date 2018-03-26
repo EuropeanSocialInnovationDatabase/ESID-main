@@ -37,16 +37,12 @@ def find_org(org,tokens):
 
 if __name__ == '__main__':
     output_file = open("output.txt",'w')
-<<<<<<< HEAD
     directory = "Sample4"
     text_too_short = 0
     not_english = 0
     files_made = 0
     no_website = 0
     no_desc = 0
-=======
-    directory = "Sample"
->>>>>>> d2f39eba5ea3df0ecb6d708cd88ca033eeaff8f3
     if not os.path.exists(directory):
         os.makedirs(directory)
 
@@ -70,11 +66,8 @@ if __name__ == '__main__':
         actor_names.append(res[0])
     all_organisations = orglist_names
     all_organisations.extend(actor_names)
-<<<<<<< HEAD
-    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects where DataSources_idDataSources<17 order by RAND() limit 500"
-=======
+
     sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects order by RAND() limit 500"
->>>>>>> d2f39eba5ea3df0ecb6d708cd88ca033eeaff8f3
     cursor.execute(sql_projects)
     results = cursor.fetchall()
     mongo_client = MongoClient()
@@ -100,8 +93,6 @@ if __name__ == '__main__':
             project_text = project_text + "\n===============================\n\n"
             project_text = project_text + doc["text"]
 
-<<<<<<< HEAD
-
         if project_text == "" or project_text == " ":
             text_too_short = text_too_short + 1
             continue
@@ -110,11 +101,6 @@ if __name__ == '__main__':
         except:
             text_too_short = text_too_short + 1
             continue
-=======
-        if project_text == "":
-            continue
-        language = detect(project_text)
->>>>>>> d2f39eba5ea3df0ecb6d708cd88ca033eeaff8f3
         print "Language:"+str(language)
         if language!="en":
             continue
@@ -144,11 +130,8 @@ if __name__ == '__main__':
 
         project_text = project_text.decode('utf-8','ignore').strip()
         if len(project_text)>500:
-<<<<<<< HEAD
+
 
             f = open("Sample4/"+str(pro.idProject)+".txt","w")
-=======
-            f = open("Sample/"+str(pro.idProject)+".txt","w")
->>>>>>> d2f39eba5ea3df0ecb6d708cd88ca033eeaff8f3
             f.write(project_text)
             f.close()

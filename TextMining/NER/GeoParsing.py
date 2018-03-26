@@ -1,7 +1,6 @@
 from mordecai import Geoparser
 from geopy.geocoders import Nominatim
 #import pyap
-<<<<<<< HEAD
 country_codes = {
 "ABW" :  "Aruba",
 "AFG" : "Afghanistan",
@@ -266,13 +265,12 @@ print (country_codes[code])
 
 #baa = geo.geoparse("Pedje Milosavljevica 74, Belgrade, Serbia")
 #print(baa)
-=======
+
 geo = Geoparser()
 #naa = geo.geoparse("I traveled from Oxford to Ottawa.")
 #print(naa)
 baa = geo.geoparse("My address is Pedje Milosavljevica 74, Belgrade, Serbia")
 print(baa)
->>>>>>> d2f39eba5ea3df0ecb6d708cd88ca033eeaff8f3
 #geolocator = Nominatim()
 #location = geolocator.geocode("Pedje Milosavljevica 74, Belgrade, Serbia")
 #print(location.address)
