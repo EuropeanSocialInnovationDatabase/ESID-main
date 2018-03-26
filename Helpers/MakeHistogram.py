@@ -72,7 +72,7 @@ if __name__ == '__main__':
         print("Making a big document")
 
         for doc in documents:
-            number_of_pages = number_of_pages + 1  
+            number_of_pages = number_of_pages + 1
             #project_text = project_text +  doc["page_title"]
             #project_text = project_text + "\n===============================\n\n"
             project_text = project_text + doc["text"]
