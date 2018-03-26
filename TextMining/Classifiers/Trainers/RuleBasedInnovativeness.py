@@ -517,6 +517,14 @@ for sample in doc_array:
         if sample[4]==True:
             FN = FN + 1
 
+print "Combined rule classifier"
+print "False positives:"+str(FP)
+print "False negatives:"+str(FN)
+print "True positive:"+str(TP)
+print "Precision: "+str(precision)
+print "Recall: "+str(recall)
+print "F1-score: "+str(f_score)
+
 print ""
 print "Innovative 1:"+str(innovative_1)
 print "Innovative 2:"+str(innovative_2)

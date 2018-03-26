@@ -37,7 +37,12 @@ def find_org(org,tokens):
 
 if __name__ == '__main__':
     output_file = open("output.txt",'w')
-    directory = "Sample"
+    directory = "Sample4"
+    text_too_short = 0
+    not_english = 0
+    files_made = 0
+    no_website = 0
+    no_desc = 0
     if not os.path.exists(directory):
         os.makedirs(directory)
 
@@ -61,7 +66,7 @@ if __name__ == '__main__':
         actor_names.append(res[0])
     all_organisations = orglist_names
     all_organisations.extend(actor_names)
-    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects order by RAND() limit 500"
+    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects where DataSources_idDataSources<17 order by RAND() limit 500"
     cursor.execute(sql_projects)
     results = cursor.fetchall()
     mongo_client = MongoClient()
@@ -87,9 +92,15 @@ if __name__ == '__main__':
             project_text = project_text + "\n===============================\n\n"
             project_text = project_text + doc["text"]
 
-        if project_text == "":
+
+        if project_text == "" or project_text == " ":
+            text_too_short = text_too_short + 1
             continue
-        language = detect(project_text)
+        try:
+            language = detect(project_text)
+        except:
+            text_too_short = text_too_short + 1
+            continue
         print "Language:"+str(language)
         if language!="en":
             continue
@@ -119,6 +130,7 @@ if __name__ == '__main__':
 
         project_text = project_text.decode('utf-8','ignore').strip()
         if len(project_text)>500:
-            f = open("Sample/"+str(pro.idProject)+".txt","w")
+
+            f = open("Sample4/"+str(pro.idProject)+".txt","w")
             f.write(project_text)
             f.close()
