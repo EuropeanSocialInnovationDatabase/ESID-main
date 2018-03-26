@@ -34,7 +34,7 @@ def find_org(org,tokens):
     return False
 
 if __name__ == '__main__':
-    csv_file = open("histogram.csv","wb")
+    csv_file = open("histogram2.csv","wb")
     csv_writer = csv.writer(csv_file, delimiter=',',quotechar='"',quoting=csv.QUOTE_MINIMAL)
     print("Initializing")
     project_list = []
@@ -62,7 +62,7 @@ if __name__ == '__main__':
         pro.idProject = res[4]
         project_list.append(pro)
         print("Grabbing documents from Mongo")
-        documents = mongo_db.projects_actors2.find({"mysql_databaseID":str(pro.idProject)},no_cursor_timeout=True).batch_size(100)
+        documents = mongo_db.all_with_rule.find({"mysql_databaseID":str(pro.idProject)},no_cursor_timeout=True).batch_size(200)
         project_text = ""
         original_text = ""
         # if documents.count()>1000:
