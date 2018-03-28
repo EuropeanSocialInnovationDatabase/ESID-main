@@ -44,13 +44,13 @@ def strip_tags(html):
     return s.get_data()
 
 
-class GeneralWebsiteRulespider(CrawlSpider):
-    name = "GeneralWebsiteRule"
+class GeneralWebsiteRulespiderNew(CrawlSpider):
+    name = "GeneralWebsiteRule_new"
     allowed_domains = ["fablab.hochschule-rhein-waal.de"]
     start_urls = []
 
     def __init__(self, crawl_pages=True, moreparams=None, *args, **kwargs):
-        super(GeneralWebsiteRulespider, self).__init__(*args, **kwargs)
+        super(GeneralWebsiteRulespiderNew, self).__init__(*args, **kwargs)
         # Set the GeneralWebsiteRulespider member from here
         if (crawl_pages is True):
             # Then recompile the Rules
@@ -59,9 +59,9 @@ class GeneralWebsiteRulespider(CrawlSpider):
             regs = []
             for dom in  self.start_urls:
                 regs.append(dom+".*")
-            GeneralWebsiteRulespider.rules = (Rule(LinkExtractor(allow=regs), callback="parse_start_url", follow=True),)
+            GeneralWebsiteRulespiderNew.rules = (Rule(LinkExtractor(allow=regs), callback="parse_start_url", follow=True),)
 
-            super(GeneralWebsiteRulespider, self)._compile_rules()
+            super(GeneralWebsiteRulespiderNew, self)._compile_rules()
         self.moreparams = moreparams
 
 
@@ -107,6 +107,7 @@ class GeneralWebsiteRulespider(CrawlSpider):
                 allowed_domains.append(domain)
             except:
                 print "Domain with special character: "+ArtWeb
+        allowed_domains = ["fun-mooc.fr"]
         return allowed_domains
 
 
@@ -147,6 +148,7 @@ class GeneralWebsiteRulespider(CrawlSpider):
             if result == None:
                 continue
             start_urls.append(ArtWeb)
+        start_urls = ["https://www.fun-mooc.fr"]
         return start_urls
 
 
@@ -156,7 +158,7 @@ class GeneralWebsiteRulespider(CrawlSpider):
         ProWeb = ""
         print source_page
         if "facebook.com" in source_page or "vk.com" in source_page or "youtube.com" in source_page or "twitter.com" in source_page or \
-                        "linkedin" in source_page or "vimeo" in source_page or "instagram" in source_page or "google" in source_page or "github" in source_page\
+                        "linkedin" in source_page or "vimeo" in source_page or "instagram" in source_page or "google" in source_page \
                 or "pinterest" in source_page:
             return
 
@@ -207,17 +209,17 @@ class GeneralWebsiteRulespider(CrawlSpider):
                 ProWeb = res[2]
                 print "This is Project with domain " + domain
                 print item.Name
-        if ProWeb != source_page and actorWeb != source_page and domain != actorWeb and domain != ProWeb and "http://"+domain != actorWeb and "http://www."+domain != actorWeb and "https://"+domain != actorWeb and "https://www."+domain != actorWeb \
-                and "http://" + domain != ProWeb and "http://www." + domain != ProWeb and "https://" + domain != ProWeb and "https://www." + domain != ProWeb:
-            print "Returning: "+domain+"   "+source_page+"    "+actorWeb+"    "+ProWeb
-            return
+        # if ProWeb != source_page and actorWeb != source_page and domain != actorWeb and domain != ProWeb and "http://"+domain != actorWeb and "http://www."+domain != actorWeb and "https://"+domain != actorWeb and "https://www."+domain != actorWeb \
+        #         and "http://" + domain != ProWeb and "http://www." + domain != ProWeb and "https://" + domain != ProWeb and "https://www." + domain != ProWeb:
+        #     print "Returning: "+domain+"   "+source_page+"    "+actorWeb+"    "+ProWeb
+        #     return
 
         if(item.DatabaseID == None or item.DatabaseID==""):
             return
         client = MongoClient()
         db = client.ESID
 
-        result = db.all_with_rule.insert_one(
+        result = db.test11.insert_one(
             {
                 "timestamp":time.time(),
                 "relatedTo": item.RelatedTo,
@@ -234,7 +236,7 @@ class GeneralWebsiteRulespider(CrawlSpider):
         le = LinkExtractor()
         links = le.extract_links(response)
         for link in links:
-            if "github" in link:
+            if "github" in link.url:
                 continue
             else:
-                yield scrapy.Request(link, callback=self.parse_start_url)
+                yield scrapy.Request(link.url, callback=self.parse_start_url)
