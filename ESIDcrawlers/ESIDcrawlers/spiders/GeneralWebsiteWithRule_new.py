@@ -78,7 +78,7 @@ class GeneralWebsiteRulespiderNew(CrawlSpider):
             ArtWeb = res[2]
             if ArtWeb== None or "vk.com" in ArtWeb.lower() or "youtube" in ArtWeb.lower() or "twitter" in ArtWeb.lower() or "linkedin" in ArtWeb.lower() \
                 or "vimeo" in ArtWeb.lower() or "instagram" in ArtWeb.lower() or "plus.google" in ArtWeb.lower() or "facebook.com" in ArtWeb.lower() \
-                    or "pinterest" in ArtWeb.lower() or "meetup" in ArtWeb.lower() or "wikipedia" in ArtWeb.lower() or "github" in ArtWeb.lower():
+                    or "pinterest" in ArtWeb.lower() or "meetup" in ArtWeb.lower() or "wikipedia" in ArtWeb.lower() :
                 continue
 
             parsed_uri = urlparse(ArtWeb)
@@ -95,7 +95,7 @@ class GeneralWebsiteRulespiderNew(CrawlSpider):
             ArtWeb = res[2]
             if ArtWeb == None or "vk.com" in ArtWeb.lower() or "youtube" in ArtWeb.lower() or "twitter" in ArtWeb.lower() or "linkedin" in ArtWeb.lower() \
                     or "vimeo" in ArtWeb.lower() or "instagram" in ArtWeb.lower() or "plus.google" in ArtWeb.lower() or "facebook.com" in ArtWeb.lower()\
-                    or "pinterest" in ArtWeb.lower() or "meetup" in ArtWeb.lower()or "wikipedia" in ArtWeb.lower() or "github" in ArtWeb.lower():
+                    or "pinterest" in ArtWeb.lower() or "meetup" in ArtWeb.lower()or "wikipedia" in ArtWeb.lower():
                 continue
             parsed_uri = urlparse(ArtWeb)
             try:
