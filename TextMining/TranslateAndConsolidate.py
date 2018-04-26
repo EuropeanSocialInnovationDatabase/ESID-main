@@ -38,7 +38,7 @@ if __name__ == '__main__':
     db = MySQLdb.connect(host, username, password, database, charset='utf8')
     cursor = db.cursor()
     print("Selecting projects from mysql")
-    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects where Exclude=0"
+    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects where idProjects>12837 and Exclude=0"
     cursor.execute(sql_projects)
     results = cursor.fetchall()
     print("Initializing Mongo")
@@ -56,6 +56,7 @@ if __name__ == '__main__':
         pro.first_datasource = res[2]
         pro.first_datasource_id = res[3]
         pro.idProject = res[4]
+        print(pro.idProject)
         project_list.append(pro)
         print("Grabbing documents from Mongo")
         documents = mongo_db.all_with_rule.find({"mysql_databaseID":str(pro.idProject)},no_cursor_timeout=True).batch_size(100)

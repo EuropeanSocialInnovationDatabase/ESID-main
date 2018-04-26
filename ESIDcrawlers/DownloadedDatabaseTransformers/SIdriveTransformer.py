@@ -36,6 +36,9 @@ if __name__ == '__main__':
             newProject = True
             newURL = True
             projectname_en = pro['projectname_en']
+            project_desc = pro['description']
+            if project_desc == None:
+                project_desc = ""
             if projectname_en!= None:
                 projectname_en = projectname_en.encode('utf-8').replace('"','').replace("'",'').replace('%','')
             else:
@@ -76,6 +79,9 @@ if __name__ == '__main__':
                 cursor.execute(UpdateProjectQuery)
                 projectid = cursor.lastrowid
                 db.commit()
+            InsertDesc = "Insert into AdditionalProjectData (FieldName,Value,Projects_idProjects,DateObtained) VALUES ('{0}','{1}','{2}',NOW())".format("Description",project_desc.encode('utf-8').replace("'",''),str(projectid))
+            cursor.execute(InsertDesc)
+            db.commit()
             InsertLocation = "Insert into ProjectLocation (Type,City,Country,Longitude,Latitude,Projects_idProjects) VALUES ('{0}','{1}','{2}',{3},{4},{5})".format("Main",city.encode('utf-8').replace("'",""),country.encode('utf-8').replace("'",""),longitude,latitude,str(projectid))
             cursor.execute(InsertLocation)
             db.commit()

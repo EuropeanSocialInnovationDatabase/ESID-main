@@ -24,36 +24,36 @@ def strip_tags(html):
 if __name__ == '__main__':
     db = MySQLdb.connect(host, username, password, database, charset='utf8')
     cursor = db.cursor()
-    if not os.path.exists("ESID-data"):
-        os.makedirs("ESID-data")
+    if not os.path.exists("ESID-data_new"):
+        os.makedirs("ESID-data_new")
     client = MongoClient()
     db = client.ESID
     project_text = {}
-    everything = db.projects3.find({},no_cursor_timeout=True).batch_size(30)
+    everything = db.translated2.find({},no_cursor_timeout=True).batch_size(30)
     i = 1
     for pro in everything:
         try:
             name = pro["name"]
-            page_title = pro["page_title"]
+            #page_title = pro["page_title"]
             id = pro["mysql_databaseID"]
             if id in project_text.keys():
-                project_text[id]=project_text[id]+"---------------------------------------\r\nNEW PAGE: "+page_title+ "\r\n\r\n"+pro["text"]
+                project_text[id]=project_text[id]+"---------------------------------------\r\nNEW PAGE: "+ "\r\n\r\n"+pro["translation"]
             else:
-                project_text[id]="---------------------------------------\r\nNEW PAGE: "+page_title+ "\r\n\r\n"+pro["text"]
+                project_text[id]="---------------------------------------\r\nNEW PAGE: "+ "\r\n\r\n"+pro["translation"]
             print("item "+str(i))
             i = i+1
         except:
             print("Exception: Record ignored")
     print("Writing files")
-    db.projects3.close()
+    #db.translated2.close()
     for item in project_text:
         sql = "SELECT * from Projects where idProjects = "+item
         cursor.execute(sql)
         results2 = cursor.fetchall()
         for res2 in results2:
             project_name = res2[2]
-            project_website = res[11]
-            project_source = res[15]
+            project_website = res2[11]
+            project_source = res2[16]
 
         project_text[item] = "PROJECT NAME: "+project_name+"\r\nPROJECT SOURCE: "+project_source+"\r\n"+project_text[item]
         sql_des = "SELECT * FROM EDSI.AdditionalProjectData where (FieldName like '%Description%' or FieldName like '%Challenges Addressed%' " \
@@ -63,14 +63,14 @@ if __name__ == '__main__':
         for res in results:
             project_text[item] = project_text[item]+" \n\n"+strip_tags(res[2])
         tokens = nltk.word_tokenize(project_text[item])
-        if len(tokens)<500 or len(tokens)>10000:
+        if len(tokens)<200 or len(tokens)>20000:
             continue
         project_text[item] = re.sub(r'(\n\s*)+\n+', '\n\n', project_text[item])
-        f = open('ESID-data/p_'+item+".txt", 'w')
+        f = open('ESID-data_new/p_'+item+".txt", 'w')
         f.write(project_text[item].encode('utf-8').strip())  # python will convert \n to os.linesep
         f.write("\r\n WHOLE PROJECT MARK")
         f.close()
-        f = open('ESID-data/p_' + item + ".ann", 'w')
+        f = open('ESID-data_new/p_' + item + ".ann", 'w')
         f.close()
 
 
