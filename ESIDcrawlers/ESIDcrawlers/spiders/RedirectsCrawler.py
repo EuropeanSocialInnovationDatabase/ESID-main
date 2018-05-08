@@ -52,7 +52,7 @@ def strip_tags(html):
 
 
 class GeneralWebsiteRulespiderNew(CrawlSpider):
-    name = "GeneralWebsiteRule_improved"
+    name = "RedirectsCrawler"
     allowed_domains = ["fablab.hochschule-rhein-waal.de"]
     start_urls = []
 
@@ -86,7 +86,7 @@ class GeneralWebsiteRulespiderNew(CrawlSpider):
         #         or "vimeo" in ArtWeb.lower() or "instagram" in ArtWeb.lower() or "plus.google" in ArtWeb.lower() or "facebook.com" in ArtWeb.lower() \
         #             or "pinterest" in ArtWeb.lower() or "meetup" in ArtWeb.lower() or "wikipedia" in ArtWeb.lower() :
         #         continue
-        # 
+        #
         #     parsed_uri = urlparse(ArtWeb)
         #     domain = '{uri.netloc}/'.format(uri=parsed_uri).replace("/","").replace("www.","")
         #     prog = re.compile(pattern)
@@ -138,7 +138,7 @@ class GeneralWebsiteRulespiderNew(CrawlSpider):
         #     if result == None:
         #         continue
         #     start_urls.append(ArtWeb)
-        sql = "Select idProjects,ProjectName,ProjectWebpage from Projects where idProjects=6891"
+        sql = "Select idProjects,ProjectName,ProjectWebpage from Projects"
         self.cursor.execute(sql)
         results = self.cursor.fetchall()
         urls = []
@@ -158,125 +158,23 @@ class GeneralWebsiteRulespiderNew(CrawlSpider):
         #start_urls = ["https://www.fun-mooc.fr"]
         return start_urls
 
-    # def make_requests_from_url(self, url):
-    #     return scrapy.Request(url, dont_filter=True, meta={
-    #         'dont_redirect': True,
-    #         'handle_httpstatus_list': [301, 302]
-    #     })#,callback=self.parse_start_url)
+    def make_requests_from_url(self, url):
+        return scrapy.Request(url, dont_filter=True, meta={
+            'dont_redirect': True,
+            'handle_httpstatus_list': [301, 302]
+        })#,callback=self.parse_start_url)
 
 
     def parse_start_url(self, response):
         source_page = response.url
-        actorWeb = ""
-        ProWeb = ""
-        print source_page
-        if "facebook.com" in source_page or "vk.com" in source_page or "youtube.com" in source_page or "twitter.com" in source_page or \
-                        "linkedin" in source_page or "vimeo" in source_page or "instagram" in source_page or "google" in source_page \
-                or "pinterest" in source_page:
+        if response.status == 301 or response.status==302:
+            new_url = response.headers['Location']
+            update_sql = "Update Projects set ProjectWebpage = '{0}' where ProjectWebpage= '{1}'".format(new_url,source_page)
+            self.cursor.execute(update_sql)
+            parsed = urlparse(new_url)
+            domainA = '{uri.netloc}/'.format(uri=parsed).replace("/", "").replace("www.", "")
+            self.allowed_domains.append(domainA)
+            self.db.commit()
+            #yield scrapy.Request(new_url, callback=self.parse_start_url,meta={'dont_filter':True})
             return
-
-        all_page_links = response.xpath('//a/@href').extract()
-        item = SIScrapedItem()
-        item.URL = source_page
-        ptitle = response.xpath('//title').extract()
-        if len(ptitle)>0:
-            item.PageTitle = strip_tags(response.xpath('//title').extract()[0])
-        else:
-            item.PageTitle = ""
-        item.Content = response.body
-        # try:
-        #     s = fromstring(response.body)
-        #     cleaner = Cleaner()
-        #     cleaner.javascript = True  # This is True because we want to activate the javascript filter
-        #     cleaner.style = True
-        #     s2 = cleaner.clean_html(s)
-        #     inner_html = tostring(s2)
-        #     item.Text = strip_tags(inner_html)
-        # except:
-            # inner_html = BeautifulSoup.BeautifulSoup(response.body).text
-            # item.Text = strip_tags(inner_html)
-        soup = BeautifulSoup.BeautifulSoup(response.body)
-        data = soup.findAll(text=True)
-        result = filter(visible, data)
-        content = ""
-        prevN = False
-        for r in result:
-            if r == '\n' and prevN:
-                continue
-            if r == '\n':
-                prevN = True
-            else:
-                prevN = False
-            content = content +' ' +r
-        item.Text = content.replace("&nbsp;"," ")
-
-        parsed_uri = urlparse(item.URL)
-        domain = '{uri.netloc}/'.format(uri=parsed_uri).replace("/", "").replace("www.", "")
-        isActor = False
-        find_act_sql = "Select idActors,ActorName,ActorWebsite from Actors where ActorWebsite like '%" + domain + "%'"
-        self.cursor.execute(find_act_sql)
-        results = self.cursor.fetchall()
-        isActor = False
-
-        for res in results:
-            item.RelatedTo = "Actor"
-            item.DatabaseID = res[0]
-            item.Name = res[1]
-            actorWeb = res[2]
-            isActor = True
-            print "This is Actor with domain "+domain
-            print item.Name
-        if isActor == False:
-            find_pro_sql = "Select idProjects,ProjectName,ProjectWebpage from Projects where ProjectWebpage like '%" + domain + "%'"
-            self.cursor.execute(find_pro_sql)
-            results = self.cursor.fetchall()
-            smallest_distance = 1000
-            for res in results:
-                item.RelatedTo = "Project"
-                ProWebA = res[2]
-                edit_distance = nltk.edit_distance(source_page,ProWebA)
-                if edit_distance<smallest_distance:
-                    item.DatabaseID = res[0]
-                    item.Name = res[1]
-                    ProWeb = res[2]
-                    smallest_distance = edit_distance
-                print "This is Project with domain " + domain
-                print item.Name
-        # Why is this here?
-        # To prevent too different sites to be crawled
-        if ProWeb != source_page and actorWeb != source_page and domain != actorWeb and domain != ProWeb and \
-                                "http://"+domain != actorWeb and "http://"+domain + "/" != actorWeb and \
-                                "http://www."+domain != actorWeb and "http://www."+domain + "/"!= actorWeb and \
-                                "https://"+domain != actorWeb and "https://"+domain + "/" != actorWeb and \
-                                "https://www."+domain != actorWeb and "https://www."+domain +"/"!= actorWeb  and \
-                                "http://" + domain != ProWeb and "http://" + domain + "/" != ProWeb and "http://www." + domain != ProWeb and \
-                                "https://" + domain != ProWeb and "https://www." + domain != ProWeb:
-            print "Returning: "+domain+"   "+source_page+"    "+actorWeb+"    "+ProWeb
-            return
-
-        if(item.DatabaseID == None or item.DatabaseID==""):
-            return
-        client = MongoClient()
-        db = client.ESID
-
-        result = db.test12.insert_one(
-            {
-                "timestamp":time.time(),
-                "relatedTo": item.RelatedTo,
-                "mysql_databaseID": str(item.DatabaseID),
-                "name": item.Name,
-                "url": item.URL,
-                "page_title": item.PageTitle,
-                "content": item.Content.decode('utf8',errors='ignore'),
-                "text": item.Text
-            }
-
-        )
-        yield item
-        le = LinkExtractor()
-        links = le.extract_links(response)
-        for link in links:
-            if "github" in link.url:
-                continue
-            else:
-                yield scrapy.Request(link.url, callback=self.parse_start_url)
+        return
