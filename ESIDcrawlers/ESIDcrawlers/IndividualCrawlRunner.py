@@ -15,6 +15,9 @@ cursor.execute(sql)
 results = cursor.fetchall()
 try:
     for res in results:
+        if res[2] == None:
+            continue
+
         command = 'scrapy crawl IndividualSpider -a '+str('url='+res[2].encode('utf-8'))+' -a'+' id='+str(res[0])+' -a'+ str(' Name="'+str(res[1].encode('utf-8'))+'"')
         #subprocess.call(command,shell=True)
         os.system(command)

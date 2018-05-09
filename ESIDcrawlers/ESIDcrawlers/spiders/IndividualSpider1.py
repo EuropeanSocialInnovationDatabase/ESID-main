@@ -1,9 +1,14 @@
 
 from HTMLParser import HTMLParser
 import MySQLdb
+from StringIO import StringIO
 
 import scrapy
 from flask import Request
+from pdfminer.converter import TextConverter
+from pdfminer.layout import LAParams
+from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
+from pdfminer.pdfpage import PDFPage
 from scrapy.linkextractors import LinkExtractor
 from lxml.html.clean import Cleaner
 from lxml.html.soupparser import fromstring
@@ -27,6 +32,25 @@ class SIScrapedItem():
     Content = ""
     Text = ""
     PageTitle = ""
+
+
+def pdfparser(data):
+
+    fp = file(data, 'rb')
+    rsrcmgr = PDFResourceManager()
+    retstr = StringIO()
+    codec = 'utf-8'
+    laparams = LAParams()
+    device = TextConverter(rsrcmgr, retstr, codec=codec, laparams=laparams)
+    # Create a PDF interpreter object.
+    interpreter = PDFPageInterpreter(rsrcmgr, device)
+    # Process each page contained in the document.
+
+    for page in PDFPage.get_pages(fp):
+        interpreter.process_page(page)
+        data = retstr.getvalue()
+
+    return data
 
 def visible(element):
     if element.parent.name in ['style', 'script', '[document]', 'head', 'title']:
@@ -96,26 +120,33 @@ class GeneralWebsiteRulespiderNew(CrawlSpider):
         all_page_links = response.xpath('//a/@href').extract()
         item = SIScrapedItem()
         item.URL = source_page
-        ptitle = response.xpath('//title').extract()
-        if len(ptitle)>0:
-            item.PageTitle = strip_tags(response.xpath('//title').extract()[0])
+        if ".pdf" in source_page:
+            pdf = response.body
+            output = file("temp.pdf", 'wb')
+            output.write(pdf)
+            output.close()
+            item.Content = pdfparser("temp.pdf")
         else:
-            item.PageTitle = ""
-        item.Content = response.body
-        soup = BeautifulSoup.BeautifulSoup(response.body)
-        data = soup.findAll(text=True)
-        result = filter(visible, data)
-        content = ""
-        prevN = False
-        for r in result:
-            if r == '\n' and prevN:
-                continue
-            if r == '\n':
-                prevN = True
+            ptitle = response.xpath('//title').extract()
+            if len(ptitle)>0:
+                item.PageTitle = strip_tags(response.xpath('//title').extract()[0])
             else:
-                prevN = False
-            content = content +' ' +r
-        item.Text = content.replace("&nbsp;"," ")
+                item.PageTitle = ""
+            item.Content = response.body
+            soup = BeautifulSoup.BeautifulSoup(response.body)
+            data = soup.findAll(text=True)
+            result = filter(visible, data)
+            content = ""
+            prevN = False
+            for r in result:
+                if r == '\n' and prevN:
+                    continue
+                if r == '\n':
+                    prevN = True
+                else:
+                    prevN = False
+                content = content +' ' +r
+            item.Text = content.replace("&nbsp;"," ")
 
         parsed_uri = urlparse(item.URL)
         domain = '{uri.netloc}/'.format(uri=parsed_uri).replace("/", "").replace("www.", "")
@@ -139,7 +170,7 @@ class GeneralWebsiteRulespiderNew(CrawlSpider):
         client = MongoClient()
         db = client.ESID
 
-        result = db.test14.insert_one(
+        result = db.test15.insert_one(
             {
                 "timestamp":time.time(),
                 "relatedTo": item.RelatedTo,
