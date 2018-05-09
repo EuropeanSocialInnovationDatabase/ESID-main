@@ -1,26 +1,18 @@
 
 from HTMLParser import HTMLParser
-import MySQLdb
 from StringIO import StringIO
 
 import scrapy
-from flask import Request
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.pdfpage import PDFPage
 from scrapy.linkextractors import LinkExtractor
-from lxml.html.clean import Cleaner
-from lxml.html.soupparser import fromstring
-from lxml.etree import tostring
 import re
 import BeautifulSoup
 import time
 from scrapy.spiders import Rule, CrawlSpider
-import nltk
-import requests
-import json
-from urlparse import urlparse, urljoin
+from urlparse import urlparse
 from pymongo import MongoClient
 
 class SIScrapedItem():
