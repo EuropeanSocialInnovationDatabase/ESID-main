@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from sklearn.feature_extraction.text import TfidfVectorizer
 import nltk
-from sklearn.metrics.pairwise import linear_kernel
+from sklearn.metrics.pairwise import linear_kernel,cosine_similarity,polynomial_kernel
 from nltk.stem.porter import *
 
 description = """vision values our objective goal aim purpose involving community how. 
@@ -21,7 +21,7 @@ else:
     new_desc = description.decode("utf-8")
 sentences = nltk.sent_tokenize(new_desc.lower())
 tfidf = TfidfVectorizer().fit_transform(sentences)
-cosine_similarities = linear_kernel(tfidf[0], tfidf[1:]).flatten()
+cosine_similarities = cosine_similarity(tfidf[0], tfidf[1:]).flatten()
 print cosine_similarities
 biggest_index = -1
 second_index = -1
