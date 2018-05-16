@@ -167,7 +167,7 @@ class GeneralWebsiteRulespiderNew(CrawlSpider):
         client = MongoClient()
         db = client.ESID
 
-        result = db.test13.insert_one(
+        result = db.all_data.insert_one(
             {
                 "timestamp":time.time(),
                 "relatedTo": item.RelatedTo,
