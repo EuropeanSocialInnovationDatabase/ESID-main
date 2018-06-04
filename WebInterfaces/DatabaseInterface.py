@@ -142,6 +142,9 @@ def add():
     db.close()
     return render_template('success.html')
 
+@app.route('/find_locations',methods = ['POST', 'GET'])
+def find_locations():
+    pass
 
 
 
