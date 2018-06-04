@@ -125,7 +125,7 @@ for city in cities:
             city_mentions[city.city_name] = city_mentions[city.city_name] + 1
         else:
             city_mentions[city.city_name] = 1
-        print(city.city_name + " "+str(city.population)+ " "+str(city.longitude)+" "+str(city.latitude)+"  "+str(city.unique_id) + "   "+str(start)+ "  "+str(end) )
+        print(city.city_name.title() + " "+str(city.population)+ " "+str(city.longitude)+" "+str(city.latitude)+"  "+str(city.unique_id) + "   "+str(start)+ "  "+str(end) )
 city_max_mentions = 0
 city_max_mentions_name = ""
 for mention in city_mentions.keys():
@@ -147,7 +147,7 @@ for country in countries:
             country_mentions[country.country_name_lc] = country_mentions[country.country_name_lc] + 1
         else:
             country_mentions[country.country_name_lc] = 1
-        print(country.country_name + " "+str(country.country_code2)+ " "+str(country.country_code3)+" "+str(country.numeric_code)+"  "+str(country.population)+ "   "+str(country.longitude) + "   "+ str(country.latitude) +"   "+str(start)+ "  "+str(end) )
+        print(country.country_name.title() + " "+str(country.country_code2)+ " "+str(country.country_code3)+" "+str(country.numeric_code)+"  "+str(country.population)+ "   "+str(country.longitude) + "   "+ str(country.latitude) +"   "+str(start)+ "  "+str(end) )
 
 
 country_max_mentions = 0
@@ -157,5 +157,5 @@ for mention in country_mentions.keys():
         country_max_mentions_name = mention
         country_max_mentions = country_mentions[mention]
 
-print("City with the most mentions: "+city_max_mentions_name)
-print("Country with the most mentions: "+country_max_mentions_name)
+print("City with the most mentions: "+city_max_mentions_name.title())
+print("Country with the most mentions: "+country_max_mentions_name.title())
