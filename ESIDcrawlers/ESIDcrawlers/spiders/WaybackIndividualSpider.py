@@ -65,8 +65,8 @@ def strip_tags(html):
     return s.get_data()
 
 
-class GeneralWebsiteRulespiderNew(CrawlSpider):
-    name = "IndividualSpider1"
+class GeneralWebsiteRulespiderWayback(CrawlSpider):
+    name = "WaybackIndividualSpider"
     allowed_domains = []
     start_urls = []
     dataType = ''
@@ -74,7 +74,7 @@ class GeneralWebsiteRulespiderNew(CrawlSpider):
     Name = ''
 
     def __init__(self, crawl_pages=True, moreparams=None,url='',type="Project",id='',Name ="", *args, **kwargs):
-        super(GeneralWebsiteRulespiderNew, self).__init__(*args, **kwargs)
+        super(GeneralWebsiteRulespiderWayback, self).__init__(*args, **kwargs)
         # Set the GeneralWebsiteRulespider member from here
         if (crawl_pages is True):
             self.MySQLID = id
@@ -89,9 +89,9 @@ class GeneralWebsiteRulespiderNew(CrawlSpider):
             regs = []
             for dom in  self.start_urls:
                 regs.append(dom+".*")
-            GeneralWebsiteRulespiderNew.rules = (Rule(LinkExtractor(allow=regs), callback="parse_start_url", follow=True),)
+            GeneralWebsiteRulespiderWayback.rules = (Rule(LinkExtractor(allow=regs), callback="parse_start_url", follow=True),)
 
-            super(GeneralWebsiteRulespiderNew, self)._compile_rules()
+            super(GeneralWebsiteRulespiderWayback, self)._compile_rules()
         self.moreparams = moreparams
 
 
@@ -145,7 +145,7 @@ class GeneralWebsiteRulespiderNew(CrawlSpider):
         #edit_distance = nltk.edit_distance(source_page, ProWeb)
         # Why is this here?
         # To prevent too different sites to be crawled
-        if ProWeb != source_page and ProWeb.replace("http:","https:") != source_page and actorWeb != source_page and domain != actorWeb and domain != ProWeb and \
+        if ProWeb != source_page and ProWeb not in source_page and ProWeb.replace("http:","https:") != source_page and actorWeb != source_page and domain != actorWeb and domain != ProWeb and \
                                 "http://"+domain != actorWeb and "http://"+domain + "/" != actorWeb and \
                                 "http://www."+domain != actorWeb and "http://www."+domain + "/"!= actorWeb and \
                                 "https://"+domain != actorWeb and "https://"+domain + "/" != actorWeb and \

@@ -38,7 +38,7 @@ if __name__ == '__main__':
     db = MySQLdb.connect(host, username, password, database, charset='utf8')
     cursor = db.cursor()
     print("Selecting projects from mysql")
-    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects where Exclude=0 and idProjects>12980"
+    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects where Exclude=0 and idProjects>7588"
     cursor.execute(sql_projects)
     results = cursor.fetchall()
     print("Initializing Mongo")
@@ -59,12 +59,12 @@ if __name__ == '__main__':
         print(pro.idProject)
         project_list.append(pro)
         print("Grabbing documents from Mongo")
-        documents = mongo_db.all_data.find({"mysql_databaseID":str(pro.idProject)},no_cursor_timeout=True).batch_size(100)
+        documents = mongo_db.wayback2.find({"mysql_databaseID":str(pro.idProject)},no_cursor_timeout=True).batch_size(100)
         project_text = ""
         original_text = ""
         if documents.count()>1000:
             print("Too many documents")
-            documents = mongo_db.all_data.find({"mysql_databaseID": str(pro.idProject),"page_title":{"$regex":"about"}},
+            documents = mongo_db.wayback2.find({"mysql_databaseID": str(pro.idProject),"page_title":{"$regex":"about"}},
                                                        no_cursor_timeout=True).batch_size(100)
         print("Making a big document")
 
@@ -109,25 +109,13 @@ if __name__ == '__main__':
             print("End translating")
 
         project_text = project_text.encode('utf-8').strip()
-        print("Grabbing descriptions")
-        sql_desc = "SELECT * FROM EDSI.AdditionalProjectData where FieldName like '%Desc%' and Projects_idProjects="+str(pro.idProject)
-        cursor.execute(sql_desc)
-        f_desc = cursor.fetchall()
-        print("Appending descriptions")
-        description_len = 0
-        description_pages = 0
-        for d in f_desc:
-            project_text = project_text+ " \n\n "+d[2].encode('utf-8').strip()
-            original_text = original_text+ " \n\n "+d[2].encode('utf-8').strip()
-            description_pages = description_pages + 1
-            description_len = description_len + len(d[2].encode('utf-8').strip())
         if project_text == "":
             print("No text on site and in database")
             #Make all predictions 0
             db.commit()
             continue
         try:
-            mongo_db.translated_all2.insert_one(
+            mongo_db.translated_all_wayback2.insert_one(
                 {
                     "timestamp":time.time(),
                     "relatedTo": "Projects",
@@ -138,9 +126,6 @@ if __name__ == '__main__':
                     "translation": project_text,
                     "translationLen":str(len(project_text)),
                     "NumberOfCrawledPages":str(number_of_pages),
-                    "DescriptionPages":str(description_pages),
-                    "DescriptionLength":str(description_len),
-                    "DescriptionLength2": description_len,
                     "translationLen2": len(project_text),
                     "Language":language
                 })
