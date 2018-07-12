@@ -76,10 +76,14 @@ class GeneralWebsiteRulespiderNew(CrawlSpider):
     def __init__(self, crawl_pages=True, moreparams=None,url='',type="Project",id='',Name ="", *args, **kwargs):
         super(GeneralWebsiteRulespiderNew, self).__init__(*args, **kwargs)
         # Set the GeneralWebsiteRulespider member from here
+        global firstPage
+        firstPage = True
         if (crawl_pages is True):
             self.MySQLID = id
             self.dataType = type
             self.Name = Name
+            if "http://" not in url and "https://" not in url:
+                url = "http://"+url
             # Then recompile the Rules
             parsed_uri = urlparse(url)
             domain = '{uri.netloc}/'.format(uri=parsed_uri).replace("/", "").replace("www.", "")
@@ -94,22 +98,23 @@ class GeneralWebsiteRulespiderNew(CrawlSpider):
             super(GeneralWebsiteRulespiderNew, self)._compile_rules()
         self.moreparams = moreparams
 
-
+    global firstPage
     def parse_start_url(self, response):
         source_page = response.url
         actorWeb = ""
         ProWeb = ""
+        crawling_start = self.start_urls[0]
         if self.dataType=="Project":
             ProWeb = self.start_urls[0]
         else:
             actorWeb = self.start_urls[0]
         print source_page
-        if "facebook.com" in source_page or "vk.com" in source_page or "youtube.com" in source_page or "twitter.com" in source_page or \
-                        "linkedin" in source_page or "vimeo" in source_page or "instagram" in source_page or "google" in source_page \
-                or "pinterest" in source_page:
-            return
+        # if "facebook.com" in source_page or "vk.com" in source_page or "youtube.com" in source_page or "twitter.com" in source_page or \
+        #                 "linkedin" in source_page or "vimeo" in source_page or "instagram" in source_page or "google" in source_page \
+        #         or "pinterest" in source_page:
+        #     return
 
-        all_page_links = response.xpath('//a/@href').extract()
+        #all_page_links = response.xpath('//a/@href').extract()
         item = SIScrapedItem()
         item.URL = source_page
         if ".pdf" in source_page:
@@ -140,20 +145,29 @@ class GeneralWebsiteRulespiderNew(CrawlSpider):
                 content = content +' ' +r
             item.Text = content.replace("&nbsp;"," ")
 
-        parsed_uri = urlparse(item.URL)
+        parsed_uri = urlparse(crawling_start)
         domain = '{uri.netloc}/'.format(uri=parsed_uri).replace("/", "").replace("www.", "")
+        isDomain = False
+        potential_domain = crawling_start.replace("https://","").replace("http://","").replace("www.","").replace("/","")
+        if domain == potential_domain:
+            isDomain = True
+        global firstPage
+        if firstPage == False and isDomain==False:
+            return
         #edit_distance = nltk.edit_distance(source_page, ProWeb)
         # Why is this here?
         # To prevent too different sites to be crawled
-        if ProWeb != source_page and ProWeb.replace("http:","https:") != source_page and actorWeb != source_page and domain != actorWeb and domain != ProWeb and \
-                                "http://"+domain != actorWeb and "http://"+domain + "/" != actorWeb and \
-                                "http://www."+domain != actorWeb and "http://www."+domain + "/"!= actorWeb and \
-                                "https://"+domain != actorWeb and "https://"+domain + "/" != actorWeb and \
-                                "https://www."+domain != actorWeb and "https://www."+domain +"/"!= actorWeb  and \
-                                "http://" + domain != ProWeb and "http://" + domain + "/" != ProWeb and "http://www." + domain != ProWeb and \
-                                "https://" + domain != ProWeb and "https://www." + domain != ProWeb:
-            print "Returning: "+domain+"   "+source_page+"    "+actorWeb+"    "+ProWeb
-            return
+        # if ProWeb != source_page and ProWeb.replace("http:","https:") != source_page and actorWeb != source_page and domain != actorWeb and domain != ProWeb and \
+        #                         "http://"+domain != actorWeb and "http://"+domain + "/" != actorWeb and \
+        #                         "http://www."+domain != actorWeb and "http://www."+domain + "/"!= actorWeb and \
+        #                         "https://"+domain != actorWeb and "https://"+domain + "/" != actorWeb and \
+        #                         "https://www."+domain != actorWeb and "https://www."+domain +"/"!= actorWeb  and \
+        #                         "http://" + domain != ProWeb and "http://" + domain + "/" != ProWeb and "http://www." + domain != ProWeb and \
+        #                         "https://" + domain != ProWeb and "https://www." + domain != ProWeb:
+        #     print "Returning: "+domain+"   "+source_page+"    "+actorWeb+"    "+ProWeb
+        #     return
+
+
         item.DatabaseID = self.MySQLID
         item.RelatedTo = self.dataType
         item.Name = self.Name
@@ -161,8 +175,10 @@ class GeneralWebsiteRulespiderNew(CrawlSpider):
             return
         client = MongoClient()
         db = client.ESID
+        if ".pdf" in source_page:
+            item.Text  = item.Content.decode('utf8',errors='ignore')
 
-        result = db.wayback2.insert_one(
+        result = db.crawl20180712.insert_one(
             {
                 "timestamp":time.time(),
                 "relatedTo": item.RelatedTo,
@@ -176,10 +192,14 @@ class GeneralWebsiteRulespiderNew(CrawlSpider):
 
         )
         yield item
-        le = LinkExtractor()
-        links = le.extract_links(response)
-        for link in links:
-            if "github" in link.url:
-                continue
-            else:
-                yield scrapy.Request(link.url, callback=self.parse_start_url)
+        try:
+            le = LinkExtractor()
+            links = le.extract_links(response)
+            firstPage = False
+            for link in links:
+                if "github" in link.url:
+                    continue
+                else:
+                    yield scrapy.Request(link.url, callback=self.parse_start_url)
+        except:
+            print "No links"

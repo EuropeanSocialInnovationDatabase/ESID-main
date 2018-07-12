@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from mordecai import Geoparser
 from geopy.geocoders import Nominatim
 #import pyap

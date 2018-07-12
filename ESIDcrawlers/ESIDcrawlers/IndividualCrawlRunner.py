@@ -10,17 +10,23 @@ from database_access import *
 #subprocess.check_output(['ls','-l']) #all that is technically needed...
 db = MySQLdb.connect(host, username, password, database, charset='utf8')
 cursor = db.cursor()
-sql = "Select idProjects,ProjectName,ProjectWebpage from Projects"
+sql = "Select idProjects,ProjectName,ProjectWebpage,FacebookPage from Projects"
 cursor.execute(sql)
 results = cursor.fetchall()
 try:
     for res in results:
-        if res[2] == None:
-            continue
+        if res[2] is not None:
 
-        command = 'timeout 600 scrapy crawl IndividualSpider -a '+str('url='+res[2].encode('utf-8'))+' -a'+' id='+str(res[0])+' -a'+ str(' Name="'+str(res[1].encode('utf-8'))+'"')
-        #subprocess.call(command,shell=True)
-        os.system(command)
+            command = 'timeout 600 scrapy crawl IndividualSpider1 -a '+str('url='+res[2].encode('utf-8'))+' -a'+' id='+str(res[0])+' -a'+ str(' Name="'+str(res[1].encode('utf-8'))+'"')
+            #subprocess.call(command,shell=True)
+            os.system(command)
+        if res[3] is not None:
+
+            command = 'timeout 600 scrapy crawl IndividualSpider1 -a ' + str(
+                'url=' + res[3].encode('utf-8')) + ' -a' + ' id=' + str(res[0]) + ' -a' + str(
+                ' Name="' + str(res[1].encode('utf-8')) + '"') # Crawling facebook
+            # subprocess.call(command,shell=True)
+            os.system(command)
         #subprocess.call(command)
         # setting = get_project_settings()
         # crawler = Crawler(setting)
