@@ -3,6 +3,7 @@ from os import listdir
 from os.path import isfile, join,isdir
 import csv
 import re
+from shutil import copyfile
 import sklearn.metrics
 from keras.callbacks import EarlyStopping
 from keras import Input
@@ -131,14 +132,10 @@ class Document:
     Annotations = []
     Text = ""
     isSpam = False
-    Project_Mark_Objective_1A = 0
-    Project_Mark_Objective_1B = 0
-    Project_Mark_Objective_1C = 0
-    Project_Mark_Actors_2A = 0
-    Project_Mark_Actors_2B = 0
-    Project_Mark_Actors_2C = 0
-    Project_Mark_Outputs_3A = 0
-    Project_Mark_Innovativeness_3A = 0
+    Project_Mark_Objective = 0
+    Project_Mark_Actors = 0
+    Project_Mark_Innovativeness = 0
+    Project_Mark_Outputs = 0
 
     isProjectObjectiveSatisfied = False
     isProjectActorSatisfied = False
@@ -157,15 +154,10 @@ class Document:
         self.DatabaseID = ""
         self.Annotations = []
         self.isSpam = False
-        self.Project_Mark_Objective_1A = 0
-        self.Project_Mark_Objective_1B = 0
-        self.Project_Mark_Objective_1C = 0
-        self.Project_Mark_Actors_2A = 0
-        self.Project_Mark_Actors_2B = 0
-        self.Project_Mark_Actors_2C = 0
-        self.Project_Mark_Outputs_3A = 0
-        self.Project_Mark_Innovativeness_3A = 0
-        self.Project_Mark_Innovativeness_3A = 0
+        self.Project_Mark_Objective = 0
+        self.Project_Mark_Actors = 0
+        self.Project_Mark_Innovativeness = 0
+        self.Project_Mark_Outputs = 0
         self.isProjectObjectiveSatisfied = False
         self.isProjectActorSatisfied = False
         self.isProjectOutputSatisfied = False
@@ -283,13 +275,13 @@ if __name__ == '__main__':
                     Ann.FromAnnotator = Annot.Name
                     Ann.FromFile = file
                     Ann.LowLevelClass = low_level_ann
-                    if(low_level_ann == "SL_Outputs_3a"):
+                    if(low_level_ann == "SL_Outputs_3"):
                         Ann.HighLevelClass = "Outputs"
-                    if (low_level_ann == "SL_Objective_1a" or low_level_ann == "SL_Objective_1b" or low_level_ann == "SL_Objective_1c"):
+                    if (low_level_ann == "SL_Objective_1"):
                         Ann.HighLevelClass = "Objectives"
-                    if (low_level_ann == "SL_Actors_2a" or low_level_ann == "SL_Actors_2b" or low_level_ann == "SL_Actors_2c"):
+                    if (low_level_ann == "SL_Actors_2"):
                         Ann.HighLevelClass = "Actors"
-                    if (low_level_ann == "SL_Innovativeness_4a"):
+                    if (low_level_ann == "SL_Innovativeness_4"):
                         Ann.HighLevelClass = "Innovativeness"
                     doc.Annotations.append(Ann)
                     for line in doc.Lines:
@@ -302,49 +294,26 @@ if __name__ == '__main__':
                     if (len(sp_split_ann)<=2):
                         continue
                     mark = sp_split_ann[2].replace('\n','')
+
                     if (mark_name == "DL_Outputs"):
-                        doc.Project_Mark_Outputs_3A = int(mark)
+                        doc.Project_Mark_Outputs = int(mark)
                         if int(mark) >= 2:
                             doc.isProjectOutputSatisfied = True
                     if (mark_name == "DL_Objective"):
-                        doc.Project_Mark_Objective_1A = int(mark)
+                        doc.Project_Mark_Objective = int(mark)
                         if int(mark)>=2:
                             doc.isProjectObjectiveSatisfied = True
-                    if(mark_name=="DL_Outputs_3a"):
-                        doc.Project_Mark_Outputs_3A = int(mark)
-                        if int(mark)>=2:
-                            doc.isProjectOutputSatisfied = True
-                    if (mark_name == "DL_Objective_1a"):
-                        doc.Project_Mark_Objective_1A = int(mark)
-                        if int(mark)>=2:
-                            doc.isProjectObjectiveSatisfied = True
-                    if (mark_name == "DL_Objective_1b"):
-                        doc.Project_Mark_Objective_1B = int(mark)
-                        if int(mark)>=2:
-                            doc.isProjectObjectiveSatisfied = True
-                    if (mark_name == "DL_Objective_1c"):
-                        doc.Project_Mark_Objective_1C = int(mark)
-                        if int(mark)>=2:
-                            doc.isProjectObjectiveSatisfied = True
-                    if (mark_name == "DL_Innovativeness_4a"):
-                        doc.Project_Mark_Innovativeness_3A = int(mark)
+                    if (mark_name == "DL_Innovativeness"):
+                        doc.Project_Mark_Innovativeness = int(mark)
                         if int(mark)>=2:
                             doc.isProjectInnovativenessSatisfied = True
-                    if (mark_name == "DL_Actors_2a"):
-                        doc.Project_Mark_Actors_2A = int(mark)
+                    if (mark_name == "DL_Actors"):
+                        doc.Project_Mark_Actors = int(mark)
                         if int(mark)>=2:
                             doc.isProjectActorSatisfied = True
-                    if (mark_name == "DL_Actors_2b"):
-                        doc.Project_Mark_Actors_2B = int(mark)
-                        if int(mark)>=2:
-                            doc.isProjectActorSatisfied = True
-                    if (mark_name == "DL_Actors_2c"):
-                        doc.Project_Mark_Actors_2C = int(mark)
-                        if int(mark)>=2:
-                            doc.isProjectActorSatisfied = True
-            if(doc.Project_Mark_Objective_1A==0 and doc.Project_Mark_Objective_1B == 0 and doc.Project_Mark_Objective_1C==0 and doc.Project_Mark_Actors_2A==0
-                and doc.Project_Mark_Actors_2B==0 and doc.Project_Mark_Actors_2B==0 and doc.Project_Mark_Actors_2C==0 and doc.Project_Mark_Outputs_3A == 0
-                and doc.Project_Mark_Innovativeness_3A==0):
+            if(doc.Project_Mark_Objective==0 and doc.Project_Mark_Actors==0
+                and doc.Project_Mark_Outputs == 0
+                and doc.Project_Mark_Innovativeness==0):
                 doc.isSpam = True
                 total_num_spam = total_num_spam + 1
 
@@ -379,7 +348,11 @@ if __name__ == '__main__':
     match_outputs = 0
     match_actors = 0
     match_innovativeness = 0
-
+    actor_agreed = 0
+    objective_agreed = 0
+    output_agreed = 0
+    inovativeness_agreed = 0
+    list_of_unagreed = []
     while i<len(ds.Annotators)-1:
         while j<len(ds.Annotators):
             annotator1 = ds.Annotators[i]
@@ -390,6 +363,22 @@ if __name__ == '__main__':
                         done_documents.append(doc1.DocumentName)
                         line_num = 0
 
+                        if doc1.isProjectOutputSatisfied == doc2.isProjectOutputSatisfied:
+                            output_agreed = output_agreed + 1
+                        else:
+                            list_of_unagreed.append(doc1.DocumentName)
+                        if doc1.isProjectObjectiveSatisfied == doc2.isProjectObjectiveSatisfied:
+                            objective_agreed = output_agreed + 1
+                        else:
+                            list_of_unagreed.append(doc1.DocumentName)
+                        if doc1.isProjectInnovativenessSatisfied == doc2.isProjectInnovativenessSatisfied:
+                            inovativeness_agreed = inovativeness_agreed + 1
+                        else:
+                            list_of_unagreed.append(doc1.DocumentName)
+                        if doc1.isProjectActorSatisfied == doc2.isProjectActorSatisfied:
+                            actor_agreed = actor_agreed + 1
+                        else:
+                            list_of_unagreed.append(doc1.DocumentName)
                         ann1_objective = [0] * len(doc1.Lines)
                         ann2_objective = [0] * len(doc2.Lines)
                         ann1_output = [0] * len(doc1.Lines)
@@ -471,3 +460,16 @@ if __name__ == '__main__':
         j = i+1
 
     print annotators
+    print "Agreement actors:" + str(float(actor_agreed)/len(annotator1.documents))
+    print "Agreement objectives:" + str(float(objective_agreed) / len(annotator1.documents))
+    print "Agreement outputs:" + str(float(output_agreed) / len(annotator1.documents))
+    print "Agreement innovativenenss:" + str(float(inovativeness_agreed) / len(annotator1.documents))
+
+    ls = set(list_of_unagreed)
+    print "Non-agreement in:"+str(ls)
+    if not os.path.exists("NeedsAnnotation"):
+        os.makedirs("NeedsAnnotation")
+    for file in ls:
+        copyfile(data_folder+"/ZSI1/"+file,"NeedsAnnotation/"+file)
+        f = open("NeedsAnnotation/"+file.replace(".txt",".ann"),'w')
+        f.close()

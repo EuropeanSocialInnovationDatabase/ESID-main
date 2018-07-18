@@ -24,12 +24,12 @@ def strip_tags(html):
 if __name__ == '__main__':
     db = MySQLdb.connect(host, username, password, database, charset='utf8')
     cursor = db.cursor()
-    if not os.path.exists("ESID-data_new"):
-        os.makedirs("ESID-data_new")
+    if not os.path.exists("ESID-data_new2"):
+        os.makedirs("ESID-data_new2")
     client = MongoClient()
     db = client.ESID
     project_text = {}
-    everything = db.translated2.find({},no_cursor_timeout=True).batch_size(30)
+    everything = db.translated_all.find({},no_cursor_timeout=True).batch_size(30)
     i = 1
     for pro in everything:
         try:
@@ -66,11 +66,11 @@ if __name__ == '__main__':
         if len(tokens)<200 or len(tokens)>20000:
             continue
         project_text[item] = re.sub(r'(\n\s*)+\n+', '\n\n', project_text[item])
-        f = open('ESID-data_new/p_'+item+".txt", 'w')
+        f = open('ESID-data_new2/p_'+item+".txt", 'w')
         f.write(project_text[item].encode('utf-8').strip())  # python will convert \n to os.linesep
         f.write("\r\n WHOLE PROJECT MARK")
         f.close()
-        f = open('ESID-data_new/p_' + item + ".ann", 'w')
+        f = open('ESID-data_new2/p_' + item + ".ann", 'w')
         f.close()
 
 

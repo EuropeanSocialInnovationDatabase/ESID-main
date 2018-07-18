@@ -1,4 +1,3 @@
-from sklearn.datasets import fetch_20newsgroups
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.naive_bayes import MultinomialNB
@@ -119,7 +118,7 @@ class Annotation:
     LowLevelClass = ""
 
 
-data_folder = "../../../Helpers/FullDataset_Alina/"
+data_folder = "../../../Helpers/Dataset_afterMay_single/"
 ds = DataSet()
 total_num_spam = 0
 sentences = []
@@ -179,7 +178,7 @@ for ann in annotators:
                 Ann.FromAnnotator = Annot.Name
                 Ann.FromFile = file
                 Ann.LowLevelClass = low_level_ann
-                if (low_level_ann == "SL_Outputs_3a"):
+                if (low_level_ann == "SL_Outputs_3"):
                     Ann.HighLevelClass = "Outputs"
                 if (
                             low_level_ann == "SL_Objective_1a" or low_level_ann == "SL_Objective_1b" or low_level_ann == "SL_Objective_1c"):
@@ -193,6 +192,7 @@ for ann in annotators:
                 for line in doc.Lines:
                     if line.StartSpan <= Ann.StartSpan and line.EndSpan >= Ann.EndSpan:
                         line.Annotations.append(Ann)
+
             else:
                 id = split_ann[0]
                 sp_split_ann = split_ann[1].split(' ')
@@ -200,7 +200,25 @@ for ann in annotators:
                 if (len(sp_split_ann) <= 2):
                     continue
                 mark = sp_split_ann[2].replace('\n', '')
-                if (mark_name == "DL_Outputs_3a"):
+                if (mark_name == "DL_Outputs"):
+                    doc.Project_Mark_Outputs_3A = int(mark)
+                    if int(mark) >= 1:
+                        doc.isProjectOutputSatisfied = True
+
+                if(mark_name == "DL_Objective"):
+                    doc.Project_Mark_Objective_1A = int(mark)
+                    if int(mark) >= 1:
+                        doc.isProjectObjectiveSatisfied = True
+                if (mark_name == "DL_Innovativeness" or mark_name == "DL_Innovativeness"):
+                    doc.Project_Mark_Innovativeness_3A = int(mark)
+                    if int(mark) >= 1:
+                        doc.isProjectInnovativenessSatisfied = True
+                if (mark_name == "DL_Actors_2a" or mark_name == "DL_Actors"):
+                    doc.Project_Mark_Actors_2A = int(mark)
+                    if int(mark) >= 1:
+                        doc.isProjectActorSatisfied = True
+
+                if (mark_name == "DL_Outputs_3"):
                     doc.Project_Mark_Outputs_3A = int(mark)
                     if int(mark) >= 1:
                         doc.isProjectOutputSatisfied = True
@@ -233,9 +251,9 @@ for ann in annotators:
                     if int(mark) >= 1:
                         doc.isProjectActorSatisfied = True
         if (
-                                                    doc.Project_Mark_Objective_1A == 0 and doc.Project_Mark_Objective_1B == 0 and doc.Project_Mark_Objective_1C == 0 and doc.Project_Mark_Actors_2A == 0
-                                and doc.Project_Mark_Actors_2B == 0 and doc.Project_Mark_Actors_2B == 0 and doc.Project_Mark_Actors_2C == 0 and doc.Project_Mark_Outputs_3A == 0
-                and doc.Project_Mark_Innovativeness_3A == 0):
+                                            doc.Project_Mark_Objective_1A == 0 and doc.Project_Mark_Objective_1B == 0 and doc.Project_Mark_Objective_1C == 0 and doc.Project_Mark_Actors_2A == 0
+                        and doc.Project_Mark_Actors_2B == 0 and doc.Project_Mark_Actors_2B == 0 and doc.Project_Mark_Actors_2C == 0 and doc.Project_Mark_Outputs_3A == 0
+        and doc.Project_Mark_Innovativeness_3A == 0):
             doc.isSpam = True
             total_num_spam = total_num_spam + 1
 
@@ -363,23 +381,24 @@ for ann in ds.Annotators:
         innovativeness.append(doc.isProjectInnovativenessSatisfied)
         text_array.append(doc.Text)
 df = pd.DataFrame({'text':text_array,'classa':outputs})
-df_majority = df[df.classa==0]
-df_minority = df[df.classa==1]
+
+df_majority = df[df.classa==1]
+df_minority = df[df.classa==0]
 df_minority_upsampled = resample(df_minority,
                                  replace=True,     # sample with replacement
-                                 n_samples=160,    # to match majority class
+                                 n_samples=180,    # to match majority class
                                  random_state=83293) # reproducible results
 df_upsampled = pd.concat([df_majority, df_minority_upsampled])
-
+print "New dataset"
 # Display new class counts
 print df_upsampled.classa.value_counts()
 
 
 train = text_array[0:int(0.8*len(text_array))]
-train_Y = outputs[0:int(0.8*len(actors))]
+train_Y = innovativeness[0:int(0.8*len(actors))]
 
 test = text_array[int(0.8*len(text_array)):]
-test_Y = outputs[int(0.8*len(actors)):]
+test_Y = innovativeness[int(0.8*len(actors)):]
 
 #categories = ['non actor', 'actor']
 
@@ -396,5 +415,5 @@ print scores
 print "Final:" + str(final/10)
 
 text_clf.fit( df_upsampled.text, df_upsampled.classa)
-filename = '../Models/naive_bayes_outputs.sav'
+filename = '../Models/naive_bayes_innovativeness.sav'
 pickle.dump(text_clf, open(filename, 'wb'))
