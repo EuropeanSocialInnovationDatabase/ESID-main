@@ -38,7 +38,7 @@ if __name__ == '__main__':
     db = MySQLdb.connect(host, username, password, database, charset='utf8')
     cursor = db.cursor()
     print("Selecting projects from mysql")
-    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects where Exclude=0 and idProjects>12980"
+    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects where Exclude=0"
     cursor.execute(sql_projects)
     results = cursor.fetchall()
     print("Initializing Mongo")
@@ -59,12 +59,12 @@ if __name__ == '__main__':
         print(pro.idProject)
         project_list.append(pro)
         print("Grabbing documents from Mongo")
-        documents = mongo_db.all_data.find({"mysql_databaseID":str(pro.idProject)},no_cursor_timeout=True).batch_size(100)
+        documents = mongo_db.crawl20180712.find({"mysql_databaseID":str(pro.idProject)},no_cursor_timeout=True).batch_size(100)
         project_text = ""
         original_text = ""
-        if documents.count()>1000:
+        if documents.count()>500:
             print("Too many documents")
-            documents = mongo_db.all_data.find({"mysql_databaseID": str(pro.idProject),"page_title":{"$regex":"about"}},
+            documents = mongo_db.crawl20180712.find({"mysql_databaseID": str(pro.idProject),"page_title":{"$regex":"about"}},
                                                        no_cursor_timeout=True).batch_size(100)
         print("Making a big document")
 
@@ -127,7 +127,7 @@ if __name__ == '__main__':
             db.commit()
             continue
         try:
-            mongo_db.translated_all2.insert_one(
+            mongo_db.crawl20180712_translated.insert_one(
                 {
                     "timestamp":time.time(),
                     "relatedTo": "Projects",
@@ -136,12 +136,12 @@ if __name__ == '__main__':
                     "url": pro.webpage,
                     #"text": original_text,
                     "translation": project_text,
-                    "translationLen":str(len(project_text)),
-                    "NumberOfCrawledPages":str(number_of_pages),
-                    "DescriptionPages":str(description_pages),
-                    "DescriptionLength":str(description_len),
-                    "DescriptionLength2": description_len,
-                    "translationLen2": len(project_text),
+                    "translationLen":int(str(len(project_text))),
+                    "NumberOfCrawledPages":int(str(number_of_pages)),
+                    "DescriptionPages":int(str(description_pages)),
+                    "DescriptionLength":int(str(description_len)),
+                    "DescriptionLength2": int(description_len),
+                    "translationLen2": int(len(project_text)),
                     "Language":language
                 })
         except:

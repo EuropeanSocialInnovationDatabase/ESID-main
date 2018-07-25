@@ -386,7 +386,7 @@ df_majority = df[df.classa==1]
 df_minority = df[df.classa==0]
 df_minority_upsampled = resample(df_minority,
                                  replace=True,     # sample with replacement
-                                 n_samples=124,    # to match majority class
+                                 n_samples=285,    # to match majority class
                                  random_state=83293) # reproducible results
 df_upsampled = pd.concat([df_majority, df_minority_upsampled])
 print "New dataset"
@@ -412,6 +412,23 @@ final = 0
 for score in scores:
     final = final + score
 print scores
+print "Final:" + str(final/10)
+
+
+scores1 = cross_val_score(text_clf, df_upsampled.text, df_upsampled.classa, cv=10,scoring='precision')
+final = 0
+print "Precision"
+for score in scores1:
+    final = final + score
+print scores1
+print "Final:" + str(final/10)
+
+scores2 = cross_val_score(text_clf, df_upsampled.text, df_upsampled.classa, cv=10,scoring='recall')
+final = 0
+print "Recall"
+for score in scores2:
+    final = final + score
+print scores2
 print "Final:" + str(final/10)
 
 text_clf.fit( df_upsampled.text, df_upsampled.classa)

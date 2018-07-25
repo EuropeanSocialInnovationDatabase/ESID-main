@@ -1,7 +1,9 @@
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.naive_bayes import MultinomialNB
-from sklearn import metrics
+from sklearn import metrics, svm, tree
+from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import Pipeline
 import numpy as np
 from sklearn.utils import shuffle
@@ -381,15 +383,15 @@ for ann in ds.Annotators:
         outputs.append(doc.isProjectOutputSatisfied)
         innovativeness.append(doc.isProjectInnovativenessSatisfied)
         text_array.append(doc.Text)
-df = pd.DataFrame({'text':text_array,'classa':outputs})
+df = pd.DataFrame({'text':text_array,'classa':objectives})
 
 df_majority = df[df.classa==1]
 df_minority = df[df.classa==0]
-df_minority_upsampled = resample(df_minority,
-                                 replace=True,     # sample with replacement
-                                 n_samples=300,    # to match majority class
-                                 random_state=83293) # reproducible results
-df_upsampled = pd.concat([df_majority, df_minority_upsampled])
+# df_minority_upsampled = resample(df_minority,
+#                                  replace=True,     # sample with replacement
+#                                  n_samples=300,    # to match majority class
+#                                  random_state=83293) # reproducible results
+df_upsampled = pd.concat([df_majority, df_minority])
 # print df_upsampled
 # exit()
 print "New dataset"
@@ -410,7 +412,7 @@ df_upsampled = shuffle(df_upsampled).reset_index()
 
 text_clf = Pipeline([('vect', CountVectorizer()),
                       ('tfidf', TfidfTransformer()),
-                      ('clf', MultinomialNB()),
+                      ('clf', MLPClassifier(solver='lbfgs', alpha=1e-5,hidden_layer_sizes=(40, 5), random_state=54)),
  ])
 
 scores = cross_val_score(text_clf, df_upsampled.text, df_upsampled.classa, cv=10,scoring='f1')
@@ -438,5 +440,5 @@ print scores2
 print "Final:" + str(final/10)
 
 text_clf.fit( df_upsampled.text, df_upsampled.classa)
-filename = '../Models/naive_bayes_innovativeness.sav'
+filename = '../Models/multi_perceptron_objectives.sav'
 pickle.dump(text_clf, open(filename, 'wb'))
