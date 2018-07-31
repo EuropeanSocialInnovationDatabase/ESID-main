@@ -27,7 +27,7 @@ def strip_tags(html):
 if __name__ == '__main__':
     db = MySQLdb.connect(host, username, password, database, charset='utf8')
     cursor = db.cursor()
-    with open('projects_stats2.csv', 'wb') as csvfile:
+    with open('projects_stats3.csv', 'wb') as csvfile:
         res2 = csv.writer(csvfile, delimiter='\t',
                           quotechar='"', quoting=csv.QUOTE_MINIMAL)
         res2.writerow(
@@ -54,7 +54,7 @@ if __name__ == '__main__':
                 Facebook = ""
             if Twitter == None:
                 Twitter = ""
-            everything = db.translated_all.find({"mysql_databaseID":str(idProject)}, no_cursor_timeout=True).batch_size(30)
+            everything = db.crawl20180712_translated.find({"mysql_databaseID":str(idProject)}, no_cursor_timeout=True).batch_size(30)
             crawled_text = ""
             whole_text = ""
             wayback_text = ""
@@ -71,13 +71,6 @@ if __name__ == '__main__':
             description = ""
             for res in results:
                 description_text = description_text + strip_tags(res[2])
-            everything2 = db.translated_all_wayback2.find({"mysql_databaseID": str(idProject)},
-                                                no_cursor_timeout=True).batch_size(30)
-            for pro in everything2:
-                try:
-                    wayback_text = wayback_text + pro["translation"]
-                except:
-                    print("Exception: Record ignored")
             whole_text = crawled_text+wayback_text+description_text
 
             res2.writerow(
