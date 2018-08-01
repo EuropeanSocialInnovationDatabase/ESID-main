@@ -178,7 +178,7 @@ class GeneralWebsiteRulespiderNew(CrawlSpider):
         if ".pdf" in source_page:
             item.Text  = item.Content.decode('utf8',errors='ignore')
 
-        result = db.crawl20180712.insert_one(
+        result = db.crawl20180801.insert_one(
             {
                 "timestamp":time.time(),
                 "relatedTo": item.RelatedTo,

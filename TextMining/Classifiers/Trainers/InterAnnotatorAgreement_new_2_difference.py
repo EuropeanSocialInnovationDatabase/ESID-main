@@ -214,7 +214,7 @@ if __name__ == '__main__':
     GLOVE_DIR = "../../../Helpers/BratDataProcessing/Glove_dir"
     MAX_SEQUENCE_LENGTH = 1100
     EMBEDDING_DIM = 50
-    data_folder = "../../../Helpers/Dataset_after_May"
+    data_folder = "../../../Helpers/AnnotationData/July"
     ds = DataSet()
     total_num_spam = 0
     sentences = []
