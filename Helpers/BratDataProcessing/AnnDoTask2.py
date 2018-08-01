@@ -178,9 +178,9 @@ class DocumentListItem:
         self.innovativness_sd = 0
 
 if __name__ == '__main__':
-    data_folder = "../AnnotationsFinal"
-    conflict_folder = "../Conflicts2"
-    conflict_folder2 = "../Conflicts21"
+    data_folder = "../AnnotationData/MayJune"
+    conflict_folder = "../Conflicts3"
+    conflict_folder2 = "../Conflicts31"
     agreeing_docs_objectives = {}
     agreeing_docs_outputs = {}
     agreeing_docs_actors = {}
