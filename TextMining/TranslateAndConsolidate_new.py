@@ -38,7 +38,7 @@ if __name__ == '__main__':
     db = MySQLdb.connect(host, username, password, database, charset='utf8')
     cursor = db.cursor()
     print("Selecting projects from mysql")
-    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects where Exclude=0"
+    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects where Exclude=0 and idProjects>2083"
     cursor.execute(sql_projects)
     results = cursor.fetchall()
     print("Initializing Mongo")
@@ -59,12 +59,12 @@ if __name__ == '__main__':
         print(pro.idProject)
         project_list.append(pro)
         print("Grabbing documents from Mongo")
-        documents = mongo_db.crawl20180801.find({"mysql_databaseID":str(pro.idProject)},no_cursor_timeout=True).batch_size(100)
+        documents = mongo_db.crawl20180801.find({"mysql_databaseID":str(pro.idProject),"page_title":{"$regex":"(A|a)bout|(V|v)ision|(M|m)ision|(C|c)ontact|(K|k)ontakt|(P|p)artner"}},no_cursor_timeout=True).batch_size(100)
         project_text = ""
         original_text = ""
-        if documents.count()>500:
-            print("Too many documents")
-            documents = mongo_db.crawl20180712.find({"mysql_databaseID": str(pro.idProject),"page_title":{"$regex":"about"}},
+        if documents.count()==0:
+            print("Too few documents")
+            documents = mongo_db.crawl20180801.find({"mysql_databaseID": str(pro.idProject)},
                                                        no_cursor_timeout=True).batch_size(100)
         print("Making a big document")
 
@@ -127,7 +127,7 @@ if __name__ == '__main__':
             db.commit()
             continue
         try:
-            mongo_db.crawl20180712_translated.insert_one(
+            mongo_db.crawl20180801_translated.insert_one(
                 {
                     "timestamp":time.time(),
                     "relatedTo": "Projects",
