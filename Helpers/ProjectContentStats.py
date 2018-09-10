@@ -27,7 +27,7 @@ def strip_tags(html):
 if __name__ == '__main__':
     db = MySQLdb.connect(host, username, password, database, charset='utf8')
     cursor = db.cursor()
-    with open('projects_stats3.csv', 'wb') as csvfile:
+    with open('projects_stats_new.csv', 'wb') as csvfile:
         res2 = csv.writer(csvfile, delimiter='\t',
                           quotechar='"', quoting=csv.QUOTE_MINIMAL)
         res2.writerow(
@@ -54,7 +54,7 @@ if __name__ == '__main__':
                 Facebook = ""
             if Twitter == None:
                 Twitter = ""
-            everything = db.crawl20180712_translated.find({"mysql_databaseID":str(idProject)}, no_cursor_timeout=True).batch_size(30)
+            everything = db.crawl20180801_translated.find({"mysql_databaseID":str(idProject)}, no_cursor_timeout=True).batch_size(30)
             crawled_text = ""
             whole_text = ""
             wayback_text = ""

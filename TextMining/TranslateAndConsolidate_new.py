@@ -38,7 +38,7 @@ if __name__ == '__main__':
     db = MySQLdb.connect(host, username, password, database, charset='utf8')
     cursor = db.cursor()
     print("Selecting projects from mysql")
-    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects where Exclude=0 and idProjects>2083"
+    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects where Exclude=0 and idProjects>13889"
     cursor.execute(sql_projects)
     results = cursor.fetchall()
     print("Initializing Mongo")

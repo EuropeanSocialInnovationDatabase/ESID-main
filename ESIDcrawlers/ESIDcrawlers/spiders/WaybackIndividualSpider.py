@@ -162,7 +162,7 @@ class GeneralWebsiteRulespiderWayback(CrawlSpider):
         client = MongoClient()
         db = client.ESID
 
-        result = db.wayback2.insert_one(
+        result = db.crawl20180801_wayback.insert_one(
             {
                 "timestamp":time.time(),
                 "relatedTo": item.RelatedTo,

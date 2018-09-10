@@ -12,7 +12,7 @@ from database_access import *
 #subprocess.check_output(['ls','-l']) #all that is technically needed...
 db = MySQLdb.connect(host, username, password, database, charset='utf8')
 cursor = db.cursor()
-sql = "Select idProjects,ProjectName,ProjectWebpage from Projects where InactiveWebsite = 1"
+sql = "Select idProjects,ProjectName,ProjectWebpage from Projects where Problem_for_Crawling = 1"
 cursor.execute(sql)
 results = cursor.fetchall()
 number_of_err = 0
