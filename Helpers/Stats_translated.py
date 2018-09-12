@@ -1,17 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import csv
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-
 from pymongo import MongoClient
-import nltk
 import MySQLdb
 from database_access import *
 import smtplib
-import os
-import re
-from HTMLParser import HTMLParser
 from q_email import *
 import datetime
 
