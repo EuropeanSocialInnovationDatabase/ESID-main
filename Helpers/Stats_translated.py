@@ -1,11 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from email import encoders
+from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 from pymongo import MongoClient
 import MySQLdb
 from database_access import *
 import smtplib
 from q_email import *
 import datetime
+from MakePerProjectStats import make_stats_csv
 
 
 if __name__ == '__main__':
@@ -49,6 +55,7 @@ if __name__ == '__main__':
     number_of_actors_linked_to_project = 0
     sources_projects = {}
     sources_actors = {}
+    make_stats_csv()
 
     num_proj_w_desc = 0
     # Number of Projects
@@ -223,64 +230,70 @@ if __name__ == '__main__':
         if len(results)>0:
             num_proj_w_desc = num_proj_w_desc + 1
     #####################################################################
-    langstr = ""
+    langstr = "<table>"
     for l in languages:
-        langstr = langstr+l+":"+str(languages[l])+"\r\n"
-    actors_str = ""
+        langstr = langstr+"<tr><td>"+l+":</td><td>"+str(languages[l])+"</td></tr>\r\n"
+    langstr = langstr+"</table>"
+    actors_str = "<table>"
     for actors in project_actors:
-        actors_str = actors_str+actors+": "+str(project_actors[actors])+"\r\n"
-    sources_str = ""
+        actors_str = actors_str+"<tr><td>"+actors+":</td><td>"+str(project_actors[actors])+"</td></tr>\r\n"
+    actors_str = actors_str+'</table>'
+    sources_str = "<table>"
     for sources in sources_projects:
-        sources_str = sources_str + sources + ": " + str(sources_projects[sources]) + "\r\n"
-    actors_s_str = ""
+        sources_str = sources_str+"<tr><td>"+sources + ":</td><td> " + str(sources_projects[sources]) + "</td></tr>\r\n"
+    sources_str = sources_str +'</table>'
+    actors_s_str = "<table>"
     for sources in sources_actors:
-        actors_s_str = actors_s_str + sources + ": " + str(sources_actors[sources]) + "\r\n"
+        actors_s_str = actors_s_str +"<tr><td>"+ sources + ":</td><td> "  + str(sources_actors[sources]) + "</td></tr>\r\n"
+    actors_s_str = actors_s_str +'</table>'
 
     sent_from = 'nikola.milosevic86@gmail.com'
     to = ['nikola.milosevic@manchester.ac.uk']
     x = datetime.datetime.now()
     subject = 'ESID Report for '+str(x)
-    body = """Hello, \n\n
-Here is the report of newest statistics from European Social Innovation database, created on {0}.
-    
-Number of projects: {1}
-Number of projects with website: {2}
-Number of projects with description: {3} \n
-Number of projects with website and description: {4} \n
-Number of projects with no website and no description {5}\n
-------------------------------------------------------------
-Number of projects crawled: {6} \r\n
-Crawled from social media (Facebook, Google (including android store), Twitter, Youtube): {7}\r\n
-Number of projects with translations (description + web): {8}\r\n
-Number of projects with translations shorter then 500 characters: {9}\r\n
-Number of projects with translations shorter then 1000 characters and longer then 500: {10}\r\n
-Number of projects with translations shorter then 10,000 characters and longer then 1000: {11}\r\n
-Number of projects with translations shorter then 100,000 characters and longer then 10,000: {12}\r\n
-Number of projects with translations longer then 100,000: {13}\r\n
-Number of projects with description and no webpage: {14}\r\n
-Number of projects having description shorter then 500 chars: {15}\r\n
-Number of projects having description between 500-1000 chars: {16}\r\n
-Number of projects having description between 1000-10,000 chars: {17}\r\n
-Number of projects having description between 10,000-100,000 chars: {18}\r\n
-Number of projects having description longer then 100,000 chars: {19}\r\n
-Languages:\r\n
-{20}\r\n
+    body = """Hello, \n\n<br/><br/>
+Here is the report of newest statistics from European Social Innovation database, created on {0}.<br/><br/>
 
-Number of projects having usable amount of text also having country: {21}\r\n
-Number of projects having usable amount of text also having city: {22}\r\n
-Number of projects having usable amount of text also having actor: {23}\r\n
-Projects having linked actors by datasource: 
-{24}\r\n
-Number of actors: {25}\r\n
-Number of actors with websites: {26}\r\n
-Number of actors linked to a project: {27}\r\n
-Project sources:\r\n
-{28}\r\n
-Actor sources:\r\n
-{29}\r\n
+<table>    
+<tr><td>Number of projects: </td><td>{1} </td></tr>
+<tr><td>Number of projects with website: </td><td>{2} </td></tr>\n
+<tr><td>Number of projects with description: </td><td>{3} </td></tr>\n
+<tr><td>Number of projects with website and description: </td><td>{4}</td></tr> \n
+<tr><td>Number of projects with no website and no description </td><td>{5}</td></tr>\n
+<tr><td></td><td></td></tr>
+<tr><td>Number of projects crawled:</td><td> {6} </td></tr>\r\n
+<tr><td>Crawled from social media (Facebook, Google (including android store), Twitter, Youtube): </td><td>{7}</td></tr>\r\n
+<tr><td>Number of projects with translations (description + web):</td><td> {8}</td></tr>\r\n
+<tr><td>Number of projects with translations shorter then 500 characters: </td><td>{9}</td></tr>\r\n
+<tr><td>Number of projects with translations shorter then 1000 characters and longer then 500: </td><td>{10}</td></tr>\r\n
+<tr><td>Number of projects with translations shorter then 10,000 characters and longer then 1000:</td><td> {11}</td></tr>\r\n
+<tr><td>Number of projects with translations shorter then 100,000 characters and longer then 10,000:</td><td> {12}</td></tr>\r\n
+<tr><td>Number of projects with translations longer then 100,000:</td><td> {13}</td></tr>\r\n
+<tr><td>Number of projects with description and no webpage: </td><td>{14}</td></tr>\r\n
+<tr><td>Number of projects having description shorter then 500 chars: </td><td>{15}</td></tr>\r\n
+<tr><td>Number of projects having description between 500-1000 chars:</td><td> {16}</td></tr>\r\n
+<tr><td>Number of projects having description between 1000-10,000 chars: </td><td>{17}</td></tr>\r\n
+<tr><td>Number of projects having description between 10,000-100,000 chars: </td><td>{18}</td></tr>\r\n
+<tr><td>Number of projects having description longer then 100,000 chars: </td><td>{19}</td></tr>\r\n
+<tr><td>Languages:\r\n</td><td></td></tr>
+<tr><td>{20}\r\n</td><td></td></tr>
 
+<tr><td>Number of projects having usable amount of text also having country: </td><td>{21}</td></tr>\r\n
+<tr><td>Number of projects having usable amount of text also having city: </td><td>{22}</td></tr>\r\n
+<tr><td>Number of projects having usable amount of text also having actor: </td><td>{23}</td></tr>\r\n
+<tr><td>Projects having linked actors by datasource: </td><td></td></tr>
+<tr><td>{24}\r\n</td><td></td></tr>
+<tr><td>Number of actors:</td><td> {25}</td></tr>\r\n
+<tr><td>Number of actors with websites:</td><td> {26}</td></tr>\r\n
+<tr><td>Number of actors linked to a project:</td><td> {27}</td></tr>\r\n
+<tr><td>Project sources:\r\n</td><td></td></tr>
+<tr><td>{28}\r\n</td><td></td></tr>
+<tr><td>Actor sources:\r\n</td><td></td></tr>
+<tr><td>{29}\r\n</td><td></td></tr>
+</table>
+<br/><br/>
     
-    \n\n Best wishes \n ESID Team""".format(str(x),str(number_of_projects),str(number_of_projects_with_website),
+    \n\n Best wishes <br/>\n ESID Team""".format(str(x),str(number_of_projects),str(number_of_projects_with_website),
 str(number_of_projects_with_desc),str(number_of_projects_with_web_and_desc),str(number_of_projects_no_web_no_desc),str(number_of_crawled),
 str(crawled_social_media),str(number_of_projects_with_translations),str(number_of_projects_with_less_then_500char),str(number_of_projects_between_500_1000),
 str(number_of_projects_between_1000_1000),str(number_of_projects_between_10000_100000),str(number_of_projects_larger_100000),
@@ -290,13 +303,33 @@ str(langstr),str(number_of_projects_with_usable_info_having_country),str(number_
 str(actors_str),str(number_of_actors),str(number_of_actors_with_web),str(number_of_actors_linked_to_project),str(sources_str),str(actors_s_str)
 
                                             )
-    msg = "\r\n".join([
-        "From: ESID Database (eusidatabase@gmail.com)",
-        "To: nikola.milosevic@manchester.ac.uk, abdullah.gok@strath.ac.uk",
-        "Subject: "+subject,
-        "",
-        body
-    ])
-    server.sendmail("eusidatabase@gmail.com", ["nikola.milosevic@manchester.ac.uk","abdullah.gok@strath.ac.uk"], msg)
+
+    msg = MIMEMultipart('alternative')
+    msg['From'] = "ESID Database (eusidatabase@gmail.com)"
+    msg['To'] = "nikola.milosevic@manchester.ac.uk,abdullah.gok@strath.ac.uk"
+    msg['Subject'] = subject
+    msg.attach(MIMEText(body, 'html'))
+    msg.attach(MIMEText(body, 'plain'))
+
+    filename = "project_stats.csv"
+    attachment = open(filename, "rb")
+
+    part = MIMEBase('application', 'octet-stream')
+    part.set_payload((attachment).read())
+    encoders.encode_base64(part)
+    part.add_header('Content-Disposition', "attachment; filename= %s" % filename)
+
+    msg.attach(part)
+
+
+    # msg = "\r\n".join([
+    #     "From: ESID Database (eusidatabase@gmail.com)",
+    #     "To: nikola.milosevic@manchester.ac.uk",
+    #     "Subject: "+subject,
+    #     "",
+    #     body
+    # ])
+    text = msg.as_string()
+    server.sendmail("eusidatabase@gmail.com", ["nikola.milosevic@manchester.ac.uk","abdullah.gok@strath.ac.uk","gnenadic@manchester.ac.uk"], text)
     server.close()
 

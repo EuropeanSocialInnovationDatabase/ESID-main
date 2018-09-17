@@ -3,16 +3,12 @@
 from pymongo import MongoClient
 import MySQLdb
 from database_access import *
-import smtplib
-from q_email import *
-import datetime
 import csv
 
 
-if __name__ == '__main__':
-    server = smtplib.SMTP('smtp.gmail.com', 587)
-    server.starttls()
-    server.login(my_email, my_password)
+
+
+def make_stats_csv():
     client = MongoClient()
     db = client.ESID
     dba = MySQLdb.connect(host, username, password, database, charset='utf8')
@@ -26,7 +22,7 @@ if __name__ == '__main__':
     for res in results:
 
         project_id = res[0]
-        print("Processing project:"+str(project_id))
+        #print("Processing project:"+str(project_id))
         is_project = 1
         project_name = res[2]
         project_web = res[11]
@@ -85,5 +81,6 @@ if __name__ == '__main__':
 
 
 
-
+if __name__ == '__main__':
+    make_stats_csv()
 
