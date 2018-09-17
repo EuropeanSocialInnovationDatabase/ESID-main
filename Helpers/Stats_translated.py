@@ -292,11 +292,11 @@ str(actors_str),str(number_of_actors),str(number_of_actors_with_web),str(number_
                                             )
     msg = "\r\n".join([
         "From: ESID Database (eusidatabase@gmail.com)",
-        "To: nikola.milosevic@manchester.ac.uk",
+        "To: nikola.milosevic@manchester.ac.uk, abdullah.gok@strath.ac.uk",
         "Subject: "+subject,
         "",
         body
     ])
-    server.sendmail("nikola.milosevic@manchester.ac.uk", "nikola.milosevic@manchester.ac.uk", msg)
+    server.sendmail("eusidatabase@gmail.com", ["nikola.milosevic@manchester.ac.uk","abdullah.gok@strath.ac.uk"], msg)
     server.close()
 
