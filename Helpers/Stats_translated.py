@@ -106,10 +106,10 @@ if __name__ == '__main__':
     number_of_projects_with_translations = len(db.crawl20180801_translated.distinct('mysql_databaseID'))
     ############################################################
     #number_of_projects_with_less_then_500char
-    number_of_projects_with_less_then_500char = db.crawl20180801_translated.find({"translationLen": {"$lt": 500}}).count()
+    number_of_projects_with_less_then_500char = db.crawl20180801_translated.find({"translationLen": {"$lt": 350}}).count()
     #############################################################
     # number_of_projects_between_500_1000 = 0
-    number_of_projects_between_500_1000 = db.crawl20180801_translated.find({"translationLen": {"$gt":500,"$lt": 1000}}).count()
+    number_of_projects_between_500_1000 = db.crawl20180801_translated.find({"translationLen": {"$gt":350,"$lt": 1000}}).count()
     # number_of_projects_between_1000_1000 = 0
     number_of_projects_between_1000_1000 = db.crawl20180801_translated.find({"translationLen": {"$gt": 1000, "$lt": 10000}}).count()
     # number_of_projects_between_10000_100000 = 0
@@ -123,9 +123,9 @@ if __name__ == '__main__':
     for res in results:
         number_of_projects_with_desc_no_web = res[0]
     # number_of_projects_desc_smaller_500 = 0
-    number_of_projects_desc_smaller_500 = db.crawl20180801_translated.find({"DescriptionLength": {"$lt": 500}}).count()
+    number_of_projects_desc_smaller_500 = db.crawl20180801_translated.find({"DescriptionLength": {"$lt": 350}}).count()
     # number_of_projects_desc_between_500_1000 = 0
-    number_of_projects_desc_between_500_1000 = db.crawl20180801_translated.find({"DescriptionLength": {"$gt": 500,"$lt":1000}}).count()
+    number_of_projects_desc_between_500_1000 = db.crawl20180801_translated.find({"DescriptionLength": {"$gt": 350,"$lt":1000}}).count()
     # number_of_projects_desc_between_1000_10000 = 0
     number_of_projects_desc_between_1000_10000 = db.crawl20180801_translated.find({"DescriptionLength": {"$gt": 1000, "$lt": 10000}}).count()
     # number_of_projects_desc_between_10000_100000 = 0
@@ -141,7 +141,7 @@ if __name__ == '__main__':
         else:
             languages[pro['Language']] = languages[pro['Language']] + 1
         # number_of_projects_with_usable_info_having_country = 0
-    everything = db.crawl20180801_translated.find({"translationLen": {"$gt": 500}})
+    everything = db.crawl20180801_translated.find({"translationLen": {"$gt": 350}})
     for pro in everything:
         sql = "Select count(*) from ProjectLocation where Projects_idProjects={0} and Country is not null and Country <>''".format(pro['mysql_databaseID'])
         cursor.execute(sql)
@@ -149,7 +149,7 @@ if __name__ == '__main__':
         if results[0][0]>0:
             number_of_projects_with_usable_info_having_country = number_of_projects_with_usable_info_having_country + 1
     # number_of_projects_with_usable_info_having_city = 0
-    everything = db.crawl20180801_translated.find({"translationLen": {"$gt": 500}})
+    everything = db.crawl20180801_translated.find({"translationLen": {"$gt": 350}})
     for pro in everything:
         sql = "Select count(*) from ProjectLocation where Projects_idProjects={0} and City is not null and City <>''".format(
             pro['mysql_databaseID'])
@@ -158,7 +158,7 @@ if __name__ == '__main__':
         if results[0][0] > 0:
             number_of_projects_with_usable_info_having_city = number_of_projects_with_usable_info_having_city + 1
         # number_of_projects_with_usable_info_having_linked_actor = 0
-    everything = db.crawl20180801_translated.find({"translationLen": {"$gt": 500}})
+    everything = db.crawl20180801_translated.find({"translationLen": {"$gt": 350}})
     for pro in everything:
         sql = "Select count(*) from Actors_has_Projects where Projects_idProjects={0}".format(
             pro['mysql_databaseID'])
@@ -222,7 +222,7 @@ if __name__ == '__main__':
         else:
             sources_actors["Others"] = res[1]
     # Number of projects with descriptions
-    everything = db.crawl20180801_translated.find({"translationLen":{"$gt":500}})
+    everything = db.crawl20180801_translated.find({"translationLen":{"$gt":350}})
     for pro in everything:
         sql = "Select * from AdditionalProjectData where FieldName like '%Desc%' and Value is not Null and Value <>'' and Projects_idProjects="+pro['mysql_databaseID']
         cursor.execute(sql)
@@ -264,14 +264,14 @@ Here is the report of newest statistics from European Social Innovation database
 <tr><td>Number of projects crawled:</td><td> {6} </td></tr>\r\n
 <tr><td>Crawled from social media (Facebook, Google (including android store), Twitter, Youtube): </td><td>{7}</td></tr>\r\n
 <tr><td>Number of projects with translations (description + web):</td><td> {8}</td></tr>\r\n
-<tr><td>Number of projects with translations shorter then 500 characters: </td><td>{9}</td></tr>\r\n
-<tr><td>Number of projects with translations shorter then 1000 characters and longer then 500: </td><td>{10}</td></tr>\r\n
+<tr><td>Number of projects with translations shorter then 350 characters: </td><td>{9}</td></tr>\r\n
+<tr><td>Number of projects with translations shorter then 1000 characters and longer then 350: </td><td>{10}</td></tr>\r\n
 <tr><td>Number of projects with translations shorter then 10,000 characters and longer then 1000:</td><td> {11}</td></tr>\r\n
 <tr><td>Number of projects with translations shorter then 100,000 characters and longer then 10,000:</td><td> {12}</td></tr>\r\n
 <tr><td>Number of projects with translations longer then 100,000:</td><td> {13}</td></tr>\r\n
 <tr><td>Number of projects with description and no webpage: </td><td>{14}</td></tr>\r\n
-<tr><td>Number of projects having description shorter then 500 chars: </td><td>{15}</td></tr>\r\n
-<tr><td>Number of projects having description between 500-1000 chars:</td><td> {16}</td></tr>\r\n
+<tr><td>Number of projects having description shorter then 350 chars: </td><td>{15}</td></tr>\r\n
+<tr><td>Number of projects having description between 350-1000 chars:</td><td> {16}</td></tr>\r\n
 <tr><td>Number of projects having description between 1000-10,000 chars: </td><td>{17}</td></tr>\r\n
 <tr><td>Number of projects having description between 10,000-100,000 chars: </td><td>{18}</td></tr>\r\n
 <tr><td>Number of projects having description longer then 100,000 chars: </td><td>{19}</td></tr>\r\n
