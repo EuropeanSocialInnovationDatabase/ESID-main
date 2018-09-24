@@ -376,10 +376,10 @@ print df_upsampled.classa.value_counts()
 
 
 train = text_array[0:int(0.8*len(text_array))]
-train_Y = objectives[0:int(0.8*len(actors))]
+train_Y = objectives[0:int(0.8*len(objectives))]
 
 test = text_array[int(0.8*len(text_array)):]
-test_Y = objectives[int(0.8*len(actors)):]
+test_Y = objectives[int(0.8*len(objectives)):]
 
 #categories = ['non actor', 'actor']
 
