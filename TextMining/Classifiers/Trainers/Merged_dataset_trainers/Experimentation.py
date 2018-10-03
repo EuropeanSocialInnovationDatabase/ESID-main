@@ -310,8 +310,8 @@ class UniversalClassifier():
 
 
 if  __name__ == '__main__':
-    path = "../../../../Helpers/SI_dataset/Output/Merged_dataset_all_workshops_with_excluded"
-    #path = "../../../../Helpers/SI_dataset/Output/SI_only"
+    #path = "../../../../Helpers/SI_dataset/Output/Merged_dataset_all_workshop_with_excluded"
+    path = "../../../../Helpers/SI_dataset/Output/SI_withExcluded"
     annotations = read_files(path)
     #annotations = load_database_description_dataset()
     #transfer_to_database(annotations)
@@ -323,112 +323,6 @@ if  __name__ == '__main__':
 
     for anns in annotations:
         texts.append(anns[1])
-        value = anns[2]
-        if value>=2:
-            value = 1
-        else:
-            value =0
-        classA.append(value)
-    df = pd.DataFrame({'text': texts, 'classa': classA})
-    print(df.classa.value_counts())
-    df_majority = df[df.classa == 1]
-    df_minority = df[df.classa == 0]
-    df_minority_upsampled = resample(df_minority,
-                                      replace=True,     # sample with replacement
-                                      n_samples=530,    # to match majority class
-                                      random_state=83293) # reproducible results
-
-    df_upsampled = pd.concat([df_majority, df_minority_upsampled],ignore_index=True)
-    df_upsampled = df_upsampled.sample(frac=1).reset_index(drop=True)
-    print(df_upsampled.classa.value_counts())
-    df = df_upsampled
-
-    # df_majority_downsampled = resample(df_majority, replace=False, n_samples=70, random_state=3413)
-    # df_downsampled = pd.concat([df_majority_downsampled,df_minority])
-    # df_downsampled = df_downsampled.sample(frac=1).reset_index(drop=True)
-    # print(df_downsampled.classa.value_counts())
-    # df = df_downsampled
-    #folder = sklearn.model_selection.KFold(5)
-    cls = UniversalClassifier()
-    #i = 0
-    #for  train_index, test_index in folder.split(df):
-
-    X_train = df['text']
-    y_train = df['classa']
-
-    cls.train_cost_sensitive_RF_words_only(X_train,y_train)
-    cls.save_RF_words_only("Objectives_RF")
-
-    ### Actors
-    print("Working on Actors")
-    texts = []
-    classA = []
-    for anns in annotations:
-        texts.append(anns[1])
-        value = anns[3]
-        if value>=2:
-            value = 1
-        else:
-            value =0
-        classA.append(value)
-    df = pd.DataFrame({'text': texts, 'classa': classA})
-    print(df.classa.value_counts())
-    df_majority = df[df.classa == 1]
-    df_minority = df[df.classa == 0]
-    df_minority_upsampled = resample(df_minority,
-                                      replace=True,     # sample with replacement
-                                      n_samples=440,    # to match majority class
-                                      random_state=83293) # reproducible results
-
-    df_upsampled = pd.concat([df_majority, df_minority_upsampled],ignore_index=True)
-    df_upsampled = df_upsampled.sample(frac=1).reset_index(drop=True)
-    print(df_upsampled.classa.value_counts())
-    df = df_upsampled
-    cls = UniversalClassifier()
-    X_train = df['text']
-    y_train = df['classa']
-
-    cls.train_cost_sensitive_RF_words_only(X_train,y_train)
-    cls.save_RF_words_only("Actors_RF")
-
-    ### Outputs
-    print("Working on Outputs")
-    texts = []
-    classA = []
-    for anns in annotations:
-        texts.append(anns[1])
-        value = anns[4]
-        if value>=2:
-            value = 1
-        else:
-            value =0
-        classA.append(value)
-    df = pd.DataFrame({'text': texts, 'classa': classA})
-    print(df.classa.value_counts())
-    df_majority = df[df.classa == 1]
-    df_minority = df[df.classa == 0]
-    df_minority_upsampled = resample(df_minority,
-                                      replace=True,     # sample with replacement
-                                      n_samples=510,    # to match majority class
-                                      random_state=83293) # reproducible results
-
-    df_upsampled = pd.concat([df_majority, df_minority_upsampled],ignore_index=True)
-    df_upsampled = df_upsampled.sample(frac=1).reset_index(drop=True)
-    print(df_upsampled.classa.value_counts())
-    df = df_upsampled
-    cls = UniversalClassifier()
-    X_train = df['text']
-    y_train = df['classa']
-
-    cls.train_cost_sensitive_RF_words_only(X_train,y_train)
-    cls.save_RF_words_only("Outputs_RF")
-
-    ### Innovativeness
-    print("Working on Innovativness")
-    texts = []
-    classA = []
-    for anns in annotations:
-        texts.append(anns[1])
         value = anns[5]
         if value>=2:
             value = 1
@@ -437,20 +331,40 @@ if  __name__ == '__main__':
         classA.append(value)
     df = pd.DataFrame({'text': texts, 'classa': classA})
     print(df.classa.value_counts())
-    df_majority = df[df.classa == 1]
-    df_minority = df[df.classa == 0]
-    df_minority_upsampled = resample(df_minority,
-                                      replace=True,     # sample with replacement
-                                      n_samples=510,    # to match majority class
-                                      random_state=83293) # reproducible results
+    # df_majority = df[df.classa == 1]
+    # df_minority = df[df.classa == 0]
+    # df_minority_upsampled = resample(df_minority,
+    #                                   replace=True,     # sample with replacement
+    #                                   n_samples=530,    # to match majority class
+    #                                   random_state=83293) # reproducible results
+    #
+    # df_upsampled = pd.concat([df_majority, df_minority_upsampled],ignore_index=True)
+    # df_upsampled = df_upsampled.sample(frac=1).reset_index(drop=True)
+    # print(df_upsampled.classa.value_counts())
+    # df = df_upsampled
 
-    df_upsampled = pd.concat([df_majority, df_minority_upsampled],ignore_index=True)
-    df_upsampled = df_upsampled.sample(frac=1).reset_index(drop=True)
-    print(df_upsampled.classa.value_counts())
-    df = df_upsampled
+    # df_majority_downsampled = resample(df_majority, replace=False, n_samples=70, random_state=3413)
+    # df_downsampled = pd.concat([df_majority_downsampled,df_minority])
+    # df_downsampled = df_downsampled.sample(frac=1).reset_index(drop=True)
+    # print(df_downsampled.classa.value_counts())
+    # df = df_downsampled
+    #folder = sklearn.model_selection.KFold(5)
     cls = UniversalClassifier()
-    X_train = df['text']
-    y_train = df['classa']
+    i = 0
+    #for  train_index, test_index in folder.split(df):
 
-    cls.train_cost_sensitive_RF_words_only(X_train,y_train)
-    cls.save_RF_words_only("Innovativeness_RF")
+    # X_train = df['text']
+    # y_train = df['classa']
+    folder = sklearn.model_selection.KFold(5)
+    for train_index, test_index in folder.split(df):
+        print("Fold "+str(i))
+        i = i+1
+        X_train = df['text'][train_index]
+        y_train = df['classa'][train_index]
+        X_test = df['text'][test_index]
+        y_test = df['classa'][test_index]
+        cls = UniversalClassifier()
+        cls.train_RF_words_only(X_train, y_train)
+        y_pred = cls.predict_words_only(X_test)
+        cls.print_reports(y_pred, y_test)
+
