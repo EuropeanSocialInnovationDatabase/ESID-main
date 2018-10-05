@@ -311,7 +311,8 @@ class UniversalClassifier():
 
 if  __name__ == '__main__':
     #path = "../../../../Helpers/SI_dataset/Output/Merged_dataset_all_workshop_with_excluded"
-    path = "../../../../Helpers/SI_dataset/Output/SI_withExcluded"
+    #path = "../../../../Helpers/SI_dataset/Output/SI_withExcluded3"
+    path = "../../../../Helpers/SI_dataset/Output/SI_only"
     annotations = read_files(path)
     #annotations = load_database_description_dataset()
     #transfer_to_database(annotations)
@@ -323,7 +324,7 @@ if  __name__ == '__main__':
 
     for anns in annotations:
         texts.append(anns[1])
-        value = anns[5]
+        value = anns[2]
         if value>=2:
             value = 1
         else:

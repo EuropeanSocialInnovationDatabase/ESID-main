@@ -60,12 +60,12 @@ if __name__ == '__main__':
         print(pro.idProject)
         project_list.append(pro)
         print("Grabbing documents from Mongo")
-        documents = mongo_db.crawl20180801_excluded.find({"mysql_databaseID":str(pro.idProject),"page_title":{"$regex":"(A|a)bout|(V|v)ision|(M|m)ision|(C|c)ontact|(K|k)ontakt|(P|p)artner"}},no_cursor_timeout=True).batch_size(100)
+        documents = mongo_db.crawl20180801_excluded2.find({"mysql_databaseID":str(pro.idProject),"page_title":{"$regex":"(A|a)bout|(V|v)ision|(M|m)ision|(C|c)ontact|(K|k)ontakt|(P|p)artner"}},no_cursor_timeout=True).batch_size(100)
         project_text = ""
         original_text = ""
         if documents.count()==0:
             print("Too few documents")
-            documents = mongo_db.crawl201808011_excluded.find({"mysql_databaseID": str(pro.idProject)},
+            documents = mongo_db.crawl201808011_excluded2.find({"mysql_databaseID": str(pro.idProject)},
                                                        no_cursor_timeout=True).batch_size(100)
         print("Making a big document")
 

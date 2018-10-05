@@ -25,7 +25,7 @@ if  __name__ == '__main__':
     for res in results:
         print res[0]
         message = ""
-        option = "v1 balanced classifiers, 02/10/2018"
+        option = "v6 classifier with excluded as balancing, 04/10/2018"
         objective = 0
         actors = 0
         outputs = 0
@@ -48,7 +48,7 @@ if  __name__ == '__main__':
                   "Values ({0},{1},{2},{3},{4},'{5}','{6}')".format(objective,actors,outputs,innovativeness,project_id,option,message)
             mysql_cursor.execute(sql)
             db_mysql.commit()
-        elif "domain for sale" in document_text.lower() or "buy this domain" in document_text.lower() or "find your perfect domain" in document_text.lower() or "domain expired":
+        elif "domain for sale" in document_text.lower() or "buy this domain" in document_text.lower() or "find your perfect domain" in document_text.lower() or "domain expired" in document_text.lower():
             message = "Domain for sale"
             sql = "Insert into TypeOfSocialInnotation (CriterionObjectives,CriterionActors,CriterionOutputs,CriterionInnovativeness,Projects_idProjects,SourceModel,AnnotationComment)" \
                   "Values ({0},{1},{2},{3},{4},'{5}','{6}')".format(objective, actors, outputs, innovativeness,
