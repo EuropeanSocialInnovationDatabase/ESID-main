@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from pymongo import MongoClient
-from Basic_experiments import UniversalClassifier
+from ANN_Experiments import UniversalNNClassifier
 import MySQLdb
 from database_access import *
 
@@ -14,18 +14,18 @@ if  __name__ == '__main__':
     sql = "Select * from Projects where Exclude =0"
     mysql_cursor.execute(sql)
     results = mysql_cursor.fetchall()
-    objective_cls = UniversalClassifier()
-    objective_cls.load_RF_words_only("Objectives_RF")
-    actors_cls = UniversalClassifier()
-    actors_cls.load_RF_words_only("Actors_RF")
-    outputs_cls = UniversalClassifier()
-    outputs_cls.load_RF_words_only("Outputs_RF")
-    innovativeness_cls = UniversalClassifier()
-    innovativeness_cls.load_RF_words_only("Innovativeness_RF")
+    objective_cls = UniversalNNClassifier()
+    objective_cls.load_CNN_model("Objectives_NN")
+    actors_cls = UniversalNNClassifier()
+    actors_cls.load_CNN_model("Actors_NN")
+    outputs_cls = UniversalNNClassifier()
+    outputs_cls.load_CNN_model("Outputs_NN")
+    innovativeness_cls = UniversalNNClassifier()
+    innovativeness_cls.load_CNN_model("Innovativeness_NN")
     for res in results:
         print res[0]
         message = ""
-        option = "v14 classifier origninal unbalanced dataset 2M features balanced, with stopwords, with 1-3 grams, 10/10/2018"
+        option = "v16 CNN 50d embeddings unbalanced, 11/10/2018"
         objective = 0
         actors = 0
         outputs = 0
@@ -66,10 +66,10 @@ if  __name__ == '__main__':
             mysql_cursor.execute(sql)
             db_mysql.commit()
         else:
-            objective = objective_cls.predict_words_only([document_text])[0]
-            actors = actors_cls.predict_words_only([document_text])[0]
-            outputs = outputs_cls.predict_words_only([document_text])[0]
-            innovativeness = innovativeness_cls.predict_words_only([document_text])[0]
+            objective = objective_cls.predict_CNN([document_text])[0]
+            actors = actors_cls.predict_CNN([document_text])[0]
+            outputs = outputs_cls.predict_CNN([document_text])[0]
+            innovativeness = innovativeness_cls.predict_CNN([document_text])[0]
             sql = "Insert into TypeOfSocialInnotation (CriterionObjectives,CriterionActors,CriterionOutputs,CriterionInnovativeness,Projects_idProjects,SourceModel,AnnotationComment)" \
                   "Values ({0},{1},{2},{3},{4},'{5}','{6}')".format(objective, actors, outputs, innovativeness,
                                                                     project_id, option, message)

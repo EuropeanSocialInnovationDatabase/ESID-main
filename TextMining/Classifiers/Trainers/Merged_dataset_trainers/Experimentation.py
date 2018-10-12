@@ -113,7 +113,7 @@ class UniversalClassifier():
         self.actor = ['organisation','university','users','ngo','firm','company','actors','people']
 
     def train_RF_words_only(self,X_train,y_train):
-        self.count_vect1 = CountVectorizer(max_features=1000)
+        self.count_vect1 = CountVectorizer(max_features=1000,ngram_range=(2,3))
         X_train_counts = self.count_vect1.fit_transform(X_train)
         self.tf_transformer = TfidfTransformer(use_idf=False).fit(X_train_counts)
         X_train_tf = self.tf_transformer.transform(X_train_counts)
@@ -235,7 +235,7 @@ class UniversalClassifier():
 
 
     def train_NB_words_only(self, X_train, y_train):
-        self.count_vect1 = CountVectorizer(max_features=1000)
+        self.count_vect1 = CountVectorizer(max_features=1000000,ngram_range=(1,3))
         X_train_counts = self.count_vect1.fit_transform(X_train)
         self.tf_transformer = TfidfTransformer(use_idf=False).fit(X_train_counts)
         X_train_tf = self.tf_transformer.transform(X_train_counts)
@@ -310,9 +310,9 @@ class UniversalClassifier():
 
 
 if  __name__ == '__main__':
-    #path = "../../../../Helpers/SI_dataset/Output/Merged_dataset_all_workshop_with_excluded"
+    path = "../../../../Helpers/SI_dataset/Output/Merged_dataset_all_workshop_with_excluded"
     #path = "../../../../Helpers/SI_dataset/Output/SI_withExcluded3"
-    path = "../../../../Helpers/SI_dataset/Output/SI_only"
+    #path = "../../../../Helpers/SI_dataset/Output/SI_only"
     annotations = read_files(path)
     #annotations = load_database_description_dataset()
     #transfer_to_database(annotations)

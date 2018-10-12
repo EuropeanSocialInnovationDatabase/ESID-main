@@ -1,6 +1,8 @@
 import MySQLdb
 from os import listdir
 from os.path import isfile, join
+
+import nltk
 import pandas as pd
 import sklearn
 from sklearn.ensemble import RandomForestClassifier
@@ -113,7 +115,7 @@ class UniversalClassifier():
         self.actor = ['organisation','university','users','ngo','firm','company','actors','people']
 
     def train_RF_words_only(self,X_train,y_train):
-        self.count_vect1 = CountVectorizer(max_features=1000)
+        self.count_vect1 = CountVectorizer(max_features=1000,ngram_range=(1,3))
         X_train_counts = self.count_vect1.fit_transform(X_train)
         self.tf_transformer = TfidfTransformer(use_idf=False).fit(X_train_counts)
         X_train_tf = self.tf_transformer.transform(X_train_counts)
@@ -122,12 +124,13 @@ class UniversalClassifier():
         self.clf.fit(X_train_tf, y_train)
         # self.clf =SVC()
     def train_cost_sensitive_RF_words_only(self,X_train,y_train):
-        self.count_vect1 = CountVectorizer(max_features=1000)
+        stopWords = set(nltk.corpus.stopwords.words('english'))
+        self.count_vect1 = CountVectorizer(max_features=2000000,ngram_range=(1,3),stop_words=stopWords,lowercase=True)
         X_train_counts = self.count_vect1.fit_transform(X_train)
         self.tf_transformer = TfidfTransformer(use_idf=False).fit(X_train_counts)
         X_train_tf = self.tf_transformer.transform(X_train_counts)
         #print("Training")
-        self.clf = RandomForestClassifier(n_jobs=3, n_estimators=150,class_weight={0: 90, 1: 50})
+        self.clf = RandomForestClassifier(n_jobs=3, n_estimators=200)
         self.clf.fit(X_train_tf, y_train)
 
     def save_RF_words_only(self,path):
@@ -310,7 +313,8 @@ class UniversalClassifier():
 
 
 if  __name__ == '__main__':
-    path = "../../../../Helpers/SI_dataset/Output/Merged_dataset_all_workshop_with_excluded2"
+    path = "../../../../Helpers/SI_dataset/Output/Merged_dataset_all_workshop_with_excluded"
+    #path = "../../../../Helpers/SI_dataset/Output/Merged_dataset_all_workshop_with_excluded2"
     #path = "../../../../Helpers/SI_dataset/Output/SI_withExcluded3"
     #path = "../../../../Helpers/SI_dataset/Output/SI_only_balanced"
     #path = "../../../../Helpers/SI_dataset/Output/SI_only"
@@ -333,17 +337,17 @@ if  __name__ == '__main__':
         classA.append(value)
     df = pd.DataFrame({'text': texts, 'classa': classA})
     print(df.classa.value_counts())
-    # df_majority = df[df.classa == 1]
-    # df_minority = df[df.classa == 0]
-    # df_minority_upsampled = resample(df_minority,
-    #                                   replace=True,     # sample with replacement
-    #                                   n_samples=530,    # to match majority class
-    #                                   random_state=83293) # reproducible results
-    #
-    # df_upsampled = pd.concat([df_majority, df_minority_upsampled],ignore_index=True)
-    # df_upsampled = df_upsampled.sample(frac=1).reset_index(drop=True)
-    # print(df_upsampled.classa.value_counts())
-    # df = df_upsampled
+    df_majority = df[df.classa == 1]
+    df_minority = df[df.classa == 0]
+    df_minority_upsampled = resample(df_minority,
+                                      replace=True,     # sample with replacement
+                                      n_samples=530,    # to match majority class
+                                      random_state=83293) # reproducible results
+
+    df_upsampled = pd.concat([df_majority, df_minority_upsampled],ignore_index=True)
+    df_upsampled = df_upsampled.sample(frac=1).reset_index(drop=True)
+    print(df_upsampled.classa.value_counts())
+    df = df_upsampled
 
     # df_majority_downsampled = resample(df_majority, replace=False, n_samples=70, random_state=3413)
     # df_downsampled = pd.concat([df_majority_downsampled,df_minority])
@@ -375,17 +379,17 @@ if  __name__ == '__main__':
         classA.append(value)
     df = pd.DataFrame({'text': texts, 'classa': classA})
     print(df.classa.value_counts())
-    # df_majority = df[df.classa == 1]
-    # df_minority = df[df.classa == 0]
-    # df_minority_upsampled = resample(df_minority,
-    #                                   replace=True,     # sample with replacement
-    #                                   n_samples=440,    # to match majority class
-    #                                   random_state=83293) # reproducible results
-    #
-    # df_upsampled = pd.concat([df_majority, df_minority_upsampled],ignore_index=True)
-    # df_upsampled = df_upsampled.sample(frac=1).reset_index(drop=True)
-    # print(df_upsampled.classa.value_counts())
-    # df = df_upsampled
+    df_majority = df[df.classa == 1]
+    df_minority = df[df.classa == 0]
+    df_minority_upsampled = resample(df_minority,
+                                      replace=True,     # sample with replacement
+                                      n_samples=440,    # to match majority class
+                                      random_state=83293) # reproducible results
+
+    df_upsampled = pd.concat([df_majority, df_minority_upsampled],ignore_index=True)
+    df_upsampled = df_upsampled.sample(frac=1).reset_index(drop=True)
+    print(df_upsampled.classa.value_counts())
+    df = df_upsampled
     cls = UniversalClassifier()
     X_train = df['text']
     y_train = df['classa']
@@ -407,17 +411,17 @@ if  __name__ == '__main__':
         classA.append(value)
     df = pd.DataFrame({'text': texts, 'classa': classA})
     print(df.classa.value_counts())
-    # df_majority = df[df.classa == 1]
-    # df_minority = df[df.classa == 0]
-    # df_minority_upsampled = resample(df_minority,
-    #                                   replace=True,     # sample with replacement
-    #                                   n_samples=510,    # to match majority class
-    #                                   random_state=83293) # reproducible results
-    #
-    # df_upsampled = pd.concat([df_majority, df_minority_upsampled],ignore_index=True)
-    # df_upsampled = df_upsampled.sample(frac=1).reset_index(drop=True)
-    # print(df_upsampled.classa.value_counts())
-    # df = df_upsampled
+    df_majority = df[df.classa == 1]
+    df_minority = df[df.classa == 0]
+    df_minority_upsampled = resample(df_minority,
+                                      replace=True,     # sample with replacement
+                                      n_samples=510,    # to match majority class
+                                      random_state=83293) # reproducible results
+
+    df_upsampled = pd.concat([df_majority, df_minority_upsampled],ignore_index=True)
+    df_upsampled = df_upsampled.sample(frac=1).reset_index(drop=True)
+    print(df_upsampled.classa.value_counts())
+    df = df_upsampled
     cls = UniversalClassifier()
     X_train = df['text']
     y_train = df['classa']
@@ -439,17 +443,17 @@ if  __name__ == '__main__':
         classA.append(value)
     df = pd.DataFrame({'text': texts, 'classa': classA})
     print(df.classa.value_counts())
-    # df_majority = df[df.classa == 1]
-    # df_minority = df[df.classa == 0]
-    # df_minority_upsampled = resample(df_minority,
-    #                                   replace=True,     # sample with replacement
-    #                                   n_samples=510,    # to match majority class
-    #                                   random_state=83293) # reproducible results
-    #
-    # df_upsampled = pd.concat([df_majority, df_minority_upsampled],ignore_index=True)
-    # df_upsampled = df_upsampled.sample(frac=1).reset_index(drop=True)
-    # print(df_upsampled.classa.value_counts())
-    # df = df_upsampled
+    df_majority = df[df.classa == 1]
+    df_minority = df[df.classa == 0]
+    df_minority_upsampled = resample(df_minority,
+                                      replace=True,     # sample with replacement
+                                      n_samples=510,    # to match majority class
+                                      random_state=83293) # reproducible results
+
+    df_upsampled = pd.concat([df_majority, df_minority_upsampled],ignore_index=True)
+    df_upsampled = df_upsampled.sample(frac=1).reset_index(drop=True)
+    print(df_upsampled.classa.value_counts())
+    df = df_upsampled
     cls = UniversalClassifier()
     X_train = df['text']
     y_train = df['classa']
