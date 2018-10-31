@@ -22,14 +22,17 @@ if  __name__ == '__main__':
     outputs_cls.load_RF_words_only("Outputs_RF")
     innovativeness_cls = UniversalClassifier()
     innovativeness_cls.load_RF_words_only("Innovativeness_RF")
+    si_cls = UniversalClassifier()
+    si_cls.load_RF_words_only("SI_RF")
     for res in results:
         print res[0]
         message = ""
-        option = "v14 classifier origninal unbalanced dataset 2M features balanced, with stopwords, with 1-3 grams, 10/10/2018"
+        option = "v18 classifier origninal balanced dataset 2M features balanced with SI overall, with stopwords, with 1-3 grams, 18/10/2018"
         objective = 0
         actors = 0
         outputs = 0
         innovativeness = 0
+        si = 0
         project_id = res[0]
         documents = mongo_db.crawl20180801_translated.find({"mysql_databaseID": str(project_id)},
                                                 no_cursor_timeout=True).batch_size(100)
@@ -44,8 +47,9 @@ if  __name__ == '__main__':
                 document_text = document_text + " "+doc['translation']
         if "404" in document_text or "page not found" in document_text.lower():
             message = "Page not found"
-            sql = "Insert into TypeOfSocialInnotation (CriterionObjectives,CriterionActors,CriterionOutputs,CriterionInnovativeness,Projects_idProjects,SourceModel,AnnotationComment)" \
-                  "Values ({0},{1},{2},{3},{4},'{5}','{6}')".format(objective,actors,outputs,innovativeness,project_id,option,message)
+            sql = "Insert into TypeOfSocialInnotation (CriterionObjectives,CriterionActors,CriterionOutputs,CriterionInnovativeness,Projects_idProjects,SourceModel,AnnotationComment,Social_Innovation_overall)" \
+                  "Values ({0},{1},{2},{3},{4},'{5}','{6}',{7})".format(objective, actors, outputs, innovativeness,
+                                                                        project_id, option, message, si)
             mysql_cursor.execute(sql)
             db_mysql.commit()
         elif "domain for sale" in document_text.lower() or "buy this domain" in document_text.lower() or "find your perfect domain" in document_text.lower() or "domain expired" in document_text.lower()\
@@ -53,16 +57,16 @@ if  __name__ == '__main__':
                 or "to purchase, call buydomains" in document_text.lower() or "hundreds of thousands of premium domains" in document_text.lower() or "search for a premium domain" in document_text.lower()\
                 or "This domain is registered for one" in document_text.lower() or "for your website name!" in document_text.lower():
             message = "Domain for sale"
-            sql = "Insert into TypeOfSocialInnotation (CriterionObjectives,CriterionActors,CriterionOutputs,CriterionInnovativeness,Projects_idProjects,SourceModel,AnnotationComment)" \
-                  "Values ({0},{1},{2},{3},{4},'{5}','{6}')".format(objective, actors, outputs, innovativeness,
-                                                                    project_id, option, message)
+            sql = "Insert into TypeOfSocialInnotation (CriterionObjectives,CriterionActors,CriterionOutputs,CriterionInnovativeness,Projects_idProjects,SourceModel,AnnotationComment,Social_Innovation_overall)" \
+                  "Values ({0},{1},{2},{3},{4},'{5}','{6}',{7})".format(objective, actors, outputs, innovativeness,
+                                                                        project_id, option, message, si)
             mysql_cursor.execute(sql)
             db_mysql.commit()
         elif len(document_text)<350:
             message = "Text smaller than 350 characters"
-            sql = "Insert into TypeOfSocialInnotation (CriterionObjectives,CriterionActors,CriterionOutputs,CriterionInnovativeness,Projects_idProjects,SourceModel,AnnotationComment)" \
-                  "Values ({0},{1},{2},{3},{4},'{5}','{6}')".format(objective, actors, outputs, innovativeness,
-                                                                    project_id, option, message)
+            sql = "Insert into TypeOfSocialInnotation (CriterionObjectives,CriterionActors,CriterionOutputs,CriterionInnovativeness,Projects_idProjects,SourceModel,AnnotationComment,Social_Innovation_overall)" \
+                  "Values ({0},{1},{2},{3},{4},'{5}','{6}',{7})".format(objective, actors, outputs, innovativeness,
+                                                                    project_id, option, message,si)
             mysql_cursor.execute(sql)
             db_mysql.commit()
         else:
@@ -70,9 +74,10 @@ if  __name__ == '__main__':
             actors = actors_cls.predict_words_only([document_text])[0]
             outputs = outputs_cls.predict_words_only([document_text])[0]
             innovativeness = innovativeness_cls.predict_words_only([document_text])[0]
-            sql = "Insert into TypeOfSocialInnotation (CriterionObjectives,CriterionActors,CriterionOutputs,CriterionInnovativeness,Projects_idProjects,SourceModel,AnnotationComment)" \
-                  "Values ({0},{1},{2},{3},{4},'{5}','{6}')".format(objective, actors, outputs, innovativeness,
-                                                                    project_id, option, message)
+            si = si_cls.predict_words_only([document_text])[0]
+            sql = "Insert into TypeOfSocialInnotation (CriterionObjectives,CriterionActors,CriterionOutputs,CriterionInnovativeness,Projects_idProjects,SourceModel,AnnotationComment,Social_Innovation_overall)" \
+                  "Values ({0},{1},{2},{3},{4},'{5}','{6}',{7})".format(objective, actors, outputs, innovativeness,
+                                                                        project_id, option, message, si)
             mysql_cursor.execute(sql)
             db_mysql.commit()
     print("Done!")
