@@ -54,8 +54,9 @@ def get_token():
     salt = "hdhswrnbjJhs32)"
     hashed_pass = hashlib.sha256(
         (password + salt).encode("utf-8")).hexdigest()
+    select_query = "SELECT * FROM Users WHERE username='{0}' and Password='{1}' and IsApproved=1".format(user,hashed_pass)
     cursor.execute(
-        "SELECT * FROM Users WHERE username=%s and Password=%s", (user, hashed_pass))
+        select_query)
     has_user = cursor.fetchone()
     if has_user is not None:
         millis = int(round(time.time() * 1000))
@@ -129,6 +130,73 @@ def classify():
 @app.route('/submit_project', methods=['POST'])
 def submit_new_project():
     Project_name = request.form['project_name']
+    user = request.form['user']
+    Project_website = request.form['project_website']
+    Project_facebook = request.form['project_facebook']
+    Project_twitter = request.form['project_twitter']
+    Address= request.form['project_address']
+    City = request.form['project_city']
+    Country = request.form['project_country']
+    Objectives = request.form['objectives_satisfy']
+    Actors = request.form['actors_satisfy']
+    Outputs = request.form['outputs_satisfy']
+    Innovativeness= request.form['innovativeness_satisfy']
+    ProjectType = request.form['project_type']
+    StartDate = request.form['project_date_start']
+    EndDate = request.form['project_date_end']
+    Description = request.form['project_description']
+    if Project_name =='' or Country=='' or Project_website=='':
+        return render_template('error.htm')
+    actors_list = []
+    actor_count = int(request.form['counter'])
+    if actor_count>0:
+        for i in range(0,actor_count):
+            Actor_e = {}
+            Actor_e['Name'] = request.form['actor_name_'+str(i)]
+            Actor_e['Website'] = request.form['actor_website_' + str(i)]
+            Actor_e['City'] = request.form['actor_city_' + str(i)]
+            Actor_e['Country'] = request.form['actor_country_' + str(i)]
+            actors_list.append(Actor_e)
+    if StartDate == '':
+        StartDate = 'Null'
+    if EndDate =='':
+        EndDate = 'Null'
+    project_sql = "Insert into Projects (ProjectName,Type,DateStart,DateEnd,ProjectWebpage,FacebookPage,ProjectTwitter,Suggestions,DataSources_idDataSources) VALUES ('{0}','{1}',{2},{3},'{4}','{5}','{6}','{7}',{8})"\
+        .format(Project_name,ProjectType,StartDate,EndDate,Project_website,Project_facebook,Project_twitter,1,'57')
+    cursor.execute(project_sql)
+    project_id = cursor.lastrowid
+    location_sql = "Insert into ProjectLocation (Type,Address,City,Country,Projects_idProjects,Original_idProjects) Values ('{0}','{1}','{2}','{3}','{4}','{5}')".format('Main',Address,City,Country,project_id,project_id)
+    cursor.execute(location_sql)
+    si_marks = "Insert into TypeOfSocialInnotation (CriterionOutputs,CriterionObjectives,CriterionActors,CriterionInnovativeness,Projects_idProjects,SourceModel) Values ({0},{1},{2},{3},{4},'{5}')".format(
+        Outputs,Objectives,Actors,Innovativeness,project_id,"ManualAnnotationCrowd"
+    )
+    cursor.execute(si_marks)
+    desc = "Insert into AdditionalProjectData (FieldName,Value,Projects_idProjects,DateObtained,SourceURL) VALUES ('{0}','{1}','{2}',NOW(),'{3}')".format(
+        "Description",Description,project_id,"Manual"
+    )
+    cursor.execute(desc)
+    for act in actors_list:
+        act_sql = "Insert into Actors (ActorName,ActorWebsite,SourceOriginallyObtained,DataSources_idDataSources) Values ('{0}','{1}','{2}','{3}')".format(act['Name'],act['Website'],'ManualInput','57')
+        cursor.execute(act_sql)
+        actor_id = cursor.lastrowid
+        sql_user_log = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,entry_id,date_time,table_name) VALUES ('{0}','{1}','{2}','{3}',NOW(),'Actors')".format(
+            user, 1, 0, actor_id)
+        cursor.execute(sql_user_log)
+        act_location_sql = "Insert into ActorLocation (Type,City,Country,Actors_idActors) Values ('{0}','{1}','{2}','{3}')".format("Headquaters",act['City'],act['Country'],actor_id)
+        cursor.execute(act_location_sql)
+    sql_user_log = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id,entry_id,date_time,table_name) VALUES ('{0}','{1}','{2}','{3}','{4}',NOW(),'Projects')".format(
+        user, 1, 0, project_id, project_id)
+    cursor.execute(sql_user_log)
+
+    conn.commit()
+    return render_template('thank_you_project.html')
+
+@app.route('/submit_related_project', methods=['POST'])
+def submit_related_project():
+    Project_id_to_which_is_related = request.form['related_project']
+    user = request.form['user']
+    Relationship = request.form['project_relationship']
+    Project_name = request.form['project_name']
     Project_website = request.form['project_website']
     Project_facebook = request.form['project_facebook']
     Project_twitter = request.form['project_twitter']
@@ -153,6 +221,10 @@ def submit_new_project():
             Actor_e['City'] = request.form['actor_city_' + str(i)]
             Actor_e['Country'] = request.form['actor_country_' + str(i)]
             actors_list.append(Actor_e)
+    if StartDate == '':
+        StartDate = 'Null'
+    if EndDate =='':
+        EndDate = 'Null'
     project_sql = "Insert into Projects (ProjectName,Type,DateStart,DateEnd,ProjectWebpage,FacebookPage,ProjectTwitter,Suggestions,DataSources_idDataSources) VALUES ('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}',{8})"\
         .format(Project_name,ProjectType,StartDate,EndDate,Project_website,Project_facebook,Project_twitter,1,'57')
     cursor.execute(project_sql)
@@ -168,12 +240,19 @@ def submit_new_project():
     )
     cursor.execute(desc)
     for act in actors_list:
-        act_sql = "Insert into Actors (ActorName,ActorWebsite,SourceOriginallyObtained,DataSources_idDataSources) Values ('{0}','{1}','{2}','{3}')".format(act['Name'],act['Website'],'ManualInput','57')
+        act_sql = "Insert into Actors (ActorName,ActorWebsite,SourceOriginallyObtained,DataSources_idDataSources,user_suggested) Values ('{0}','{1}','{2}','{3}',1)".format(act['Name'],act['Website'],'ManualInput','57')
         cursor.execute(act_sql)
         actor_id = cursor.lastrowid
+        sql_user_log = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,entry_id,date_time,table_name) VALUES ('{0}','{1}','{2}','{3}',NOW(),'Actors')".format(
+            user, 1, 0, actor_id)
+        cursor.execute(sql_user_log)
+
         act_location_sql = "Insert into ActorLocation (Type,City,Country,Actors_idActors) Values ('{0}','{1}','{2}','{3}')".format("Headquaters",act['City'],act['Country'],actor_id)
         cursor.execute(act_location_sql)
-
+    sql_relation = "Insert into Projects_relates_to_Projects (Projects_idProjects,Projects_idProjects1,RelationshipType) VALUES ({0},{1},'{2}')".format(Project_id_to_which_is_related,project_id,Relationship)
+    cursor.execute(sql_relation)
+    sql_user_log = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id,entry_id,date_time,table_name) VALUES ('{0}','{1}','{2}','{3}','{4}',NOW(),'Projects')".format(user,1,0,project_id,project_id)
+    cursor.execute(sql_user_log)
     conn.commit()
     return render_template('thank_you_project.html')
 
@@ -181,6 +260,6 @@ if __name__ == "__main__":
     # MySQL configurations
     conn = mysql.connect()
     cursor = conn.cursor()
-    app.run(debug=True,port=8080)#,host="0.0.0.0")
+    app.run(debug=True,port=8080,host="0.0.0.0")
 
 

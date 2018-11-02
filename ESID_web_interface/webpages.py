@@ -52,6 +52,7 @@ def project_view(id):
     project_list = cursor.fetchall()
     project_data = {}
     for project in project_list:
+        project_data['id'] = id
         project_data['project_name'] = project[2]
         project_data['type'] = project[4]
         project_data['DateStart'] = project[8]
@@ -100,5 +101,15 @@ def project_view(id):
         project_data['Innovativeness']=mark[4]
 
     return render_template('project_view.html',project = project_data)
+
+
+@webpage.route('/suggest_related_project', methods=['POST'])
+def suggest_related_project():
+    related_id = request.form['project_id']
+    return render_template('suggest_related.html',related_project= related_id)
+
+@webpage.route('/error', methods=['POST','GET'])
+def error():
+    return render_template('error.html')
 
 

@@ -6,7 +6,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title>Semanticus - Semantic text mining platform</title>
+        <title>ESID - European Social Innovation Database</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -74,10 +74,10 @@
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 
                     <ul class="nav navbar-nav navbar-right">
-                        <li class="active"><a href="/login">Home</a></li>
+                        <li><a href="/home">Search</a></li>
+                        <li class="active"><a href="/suggest_new_project">Suggest project</a></li>
                         <li><a href="#contact">Contact</a></li>
-                        <li class="login"><a href="/login">Sign In</a></li>
-                        <li class="login"><a href="/register">Register</a></li>
+                        <li class="login"><a id="Logout">Logout</a></li>
                     </ul>
 
                 </div><!-- /.navbar-collapse -->
@@ -90,33 +90,45 @@
                 <div class="container text-center">
                     <div class="row">
                         <div class="home-wrapper">
-                            <div class="col-md-10 col-md-offset-1">
                                 <div class="home-content">
 
-                                    <h1>Successfully created user</h1>
+                                    <h1>ESID</h1>
+                                    <div class="project_overview">
+                                        <form action="/submit_related_project" method="post" id="new_project">
+                                            <input name="related_project" value="{{related_project}}" type="hidden">
+                                        <u>Project Name:</u> <input type="text" class="form-control" id="project_name" name="project_name" placeholder="Enter project name" required><br/>
+                                            <u>Relationship to previous project:</u> <input  type="text" class="form-control" id="project_relationship" name="project_relationship" placeholder="Enter relationship between projects"><br/>
 
-                                    <div class="row">
-                                        <div class="col-md-6 col-md-offset-3 col-sm-12 col-xs-12">
-                                            <div class="home-contact">
-                                                <div class="input-group">
-                                                    <table width="500px">
-
-                                                         <tr><td></td>
-                                                             <td><a href="/login"> <input type="submit" class="form-control" id="goto_login" value="Log In"></a>
-                                                            </td>
-                                                        </tr>
-                                                    </table>
-
-
-                                                </div><!-- /input-group -->
-
+                                            <u>Project Website:</u> <input type="text" required class="form-control" id="project_website" name="project_website" placeholder="Enter project website"><br/>
+                                        <u>Project Facebook:</u> <input type="text" class="form-control" id="project_facebook" name="project_facebook" placeholder="Enter project Facebook"><br/>
+                                        <u>Project Twitter:</u> <input type="text" class="form-control" id="project_twitter" name="project_twitter" placeholder="Enter project Twitter"><br/>
+                                        <u>Address:</u> <input type="text" class="form-control" id="project_address" name="project_address" placeholder="Enter project Address"><br/>
+                                        <u>City:</u> <input type="text" class="form-control" id="project_city" name="project_city" placeholder="Enter project city"><br/>
+                                        <u>Country:</u> <input required type="text" class="form-control" id="project_country" name="project_country" placeholder="Enter project country"><br/>
+                                        <u>Objectives satisfied:</u> <select id="objectives_satisfy" name="objectives_satisfy"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option> </select><br/>
+                                        <u>Actors satisfied:</u> <select id="actors_satisfy" name="actors_satisfy"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option> </select><br/>
+                                        <u>Outputs satisfied:</u> <select id="outputs_satisfy" name="outputs_satisfy"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option> </select><br/>
+                                        <u>Innovativeness satisfied:</u> <select id="innovativeness_satisfy" name="innovativeness_satisfy"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option> </select><br/>
+                                        <u>Related actors:</u><br/>
+                                            <div id="actors">
+                                                <input type="hidden" class="form-control" name="counter" id="counter" value="0"/>
 
                                             </div>
-                                        </div>
+                                            <input type="button" class="form-control" id="add_actor" value="Add Actor"/>
+                                        <u>Project Type (if available):</u> <input type="text" class="form-control" id="project_type" name="project_type" placeholder="Enter project type"><br/>
+                                        <u>Project Start Date:</u> <input type="date" class="form-control" id="project_date_start" name="project_date_start" placeholder="Enter project start date"><br/>
+                                        <u>Project End Date:</u> <input type="date" class="form-control" id="project_date_end" name="project_date_end" placeholder="Enter project start date"><br/>
+                                        <u>Descriptions:</u><br/>
+                                        <textarea name="project_description" id="project_description" cols="150" rows="10"></textarea>
+                                        <input type="submit" class="form-control" id="submit" value="Submit"/>
+                                        </form>
+
+
                                     </div>
 
 
-                                </div>
+
+
                             </div>
                         </div>
                     </div>
@@ -133,19 +145,6 @@
                     <div class="footer-menu-wrapper">
 
                         <div class="col-md-8 col-sm-12 col-xs-12">
-                            <div class="col-md-4 col-sm-6 col-xs-12">
-                                <div class="menu-item">
-                                    <h5>Quick Links</h5>
-                                    <ul>
-                                        <li>POWER BI DESKTOP</li>
-                                        <li>MOBILE</li>
-                                        <li>SEE ALL DOWNLOADS</li>
-                                        <li>POWER BI DESKTOP</li>
-                                        <li>MOBILE</li>
-                                        <li>SEE ALL DOWNLOADS</li>
-                                    </ul>
-                                </div>
-                            </div>
 
                             <div class="col-md-4 col-sm-6 col-xs-12">
                                 <div class="menu-item">
@@ -153,7 +152,6 @@
                                     <ul>
                                         <li>PRIVACY & COOKIES</li>
                                         <li>TERMS OF USE</li>
-                                        <li>TRADEMARKS</li>
                                     </ul>
                                 </div>
                             </div>
@@ -166,7 +164,6 @@
                                         <li>DEVELOPERS</li>
                                         <li>BLOG</li>
                                         <li>NEWSLETTER</li>
-                                        <li>PYRAMID ANALYTICS</li>
                                     </ul>
                                 </div>
                             </div>
@@ -197,7 +194,7 @@
 
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <div class="footer-brand">
-                                <img src="{{ url_for('static', filename='images/ESIDLogo2.png')}}" alt="Logo" style="margin-top: -22px;"/>
+                                <img src="{{ url_for('static', filename='images/ESIDLogo2.png')}}" alt="logo" />
                             </div>
                         </div>
 
@@ -223,6 +220,11 @@
         <script src="{{ url_for('static', filename='js/modernizr.js')}}"></script>
         <script src="{{ url_for('static', filename='js/main.js')}}"></script>
     <script src="{{ url_for('static',filename='js/js.cookie.js') }}"></script>
+    <script>userLoggedIn()</script>
+    <script>
+
+        $('#new_project').append(" <input name='user' value='"+Cookies.get("username")+"' type='hidden'>");
+    </script>
 
     </body>
 </html>
