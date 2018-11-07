@@ -54,7 +54,7 @@
                         </div>
                     </div>
                 </div>
-            </div> <!-- /container -->       
+            </div> <!-- /container -->
         </section>
 
         <nav class="navbar navbar-default">
@@ -74,8 +74,8 @@
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 
                     <ul class="nav navbar-nav navbar-right">
-                        <li class="active"><a href="/home">Search</a></li>
-                        <li><a href="/suggest_new_project">Suggest project</a></li>
+                        <li><a href="/home">Search</a></li>
+                        <li class="active"><a href="/suggest_new_project">Suggest project</a></li>
                         <li><a href="#contact">Contact</a></li>
                         <li class="login"><a id="Logout">Logout</a></li>
                     </ul>
@@ -94,44 +94,34 @@
 
                                     <h1>ESID</h1>
                                     <div class="project_overview">
-                                        <u>Project Name:</u> {{project['project_name']}}<br/>
-                                        <u>Project Website:</u> <a href="{{project['Website']}}" target=_blank">{{project['Website']}}</a><br/>
-                                        <u>Project Facebook:</u> <a href="{{project['Facebook']}}" target=_blank">{{project['Facebook']}}</a><br/>
-                                        <u>Project Twitter:</u> <a href="{{project['Twitter']}}" target=_blank">{{project['Twitter']}}</a><br/>
-                                        {% for loc in project['Locations'] %}
-                                        <u>Address:</u> {{loc['address']}}<br/>
-                                        <u>City:</u> {{loc['city']}}<br/>
-                                        <u>Country:</u> {{loc['country']}}<br/>
-                                        <u>Longitude:</u> {{loc['longitude']}}<br/>
-                                        <u>Latitude:</u> {{loc['latitude']}}<br/>
-                                        {% endfor %}
-                                        <u>Objectives satisfied:</u> {{project['Objectives']}}<br/>
-                                        <u>Actors satisfied:</u> {{project['Actors_s']}}<br/>
-                                        <u>Outputs satisfied:</u> {{project['Outputs']}}<br/>
-                                        <u>Innovativeness satisfied:</u> {{project['Innovativeness']}}<br/>
+                                        <form action="/submit_edit" method="post" id="new_project">
+                                        <u>Project Name:</u> <input type="text" class="form-control" id="project_name" value="{{project['project_name']}}" name="project_name" placeholder="Enter project name" required><br/>
+                                        <u>Project Website:</u> <input type="text" class="form-control" id="project_website" value="{{project['Website']}}" name="project_website" placeholder="Enter project website" required><br/>
+                                        <u>Project Facebook:</u> <input type="text" class="form-control" id="project_facebook" value="{{project['Facebook']}}" name="project_facebook" placeholder="Enter project Facebook"><br/>
+                                        <u>Project Twitter:</u> <input type="text" class="form-control" id="project_twitter" value="{{project['Twitter']}}" name="project_twitter" placeholder="Enter project Twitter"><br/>
+                                        <u>Address:</u> <input type="text" class="form-control" id="project_address" value="{% if project['Locations']|length>0 %}{{project['Locations'][0]['address']}} {% endif %}" name="project_address" placeholder="Enter project Address"><br/>
+                                        <u>City:</u> <input type="text" class="form-control" id="project_city" name="project_city" value="{% if project['Locations']|length>0 %} {{project['Locations'][0]['city']}} {% endif %}" placeholder="Enter project city"><br/>
+                                        <u>Country:</u> <input required type="text" class="form-control" id="project_country" name="project_country" value="{% if project['Locations']|length>0 %}{{project['Locations'][0]['country']}}{% endif %}" placeholder="Enter project country"><br/>
+                                        <u>Objectives:</u> <select id="objectives_satisfy" name="objectives_satisfy"><option {% if project["Objectives"]==0 %} selected="selected" {% endif %} value="0">0</option><option {% if project["Objectives"]==1 %} selected="selected" {% endif %} value="1">1</option><option {% if project["Objectives"]==2 %} selected="selected" {% endif %} value="2">2</option><option {% if project["Objectives"]==3 %} selected="selected" {% endif %} value="3">3</option> </select><br/>
+                                        <u>Actors:</u> <select id="actors_satisfy" name="actors_satisfy"><option {% if project["Actors_s"]==0 %} selected="selected" {% endif %} value="0">0</option><option {% if project["Actors_s"]==1 %} selected="selected" {% endif %} value="1">1</option><option {% if project["Actors_s"]==2 %} selected="selected" {% endif %} value="2">2</option><option {% if project["Actors_s"]==3 %} selected="selected" {% endif %} value="3">3</option> </select><br/>
+                                        <u>Outputs:</u> <select id="outputs_satisfy" name="outputs_satisfy"><option {% if project["Outputs"]==0 %} selected="selected" {% endif %} value="0">0</option><option {% if project["Outputs"]==1 %} selected="selected" {% endif %} value="1">1</option><option {% if project["Outputs"]==2 %} selected="selected" {% endif %} value="2">2</option><option {% if project["Outputs"]==3 %} selected="selected" {% endif %} value="3">3</option> </select><br/>
+                                        <u>Innovativeness:</u> <select id="innovativeness_satisfy" name="innovativeness_satisfy"><option {% if project["Innovativeness"]==0 %} selected="selected" {% endif %} value="0">0</option><option {% if project["Innovativeness"]==1 %} selected="selected" {% endif %} value="1">1</option><option {% if project["Innovativeness"]==2 %} selected="selected" {% endif %} value="2">2</option><option {% if project["Innovativeness"]==3 %} selected="selected" {% endif %} value="3">3</option> </select><br/>
                                         <u>Related actors:</u><br/>
-                                        {% for act in project['Actors'] %}
-                                        <a href="{{act['Website']}}" target="_blank">{{act['Name']}}</a> <br/>
-                                        {% endfor %}
-                                        <u>First Data Source:</u> {{project['FirstDataSource']}}<br/>
-                                        <u>Project Type (if available):</u> {{project['type']}}<br/>
-                                        <u>Project Start Date:</u> {{project['DateStart']}}<br/>
-                                        <u>Project End Date:</u> {{project['EndStart']}}<br/>
+                                            <div id="actors">
+                                                <input type="hidden" class="form-control" name="counter" id="counter" value="0"/>
+
+                                            </div>
+                                            <input type="button" class="form-control" id="add_actor" value="Add Actor"/>
+                                        <u>Project Type (if available):</u> <input value="{{project['type']}}" type="text" class="form-control" id="project_type" name="project_type" placeholder="Enter project type"><br/>
+                                        <u>Project Start Date:</u> <input type="date" value="{{project['DateStart']}}" class="form-control" id="project_date_start" name="project_date_start" placeholder="Enter project start date"><br/>
+                                        <u>Project End Date:</u> <input type="date" value="{{project['DateEnd']}}" class="form-control" id="project_date_end" name="project_date_end" placeholder="Enter project start date"><br/>
                                         <u>Descriptions:</u><br/>
-                                         {% for desc in project['Descriptions'] %}
-                                            {{desc}} <br/><br/>
-                                        {% endfor %}
-                                         <u>Topics:</u><br/>
-                                        {% for topic in project['Topic'] %}
-                                        {{topic['TopicName']}} : {{topic['TopicScore1']}}, {{topic['TopicScore2']}} -- {{topic['Keywords']}} <br/>
-                                        {% endfor %}
-                                        <form method="post" action="/suggest_related_project">
-                                            <input type="hidden" name="project_id" value="{{project['id']}}">
-                                            <input type="submit" name="submit" value="Suggest related project to this project">
+                                        <textarea name="project_description" id="project_description" cols="150" rows="10" >{% for desc in  project['Descriptions'] %} {{desc}} {% endfor %}</textarea>
+                                        <input type="submit" class="form-control" id="submit" value="Submit"/>
+                                            <input type="hidden" class="form-control" name="project_id" id="project_id" value="{{project['id']}}"/>
                                         </form>
-                                        <form method="post" action="/edit/{{project['id']}}">
-                                            <input type="submit" name="submit" value="Edit project">
-                                        </form>
+
+
                                     </div>
 
 
@@ -140,7 +130,7 @@
                             </div>
                         </div>
                     </div>
-                </div>			
+                </div>
             </div>
         </header>
 
@@ -214,8 +204,8 @@
                 </div>
             </div>
         </footer>
-		
-		
+
+
 		<div class="scrollup">
 			<a href="#"><i class="fa fa-chevron-up"></i></a>
 		</div>
@@ -229,6 +219,10 @@
         <script src="{{ url_for('static', filename='js/main.js')}}"></script>
     <script src="{{ url_for('static',filename='js/js.cookie.js') }}"></script>
     <script>userLoggedIn()</script>
+    <script>
+
+        $('#new_project').append(" <input name='user' value='"+Cookies.get("username")+"' type='hidden'>");
+    </script>
 
     </body>
 </html>

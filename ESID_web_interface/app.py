@@ -30,7 +30,7 @@ def register():
     country = request.json['country']
 
     # Check whether user already exists
-    cursor.execute("SELECT * FROM Users WHERE username=%s", (user,))
+    cursor.execute("SELECT * FROM Users WHERE username='{0}'".format(user))
     has_user = cursor.fetchone()
     if has_user is not None and has_user[0] == user:
         print("User already exists")
