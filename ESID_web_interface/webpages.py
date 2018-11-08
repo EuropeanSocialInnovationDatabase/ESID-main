@@ -198,11 +198,17 @@ def edit_submit():
               "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}')".format(user,0,1,project_id,'Projects','ProjectName',Project_name,project_id)
         cursor.execute(sql)
         conn.commit()
+    if Project_website_f=='None':
+        Project_website_f = None
     if Project_website_f!=project_data['Website']:
         sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id)" \
               "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}')".format(user,0,1,project_id,'Projects','ProjectWebsite',Project_website_f,project_id)
         cursor.execute(sql)
         conn.commit()
+    if Project_facebook=='None':
+        Project_facebook = None
+    if Project_twitter=='None':
+        Project_twitter = None
     if Project_facebook!=project_data['Facebook']:
         sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id)" \
               "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}')".format(user,0,1,project_id,'Projects','FacebookPage',Project_facebook,project_id)
@@ -218,16 +224,105 @@ def edit_submit():
               "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}')".format(user,0,1,project_id,'Projects','Type',ProjectType,project_id)
         cursor.execute(sql)
         conn.commit()
+    if StartDate_f=='None' or StartDate_f=='' or StartDate_f=='Null':
+        StartDate_f = None
+    if EndDate_f=='None' or EndDate_f=='' or StartDate_f=='Null':
+        EndDate_f = None
     if StartDate_f!=project_data['DateStart']:
         sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id)" \
               "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}')".format(user,0,1,project_id,'Projects','DateStart',StartDate_f,project_id)
         cursor.execute(sql)
         conn.commit()
-    if EndDate_f!=project_data['EndStart']:
+    if EndDate_f!=project_data['DateEnd']:
         sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id)" \
               "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}')".format(user,0,1,project_id,'Projects','DateEnd',EndDate_f,project_id)
         cursor.execute(sql)
         conn.commit()
+
+
+
+    if Objectives!=str(project_data['Objectives']):
+        sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id)" \
+              "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}')".format(user,0,1,project_id,'TypeOfSocialInnotation','CriterionObjectives',Objectives,project_id)
+        cursor.execute(sql)
+        conn.commit()
+
+    if Outputs!=str(project_data['Outputs']):
+        sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id)" \
+              "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}')".format(user,0,1,project_id,'TypeOfSocialInnotation','CriterionOutputs',Outputs,project_id)
+        cursor.execute(sql)
+        conn.commit()
+    if Actors!=str(project_data['Actors_s']):
+        sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id)" \
+              "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}')".format(user,0,1,project_id,'TypeOfSocialInnotation','CriterionActors',Actors,project_id)
+        cursor.execute(sql)
+        conn.commit()
+
+    if Innovativeness!=str(project_data['Innovativeness']):
+        sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id)" \
+              "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}')".format(user,0,1,project_id,'TypeOfSocialInnotation','CriterionInnovativeness',Innovativeness,project_id)
+        cursor.execute(sql)
+        conn.commit()
+
+
+    if len(project_data['Locations'])>0 and Address!=project_data['Locations'][0]['address']:
+        sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id)" \
+              "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}')".format(user,0,1,project_id,'ProjectLocation','Address',Address,project_data['Locations'][0]['id_location'])
+        cursor.execute(sql)
+        conn.commit()
+    elif len(project_data['Locations']) == 0 and (Address != '' and Address != 'None'):
+        sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id)" \
+              "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}')".format(user, 0, 1, project_id,
+                                                                                  'ProjectLocation', 'Address', Address,
+                                                                                  -1)
+        cursor.execute(sql)
+        conn.commit()
+    if len(project_data['Locations'])>0 and City!=project_data['Locations'][0]['city']:
+        sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id)" \
+              "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}')".format(user,0,1,project_id,'ProjectLocation','City',City,project_data['Locations'][0]['id_location'])
+        cursor.execute(sql)
+        conn.commit()
+    elif len(project_data['Locations']) == 0 and (City != '' and City != 'None'):
+        sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id)" \
+              "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}')".format(user, 0, 1, project_id,
+                                                                                  'ProjectLocation', 'City', City,
+                                                                                  -1)
+        cursor.execute(sql)
+        conn.commit()
+    if len(project_data['Locations'])>0 and Country_f!=project_data['Locations'][0]['country']:
+        sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id)" \
+              "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}')".format(user,0,1,project_id,'ProjectLocation','Country',Country_f,project_data['Locations'][0]['id_location'])
+        cursor.execute(sql)
+        conn.commit()
+    elif len(project_data['Locations'])==0 and (Country_f!='' and Country_f!='None'):
+        sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id)" \
+              "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}')".format(user, 0, 1, project_id,
+                                                                                  'ProjectLocation', 'Country', Country_f,
+                                                                                  -1)
+        cursor.execute(sql)
+        conn.commit()
+    desc = ""
+    for description in project_data['Descriptions']:
+        desc = desc + description
+    desc = desc.replace('\r','').replace('\n','').replace(' ','')
+    orig_desc = Description
+    Description = Description.replace('\r','').replace('\n','').replace(' ','')
+    if Description!=desc:
+        sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id)" \
+              "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}')".format(user,0,1,project_id,'AdditionalProjectData','Description',orig_desc,-1)
+        cursor.execute(sql)
+        conn.commit()
+    for act in actors_list:
+        act_sql = "Insert into Actors (ActorName,ActorWebsite,SourceOriginallyObtained,DataSources_idDataSources) Values ('{0}','{1}','{2}','{3}')".format(act['Name'],act['Website'],'ManualInput','57')
+        cursor.execute(act_sql)
+        actor_id = cursor.lastrowid
+        sql_user_log = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,entry_id,date_time,table_name) VALUES ('{0}','{1}','{2}','{3}',NOW(),'Actors')".format(
+            user, 1, 0, actor_id)
+        cursor.execute(sql_user_log)
+        act_location_sql = "Insert into ActorLocation (Type,City,Country,Actors_idActors) Values ('{0}','{1}','{2}','{3}')".format("Headquaters",act['City'],act['Country'],actor_id)
+        cursor.execute(act_location_sql)
+
+    conn.commit()
     return render_template('thank_you_project.html')
 
 
