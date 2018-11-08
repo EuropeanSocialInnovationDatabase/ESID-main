@@ -105,10 +105,10 @@
                                         <u>Longitude:</u> {{loc['longitude']}}<br/>
                                         <u>Latitude:</u> {{loc['latitude']}}<br/>
                                         {% endfor %}
-                                        <u>Objectives satisfied:</u> {{project['Objectives']}}<br/>
-                                        <u>Actors satisfied:</u> {{project['Actors_s']}}<br/>
-                                        <u>Outputs satisfied:</u> {{project['Outputs']}}<br/>
-                                        <u>Innovativeness satisfied:</u> {{project['Innovativeness']}}<br/>
+                                        <u>Objectives:</u> {{project['Objectives']}}<br/>
+                                        <u>Actors:</u> {{project['Actors_s']}}<br/>
+                                        <u>Outputs:</u> {{project['Outputs']}}<br/>
+                                        <u>Innovativeness:</u> {{project['Innovativeness']}}<br/>
                                         <u>Related actors:</u><br/>
                                         {% for act in project['Actors'] %}
                                         <a href="{{act['Website']}}" target="_blank">{{act['Name']}}</a> <br/>

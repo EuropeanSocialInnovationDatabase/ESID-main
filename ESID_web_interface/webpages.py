@@ -41,8 +41,23 @@ def perform_search():
     q = "Select * from Projects where ProjectName like '%{0}%' and Exclude=0".format(search_query)
     cursor.execute(q)
     project_list = cursor.fetchall()
+    projects = []
+    for pro in project_list:
+        q2 = "Select * from ProjectLocation where Projects_idProjects={0}".format(pro[0])
+        cursor.execute(q2)
+        locs = cursor.fetchall()
+        for loc in locs:
+            Country = loc[5]
+        q2 = "Select * from AdditionalProjectData where FieldName like '%Desc%' and  Projects_idProjects={0}".format(pro[0])
+        cursor.execute(q2)
+        descs = cursor.fetchall()
+        Description = ""
+        for desc in descs:
+            Description = Description+desc[2]+" "
+        Description = Description[0:150]+"..."
+        projects.append({"id":pro[0],"Name":pro[2],"Country":Country,"Description":Description})
 
-    return render_template('perform_search.html',query = search_query,projects = project_list)
+    return render_template('perform_search.html',query = search_query,projects = projects)
 
 @webpage.route('/edit/<id>', methods=['GET','POST'])
 def edit_project(id):

@@ -104,7 +104,9 @@
                                     {% for project in projects %}
                                     <div class="project_rep">
                                         <strong>
-                                            <div class="project_name"><a href="project_view/{{project[0]}}">{{ project[2] }}</a></div>
+                                            <div class="project_name"><a href="project_view/{{project['id']}}">{{ project['Name'] }}</a></div>
+                                            <div class="project_location"><strong>Country:</strong> {{ project['Country'] }}</div>
+                                            <div class="project_description"> {{ project['Description'] }}</div>
                                         </strong>
 
                                     </div>
