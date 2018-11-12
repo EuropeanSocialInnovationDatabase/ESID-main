@@ -7,7 +7,7 @@ from werkzeug.utils import redirect
 from extensions import mysql
 
 conn = mysql.connect()
-cursor = conn.cursor()
+#cursor = conn.cursor()
 webpage = Blueprint('webpage', __name__)
 
 @webpage.route('/', methods=['GET'])
@@ -37,6 +37,7 @@ def suggest_new_project():
 
 @webpage.route('/perform_search', methods=['POST'])
 def perform_search():
+    cursor = conn.cursor()
     search_query = request.form['search']
     q = "Select * from Projects where ProjectName like '%{0}%' and Exclude=0".format(search_query)
     cursor.execute(q)
@@ -56,11 +57,12 @@ def perform_search():
             Description = Description+desc[2]+" "
         Description = Description[0:150]+"..."
         projects.append({"id":pro[0],"Name":pro[2],"Country":Country,"Description":Description})
-
+    cursor.close()
     return render_template('perform_search.html',query = search_query,projects = projects)
 
 @webpage.route('/edit/<id>', methods=['GET','POST'])
 def edit_project(id):
+    cursor = conn.cursor()
     project_id = id
     q = "Select * from Projects where idProjects={0} and Exclude=0".format(project_id)
     cursor.execute(q)
@@ -117,11 +119,12 @@ def edit_project(id):
         project_data['Objectives'] = mark[2]
         project_data['Actors_s'] = mark[3]
         project_data['Innovativeness'] = mark[4]
-
+    cursor.close()
     return render_template('project_edit.html', project=project_data)
 
 @webpage.route('/submit_edit', methods=['POST'])
 def edit_submit():
+    cursor = conn.cursor
     project_id = request.form['project_id']
     q = "Select * from Projects where idProjects={0} and Exclude=0".format(project_id)
     cursor.execute(q)
@@ -338,11 +341,13 @@ def edit_submit():
         cursor.execute(act_location_sql)
 
     conn.commit()
+    cursor.close()
     return render_template('thank_you_project.html')
 
 
 @webpage.route('/project_view/<id>', methods=['GET','POST'])
 def project_view(id):
+    cursor = conn.cursor()
     project_id = id
     q = "Select * from Projects where idProjects={0} and Exclude=0".format(project_id)
     cursor.execute(q)
@@ -405,7 +410,7 @@ def project_view(id):
             r_topics.append({"TopicName":topic[1],"TopicScore1":topic[2],"TopicScore2":topic[3],"Keywords":topic[4]})
     r_topics2 = sorted(r_topics, key=lambda k: k['TopicScore1'],reverse=True)
     project_data['Topic'] = r_topics2
-
+    cursor.close()
     return render_template('project_view.html',project = project_data)
 
 

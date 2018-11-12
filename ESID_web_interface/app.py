@@ -21,6 +21,7 @@ app.register_blueprint(webpage)
 
 @app.route("/register", methods=['POST'])
 def register():
+    cursor = conn.cursor()
     user = request.json['user']
     password = request.json['pass']
     first_name = request.json['first_n']
@@ -43,12 +44,14 @@ def register():
                    "VALUES (%s,%s,%s,%s,%s,%s,%s)",
                    (user, pass_for_storing, first_name,last_name,city,country,organization))
     conn.commit()
+    cursor.close()
     print("Successfully created user")
     return "Successfully created user"
 
 
 @app.route('/get_token', methods=['POST'])
 def get_token():
+    cursor = conn.cursor()
     user = request.json['user']
     password = request.json['pass']
     salt = "hdhswrnbjJhs32)"
@@ -68,17 +71,21 @@ def get_token():
         cursor.execute("INSERT INTO UserToken (User_username,Token,ExpiryTime,LastUsed) VALUES (%s, %s, %s, NOW() );",
                        (user, token, expiry_time))
         conn.commit()
+        cursor.close()
         print(token)
         return token
     else:
+        cursor.close()
         print("ERROR: User does not exist")
         return "ERROR: User does not exist"
 
 
 def validate_user(user, token):
+    cursor = conn.cursor()
     cursor.execute(
         "SELECT * FROM UserToken WHERE User_Username=%s and Token=%s", (user, token))
     has_user = cursor.fetchone()
+    cursor.close()
     if has_user is None:
         return False
     return has_user[2].timestamp() > time.time()
@@ -96,25 +103,31 @@ def is_logged():
 
 @app.route('/is_admin', methods=['POST'])
 def is_admin():
+    cursor = conn.cursor()
     # Validate that user is admin
     user = request.json['user']
     token = request.json['token']
     cursor.execute("SELECT IsAdmin FROM Users WHERE username=%s", (user,))
     user_is_admin = cursor.fetchone()
+
     if bool(user_is_admin[0]) and validate_user(user, token):
+        cursor.close()
         return "Yes"
     else:
+        cursor.close()
         return "No"
 
 
 @app.route('/logout', methods=['POST'])
 def logout():
+    cursor = conn.cursor()
     user = request.json['user']
     token = request.json['token']
     if not validate_user(user, token):
         return "User not logged in"
     cursor.execute("DELETE from UserToken WHERE User_Username=%s", (user,))
     conn.commit()
+    cursor.close()
     return "Logged out"
 
 
@@ -129,6 +142,7 @@ def classify():
 
 @app.route('/submit_project', methods=['POST'])
 def submit_new_project():
+    cursor = conn.cursor()
     Project_name = request.form['project_name']
     user = request.form['user']
     Project_website = request.form['project_website']
@@ -189,10 +203,12 @@ def submit_new_project():
     cursor.execute(sql_user_log)
 
     conn.commit()
+    cursor.close()
     return render_template('thank_you_project.html')
 
 @app.route('/submit_related_project', methods=['POST'])
 def submit_related_project():
+    cursor = conn.cursor()
     Project_id_to_which_is_related = request.form['related_project']
     user = request.form['user']
     Relationship = request.form['project_relationship']
@@ -254,12 +270,13 @@ def submit_related_project():
     sql_user_log = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id,entry_id,date_time,table_name) VALUES ('{0}','{1}','{2}','{3}','{4}',NOW(),'Projects')".format(user,1,0,project_id,project_id)
     cursor.execute(sql_user_log)
     conn.commit()
+    cursor.close()
     return render_template('thank_you_project.html')
 
 if __name__ == "__main__":
     # MySQL configurations
     conn = mysql.connect()
-    cursor = conn.cursor()
+    #cursor = conn.cursor()
     app.run(debug=True,port=8080,host="0.0.0.0")
 
 
