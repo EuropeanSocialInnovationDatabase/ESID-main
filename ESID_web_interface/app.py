@@ -21,6 +21,7 @@ app.register_blueprint(webpage)
 
 @app.route("/register", methods=['POST'])
 def register():
+    conn = mysql.connect()
     cursor = conn.cursor()
     user = request.json['user']
     password = request.json['pass']
@@ -45,12 +46,14 @@ def register():
                    (user, pass_for_storing, first_name,last_name,city,country,organization))
     conn.commit()
     cursor.close()
+    conn.close()
     print("Successfully created user")
     return "Successfully created user"
 
 
 @app.route('/get_token', methods=['POST'])
 def get_token():
+    conn = mysql.connect()
     cursor = conn.cursor()
     user = request.json['user']
     password = request.json['pass']
@@ -72,6 +75,7 @@ def get_token():
                        (user, token, expiry_time))
         conn.commit()
         cursor.close()
+        conn.close()
         print(token)
         return token
     else:
@@ -81,11 +85,13 @@ def get_token():
 
 
 def validate_user(user, token):
+    conn = mysql.connect()
     cursor = conn.cursor()
     cursor.execute(
         "SELECT * FROM UserToken WHERE User_Username=%s and Token=%s", (user, token))
     has_user = cursor.fetchone()
     cursor.close()
+    conn.close()
     if has_user is None:
         return False
     return has_user[2].timestamp() > time.time()
@@ -103,6 +109,7 @@ def is_logged():
 
 @app.route('/is_admin', methods=['POST'])
 def is_admin():
+    conn = mysql.connect()
     cursor = conn.cursor()
     # Validate that user is admin
     user = request.json['user']
@@ -112,14 +119,17 @@ def is_admin():
 
     if bool(user_is_admin[0]) and validate_user(user, token):
         cursor.close()
+        conn.close()
         return "Yes"
     else:
         cursor.close()
+        conn.close()
         return "No"
 
 
 @app.route('/logout', methods=['POST'])
 def logout():
+    conn = mysql.connect()
     cursor = conn.cursor()
     user = request.json['user']
     token = request.json['token']
@@ -128,6 +138,7 @@ def logout():
     cursor.execute("DELETE from UserToken WHERE User_Username=%s", (user,))
     conn.commit()
     cursor.close()
+    conn.close()
     return "Logged out"
 
 
@@ -142,6 +153,7 @@ def classify():
 
 @app.route('/submit_project', methods=['POST'])
 def submit_new_project():
+    conn = mysql.connect()
     cursor = conn.cursor()
     Project_name = request.form['project_name']
     user = request.form['user']
@@ -159,6 +171,7 @@ def submit_new_project():
     StartDate = request.form['project_date_start']
     EndDate = request.form['project_date_end']
     Description = request.form['project_description']
+    Comment = request.form['project_comment']
     if Project_name =='' or Country=='' or Project_website=='':
         return render_template('error.htm')
     actors_list = []
@@ -198,16 +211,18 @@ def submit_new_project():
         cursor.execute(sql_user_log)
         act_location_sql = "Insert into ActorLocation (Type,City,Country,Actors_idActors) Values ('{0}','{1}','{2}','{3}')".format("Headquaters",act['City'],act['Country'],actor_id)
         cursor.execute(act_location_sql)
-    sql_user_log = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id,entry_id,date_time,table_name) VALUES ('{0}','{1}','{2}','{3}','{4}',NOW(),'Projects')".format(
-        user, 1, 0, project_id, project_id)
+    sql_user_log = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id,entry_id,date_time,table_name,Comment) VALUES ('{0}','{1}','{2}','{3}','{4}',NOW(),'Projects','{5}')".format(
+        user, 1, 0, project_id, project_id,Comment)
     cursor.execute(sql_user_log)
 
     conn.commit()
     cursor.close()
+    conn.close()
     return render_template('thank_you_project.html')
 
 @app.route('/submit_related_project', methods=['POST'])
 def submit_related_project():
+    conn = mysql.connect()
     cursor = conn.cursor()
     Project_id_to_which_is_related = request.form['related_project']
     user = request.form['user']
@@ -227,6 +242,7 @@ def submit_related_project():
     StartDate = request.form['project_date_start']
     EndDate = request.form['project_date_end']
     Description = request.form['project_description']
+    Comment = request.form['project_description']
     actors_list = []
     actor_count = int(request.form['counter'])
     if actor_count>0:
@@ -259,23 +275,24 @@ def submit_related_project():
         act_sql = "Insert into Actors (ActorName,ActorWebsite,SourceOriginallyObtained,DataSources_idDataSources,user_suggested) Values ('{0}','{1}','{2}','{3}',1)".format(act['Name'],act['Website'],'ManualInput','57')
         cursor.execute(act_sql)
         actor_id = cursor.lastrowid
-        sql_user_log = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,entry_id,date_time,table_name) VALUES ('{0}','{1}','{2}','{3}',NOW(),'Actors')".format(
-            user, 1, 0, actor_id)
+        sql_user_log = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,entry_id,date_time,table_name,Comment) VALUES ('{0}','{1}','{2}','{3}',NOW(),'Actors','{4}')".format(
+            user, 1, 0, actor_id,Comment)
         cursor.execute(sql_user_log)
 
         act_location_sql = "Insert into ActorLocation (Type,City,Country,Actors_idActors) Values ('{0}','{1}','{2}','{3}')".format("Headquaters",act['City'],act['Country'],actor_id)
         cursor.execute(act_location_sql)
     sql_relation = "Insert into Projects_relates_to_Projects (Projects_idProjects,Projects_idProjects1,RelationshipType) VALUES ({0},{1},'{2}')".format(Project_id_to_which_is_related,project_id,Relationship)
     cursor.execute(sql_relation)
-    sql_user_log = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id,entry_id,date_time,table_name) VALUES ('{0}','{1}','{2}','{3}','{4}',NOW(),'Projects')".format(user,1,0,project_id,project_id)
+    sql_user_log = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id,entry_id,date_time,table_name,Comment) VALUES ('{0}','{1}','{2}','{3}','{4}',NOW(),'Projects','{5}')".format(user,1,0,project_id,project_id,Comment)
     cursor.execute(sql_user_log)
     conn.commit()
     cursor.close()
+    conn.close()
     return render_template('thank_you_project.html')
 
 if __name__ == "__main__":
     # MySQL configurations
-    conn = mysql.connect()
+    #conn = mysql.connect()
     #cursor = conn.cursor()
     app.run(debug=True,port=8080,host="0.0.0.0")
 

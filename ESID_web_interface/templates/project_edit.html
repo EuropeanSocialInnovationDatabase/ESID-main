@@ -117,7 +117,10 @@
                                         <u>Project End Date:</u> <input type="date" value="{{project['DateEnd']}}" class="form-control" id="project_date_end" name="project_date_end" placeholder="Enter project start date"><br/>
                                         <u>Descriptions:</u><br/>
                                         <textarea name="project_description" id="project_description" cols="150" rows="10" >{% for desc in  project['Descriptions'] %} {{desc}} {% endfor %}</textarea>
-                                        <input type="submit" class="form-control" id="submit" value="Submit"/>
+                                         <u>Comment:</u><br/>
+                                        <textarea name="project_comment" id="project_comment" cols="150" rows="10" required></textarea>
+
+                                            <input type="submit" class="form-control" id="submit" value="Submit"/>
                                             <input type="hidden" class="form-control" name="project_id" id="project_id" value="{{project['id']}}"/>
                                         </form>
 
