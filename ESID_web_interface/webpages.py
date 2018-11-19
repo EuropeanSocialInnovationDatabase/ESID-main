@@ -409,14 +409,25 @@ def project_view(id):
         project_data['Objectives']=mark[2]
         project_data['Actors_s']=mark[3]
         project_data['Innovativeness']=mark[4]
-    q5 = "Select * from Project_Topics where Projects_idProject={0} and Comment like '%First data%'".format(project_id)
+    q5 = "Select * from Project_Topics where Projects_idProject={0} and Version like '%v2%'".format(project_id)
     cursor.execute(q5)
     topics = cursor.fetchall()
     r_topics = []
     for topic in topics:
-        if topic[2]>3:
+        lenght = topic[9]
+        score = topic[2]
+        if lenght>100000:
+            score = score*10
+        elif lenght>50000:
+            score = score*7
+        elif lenght>30000:
+            score = score*2
+        elif lenght>10000:
+            score = score*1.7
+        if score>3:
             r_topics.append({"TopicName":topic[1],"TopicScore1":topic[2],"TopicScore2":topic[3],"Keywords":topic[4]})
     r_topics2 = sorted(r_topics, key=lambda k: k['TopicScore1'],reverse=True)
+    r_topics2 = r_topics2[:10]
     project_data['Topic'] = r_topics2
     cursor.close()
     conn.close()

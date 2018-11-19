@@ -15,17 +15,17 @@ if  __name__ == '__main__':
     mysql_cursor.execute(sql)
     results = mysql_cursor.fetchall()
     objective_cls = UniversalNNClassifier()
-    objective_cls.load_CNN_model("Objectives_NN")
+    objective_cls.load_CNN_model("Objectives_LSTM")
     actors_cls = UniversalNNClassifier()
-    actors_cls.load_CNN_model("Actors_NN")
+    actors_cls.load_CNN_model("Actors_LSTM")
     outputs_cls = UniversalNNClassifier()
-    outputs_cls.load_CNN_model("Outputs_NN")
+    outputs_cls.load_CNN_model("Outputs_LSTM")
     innovativeness_cls = UniversalNNClassifier()
-    innovativeness_cls.load_CNN_model("Innovativeness_NN")
+    innovativeness_cls.load_CNN_model("Innovativeness_LSTM")
     for res in results:
         print res[0]
         message = ""
-        option = "v16 CNN 50d embeddings unbalanced, 11/10/2018"
+        option = "v19 CNN+LSTM 200d embeddings unbalanced, 15/11/2018"
         objective = 0
         actors = 0
         outputs = 0

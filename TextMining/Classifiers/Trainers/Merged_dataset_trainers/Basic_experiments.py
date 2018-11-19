@@ -115,7 +115,7 @@ class UniversalClassifier():
         self.actor = ['organisation','university','users','ngo','firm','company','actors','people']
 
     def train_RF_words_only(self,X_train,y_train):
-        self.count_vect1 = CountVectorizer(max_features=1000,ngram_range=(1,3))
+        self.count_vect1 = CountVectorizer(max_features=2000000,ngram_range=(1,4))
         X_train_counts = self.count_vect1.fit_transform(X_train)
         self.tf_transformer = TfidfTransformer(use_idf=False).fit(X_train_counts)
         X_train_tf = self.tf_transformer.transform(X_train_counts)
@@ -125,7 +125,7 @@ class UniversalClassifier():
         # self.clf =SVC()
     def train_cost_sensitive_RF_words_only(self,X_train,y_train):
         stopWords = set(nltk.corpus.stopwords.words('english'))
-        self.count_vect1 = CountVectorizer(max_features=2000000,ngram_range=(1,3),stop_words=stopWords,lowercase=True)
+        self.count_vect1 = CountVectorizer(max_features=2000000,ngram_range=(1,4),stop_words=stopWords,lowercase=True)
         X_train_counts = self.count_vect1.fit_transform(X_train)
         self.tf_transformer = TfidfTransformer(use_idf=False).fit(X_train_counts)
         X_train_tf = self.tf_transformer.transform(X_train_counts)

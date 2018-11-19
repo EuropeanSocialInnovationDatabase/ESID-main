@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import MySQLdb
-from database_access import *
+from TextMining.database_access import *
 import requests
 import json
 project_text = """
