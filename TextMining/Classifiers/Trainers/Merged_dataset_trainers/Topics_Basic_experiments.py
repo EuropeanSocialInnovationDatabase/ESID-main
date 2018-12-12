@@ -1,21 +1,87 @@
+# -*- coding: utf-8 -*-
 import MySQLdb
 from os import listdir
 from os.path import isfile, join
 
 import nltk
+import numpy
 import pandas as pd
+import requests
 import sklearn
+from scipy.sparse import hstack
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.metrics import confusion_matrix
 from sklearn.naive_bayes import GaussianNB, MultinomialNB
+from sklearn.pipeline import Pipeline, FeatureUnion
+from sklearn.preprocessing import FunctionTransformer
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
 from sklearn.utils import resample
 from database_access import *
 import pickle
 import os
+import json
 from sklearn.model_selection import train_test_split
+
+def populate_ontology():
+    ontology = {}
+    ontology['bioeconomy'] = 0
+    ontology['agriculture'] = 0
+    ontology['bio_fuels'] = 0
+    ontology['biomass'] = 0
+    ontology['food_production'] = 0
+    ontology['landscape_management'] = 0
+    ontology['livestock_management'] = 0
+    ontology['marine_technology'] = 0
+    ontology['paper_technology'] = 0
+    ontology['climate_change_and_the_environment'] = 0
+    ontology['air_quality_management'] = 0
+    ontology['ccmt'] = 0
+    ontology['noise'] = 0
+    ontology['soil'] = 0
+    ontology['waste_management_and_recycling'] = 0
+    ontology['water_and_wastewater'] = 0
+    ontology['energy'] = 0
+    ontology['carbon_footprint'] = 0
+    ontology['energy_efficiency'] = 0
+    ontology['low_carbon_technology'] = 0
+    ontology['smart_cities_and_communities'] = 0
+    ontology['health'] = 0
+    ontology['active_ageing_and_self_management_of_health'] = 0
+    ontology['preventing_disease'] = 0
+    ontology['treating_and_managing_disease'] = 0
+    ontology['e_health'] = 0
+    ontology['health_biotechnology'] = 0
+    ontology['health_care_provision_and_integrated_care'] = 0
+    ontology['health_data'] = 0
+    ontology['personalized_medicine'] = 0
+    ontology['pharmaceuticals'] = 0
+    ontology['social_care'] = 0
+    ontology['security'] = 0
+    ontology['catastrophe_fighting'] = 0
+    ontology['digital_security'] = 0
+    ontology['public_safety_communication'] = 0
+    ontology['security_equipment'] = 0
+    ontology['security_monitoring'] = 0
+    ontology['society'] = 0
+    ontology['european_culture'] = 0
+    ontology['co_creation'] = 0
+    ontology['education'] = 0
+    ontology['employment'] = 0
+    ontology['global_engagement'] = 0
+    ontology['social_inequality'] = 0
+    ontology['transport'] = 0
+    ontology['aeronautics'] = 0
+    ontology['automobiles'] = 0
+    ontology['freight'] = 0
+    ontology['intelligent_transport'] = 0
+    ontology['maritime_transport'] = 0
+    ontology['rail_transport'] = 0
+    ontology['sustainable_transport'] = 0
+    ontology['transport_infrastructure'] = 0
+    ontology['urban_mobility'] = 0
+    return ontology
 
 
 
@@ -25,20 +91,23 @@ def read_files(path):
     annotations = []
 
     for ann in ann1files:
+        ontology = populate_ontology()
         content = ""
         if ".txt" in ann:
+            if ".txt.ann1" in ann:
+                continue
             objective = -1
             actors = -1
             outputs = -1
             innovativeness = -1
+            si = -1
             f = open(path +'/'+ann,'r')
             lines = f.readlines()
             for line in lines:
                 content = content + line
-            if ".txt.ann1" in ann:
-                continue
-            f = open(path + "/" + ann.replace('.txt','.ann'), "r")
+            f = open(path + "/" + ann.replace('.txt','.txt.ann1'), "r")
             lines = f.readlines()
+            topics_s = False
             for line in lines:
                 if "Objectives:" in line:
                     objective = int(line.split(':')[1].replace('\r\n',''))
@@ -46,11 +115,73 @@ def read_files(path):
                     actors = int(line.split(':')[1].replace('\r\n',''))
                 if "Outputs:" in line:
                     outputs = int(line.split(':')[1].replace('\r\n',''))
-                if "Innovativenss:" in line:
+                if "Innovativeness:" in line:
                     innovativeness = int(line.split(':')[1].replace('\r\n',''))
                 if "SI:" in line:
                     si = int(line.split(':')[1].replace('\r\n',''))
-            annotations.append([ann,content,objective,actors,outputs,innovativeness,si])
+                if "Topics" in line:
+                    topics_s = True
+                if topics_s:
+                    if "Topics:" in line:
+                        continue
+                    if line.split('/')[-1].replace('\n','') in ontology.keys():
+                        ontology[line.split('/')[-1].replace('\n','')]=1
+                    if line.split('/')[-1].replace('\n','') in ["cultural_heritage","democracy","addressing_hate_speech_and_harassment","reflective_society"]:
+                        ontology['european_culture'] = 1
+                    if line.split('/')[-1].replace('\n','') in ["co_design","knowledge_transfer","user_involvement"]:
+                        ontology['co_creation'] = 1
+                    if line.split('/')[-1].replace('\n','') in ["entrepreneurial_education", "language_and_integration", "literacy"]:
+                        ontology['education'] = 1
+                    if line.split('/')[-1].replace('\n','') in ["job_search", "entrepreneurship", "work_conditions_and_work_environment"]:
+                        ontology['employment'] = 1
+                    if line.split('/')[-1].replace('\n','') in ["common_security_and_defence", "global_governance",
+                                               "global_mobility"]:
+                        ontology['global_engagement'] = 1
+                    if line.split('/')[-1].replace('\n','') in ["gender_inequality", "poverty",
+                                               "race_and_ethnic_inequality"]:
+                        ontology['social_inequality'] = 1
+                    if line.split('/')[-1].replace('\n','') in ["paper_technology","marine_technology","animals_livestock_management","landscape_management",
+                                               "food_production","agricultural_biotechnology","food_sustainability"]:
+                        ontology['bioeconomy']  = 1
+                    if line.split('/')[-1].replace('\n','') in ["air_quality_management", "ccmt", "noise",
+                                               "soil",
+                                               "waste_management_and_recycling", "waste_management", "recycling","packaging",
+                                               "water_and_wastewater"]:
+                        ontology['climate_change_and_the_environment'] = 1
+                    if line.split('/')[-1].replace('\n','') in ["carbon_footprint", "energy_efficiency", "integration_of_ict_and_energy",
+                                               "energy_and_telecom_sector",
+                                               "energy_in_buildings", "energy_in_industry", "heating_and_cooling",
+                                               "low_carbon_technology",
+                                               "smart_cities_and_communities","alternative_fuels","bio_fuels","carbon_capture_and_storage",
+                                               "concentrated_solar_power","energy_storage","geothermal_energy","hydro_power","ocean_energy",
+                                               "photovoltaics","renewable_heating_and_cooling","renewable_heating_and_cooling"]:
+                        ontology['energy'] = 1
+                    if line.split('/')[-1].replace('\n','') in ["active_ageing_and_self_management_of_health", "preventing_disease", "treating_and_managing_disease",
+                                               "e_health",
+                                               "health_biotechnology", "health_care_provision_and_integrated_care", "health_data","personalized_medicine",
+                                               "pharmaceuticals","social_care"]:
+                        ontology['health'] = 1
+                    if line.split('/')[-1].replace('\n','') in ["catastrophe_fighting", "digital_security", "public_safety_communication",
+                                               "security_equipment",
+                                               "security_monitoring"]:
+                        ontology['security'] = 1
+                    if line.split('/')[-1].replace('\n','') in ["european_culture", "cultural_heritage", "democracy",
+                                               "addressing_hate_speech_and_harassment",
+                                               "reflective_society","co_creation","co_design","knowledge_transfer","user_involvement","education",
+                                               "entrepreneurial_education","language_and_integration","literacy","employment","job_search",
+                                               "entrepreneurship","work_conditions_and_work_environment","global_engagement","common_security_and_defence",
+                                               "global_governance","global_mobility","social_inequality","gender_inequality","poverty","race_and_ethnic_inequality",
+                                               ]:
+                        ontology['society'] = 1
+                    if line.split('/')[-1].replace('\n','') in ["aeronautics", "automobiles", "freight",
+                                               "intelligent_transport",
+                                               "maritime_transport","rail_transport","sustainable_transport","bio_fuels_for_transport",
+                                               "transport_infrastructure","urban_mobility"]:
+                        ontology['transport'] = 1
+
+
+
+            annotations.append([ann,content,objective,actors,outputs,innovativeness,si,ontology])
     return annotations
 
 def transfer_to_database(annotations):
@@ -127,18 +258,40 @@ class UniversalClassifier():
         self.clf = RandomForestClassifier(n_jobs=3, random_state=0, n_estimators=150)
         self.clf.fit(X_train_tf, y_train)
         # self.clf =SVC()
-    def train_cost_sensitive_RF_words_only(self,X_train,y_train):
+    def train_cost_sensitive_RF_words_only(self,X_train,X_train_top,y_train):
+        # stopWords = set(nltk.corpus.stopwords.words('english'))
+        #
+        # self.clf = Pipeline([
+        #     ('features', FeatureUnion([
+        #         ('text', Pipeline([
+        #             ('vectorizer',
+        #              CountVectorizer(min_df=1, max_df=50, max_features=200000, ngram_range=(1, 4), stop_words=stopWords,
+        #                              lowercase=True)),
+        #             ('tfidf', TfidfTransformer()),
+        #         ])),
+        #         ('topics', Pipeline([
+        #             ('kw', FunctionTransformer(self.get_topics, validate=False)),
+        #
+        #         ]))
+        #     ])),
+        #     ('clf', RandomForestClassifier(n_estimators=200))])
+        #
+        # self.clf.fit(X_train, y_train)
         stopWords = set(nltk.corpus.stopwords.words('english'))
         self.count_vect1 = CountVectorizer(max_features=2000000,ngram_range=(1,4),stop_words=stopWords,lowercase=True)
         X_train_counts = self.count_vect1.fit_transform(X_train)
         self.tf_transformer = TfidfTransformer(use_idf=False).fit(X_train_counts)
         X_train_tf = self.tf_transformer.transform(X_train_counts)
+        topics =numpy.matrix(X_train_top.tolist())
+        end_train = topics
+        #end_train = hstack([topics,X_train_tf])
+
         #print("Training")
         self.clf = RandomForestClassifier(n_jobs=3, n_estimators=200)
         #self.clf = MultinomialNB()
         #self.clf = SVC()
         #self.clf = DecisionTreeClassifier(max_depth=6)
-        self.clf.fit(X_train_tf, y_train)
+        self.clf.fit(end_train, y_train)
 
     def save_RF_words_only(self,path):
         if not os.path.exists(path):
@@ -263,10 +416,14 @@ class UniversalClassifier():
         self.clf.fit(X_train_tf, y_train)
         # self.clf.fit(features2, y)
         #print("Trained")
-    def predict_words_only(self,X_test):
+    def predict_words_only(self,X_test,X_topics):
         X_new_counts = self.count_vect1.transform(X_test)
         X_test_tf = self.tf_transformer.transform(X_new_counts)
-        y_pred = self.clf.predict(X_test_tf)
+
+        topics = numpy.matrix(X_topics.tolist())
+        #end_train = hstack([topics, X_test_tf])
+        end_train = topics
+        y_pred = self.clf.predict(end_train)
         return y_pred
 
     def print_reports(self,y_pred,y_test):
@@ -317,7 +474,53 @@ class UniversalClassifier():
         overall_F1score = 2*overall_precision*overall_recall/(overall_precision+overall_recall)
         print("Overall\t"+str(round(overall_precision,2))+"\t\t\t"+str(round(overall_recall,2))+"\t\t"+str(round(overall_F1score,2)))
 
-
+def annotate_files(annots,path):
+    for ann in annots:
+        name = ann[0]
+        text = ann[1]
+        r = requests.post("http://services.gate.ac.uk/knowmak/classifier/project",
+                          data=text.encode(encoding='UTF-8',errors='ignore'))
+        print(r.status_code, r.reason)
+        try:
+            data = json.loads(r.text)
+        except:
+            print("Error")
+        f = open(path+'/'+name+".ann1",'w')
+        f.write('Objectives:'+str(ann[2])+'\n')
+        f.write('Actors:' + str(ann[3])+'\n')
+        f.write('Outputs:' + str(ann[4])+'\n')
+        f.write('Innovativeness:' + str(ann[5])+'\n')
+        f.write('Topics:'+'\n')
+        topics = []
+        if "classification" not in data.keys():
+            continue
+        for clas in data["classification"]:
+            score = data["classification"][clas]["score"][0]
+            keywords = ""
+            for key in data["classification"][clas]["keywords"]:
+                keywords = keywords + "," + key
+            keywords = keywords[1:]
+            topics.append([clas,score,keywords,len(text)])
+        r_topics = []
+        for topic in topics:
+            lenght = topic[3]
+            score = topic[1]
+            if lenght > 100000:
+                score = score * 10
+            elif lenght > 50000:
+                score = score * 7
+            elif lenght > 30000:
+                score = score * 2
+            elif lenght > 10000:
+                score = score * 1.7
+            if topic[1] > 2:
+                r_topics.append(
+                    {"TopicName": topic[0], "TopicScore1": topic[1],  "Keywords": topic[2]})
+        r_topics2 = sorted(r_topics, key=lambda k: k['TopicScore1'], reverse=True)
+        r_topics2 = r_topics2[:10]
+        for top in r_topics2:
+            f.write(top['TopicName']+'\n')
+        f.close()
 
 if  __name__ == '__main__':
     path = "../../../../Helpers/SI_dataset/Output/Merged_dataset_all_workshop_with_excluded2"
@@ -326,6 +529,8 @@ if  __name__ == '__main__':
     #path = "../../../../Helpers/SI_dataset/Output/SI_only_balanced"
     #path = "../../../../Helpers/SI_dataset/Output/SI_only"
     annotations = read_files(path)
+    #annotations2 = annotate_files(annotations,path)
+    #exit(2)
     #annotations = load_database_description_dataset()
     #transfer_to_database(annotations)
     #exit(1)
@@ -333,7 +538,7 @@ if  __name__ == '__main__':
     classA = []
     ### Working on Objectives
     print("Working on Objectives")
-
+    topics = []
     for anns in annotations:
         texts.append(anns[1])
         value = anns[2]
@@ -341,8 +546,13 @@ if  __name__ == '__main__':
             value = 1
         else:
             value =0
+        top = []
+        for key in anns[7].keys():
+            top.append(anns[7][key])
+        topics.append(top)
         classA.append(value)
-    df = pd.DataFrame({'text': texts, 'classa': classA})
+    #topics = numpy.matrix(topics)
+    df = pd.DataFrame({'text': texts, 'classa': classA, 'topics':topics})
     print(df.classa.value_counts())
     train_df, test_df = train_test_split(df, test_size=0.2)
     print("Train DF:\n"+str(train_df.classa.value_counts()))
@@ -372,25 +582,30 @@ if  __name__ == '__main__':
         print("FOLD:"+str(i))
         cls = UniversalClassifier()
         X_train = train_df['text'][train_index]
+        X_train_top = train_df['topics'][train_index]
         y_train = train_df['classa'][train_index]
-        cls.train_cost_sensitive_RF_words_only(X_train,y_train)
+        cls.train_cost_sensitive_RF_words_only(X_train,X_train_top,y_train)
         X_test= train_df['text'][test_index]
+        X_test_top = train_df['topics'][test_index]
         y_test = train_df['classa'][test_index]
-        y_pred = cls.predict_words_only(X_test)
+        y_pred = cls.predict_words_only(X_test,X_test_top)
         cls.print_reports(y_pred, y_test)
     cls = UniversalClassifier()
     X_train = train_df['text']
+    X_top = train_df['topics']
     y_train = train_df['classa']
-    cls.train_cost_sensitive_RF_words_only(X_train, y_train)
+    cls.train_cost_sensitive_RF_words_only(X_train,X_top, y_train)
     cls.save_RF_words_only("Objectives_RF")
-    y_pred = cls.predict_words_only(test_df['text'])
+    y_pred = cls.predict_words_only(test_df['text'],test_df['topics'])
     cls.print_reports(y_pred, test_df['classa'])
     print("End of Objectives")
+
 
     ### Actors
     print("Working on Actors")
     texts = []
     classA = []
+    topics = []
     for anns in annotations:
         texts.append(anns[1])
         value = anns[3]
@@ -398,8 +613,12 @@ if  __name__ == '__main__':
             value = 1
         else:
             value =0
+        top = []
+        for key in anns[7].keys():
+            top.append(anns[7][key])
+        topics.append(top)
         classA.append(value)
-    df = pd.DataFrame({'text': texts, 'classa': classA})
+    df = pd.DataFrame({'text': texts, 'classa': classA,'topics':topics})
     print(df.classa.value_counts())
     train_df, test_df = train_test_split(df, test_size=0.2)
     train_df = train_df.sample(frac=1).reset_index(drop=True)
@@ -431,18 +650,21 @@ if  __name__ == '__main__':
         print("FOLD:" + str(i))
         cls = UniversalClassifier()
         X_train = train_df['text'][train_index]
+        X_train_top = train_df['topics'][train_index]
         y_train = train_df['classa'][train_index]
-        cls.train_cost_sensitive_RF_words_only(X_train, y_train)
+        cls.train_cost_sensitive_RF_words_only(X_train,X_train_top, y_train)
         X_test = train_df['text'][test_index]
+        X_test_top = train_df['topics'][test_index]
         y_test = train_df['classa'][test_index]
-        y_pred = cls.predict_words_only(X_test)
+        y_pred = cls.predict_words_only(X_test,X_test_top)
         cls.print_reports(y_pred, y_test)
     cls = UniversalClassifier()
     X_train = train_df['text']
+    X_top = train_df['topics']
     y_train = train_df['classa']
-    cls.train_cost_sensitive_RF_words_only(X_train, y_train)
+    cls.train_cost_sensitive_RF_words_only(X_train,X_top, y_train)
     cls.save_RF_words_only("Actors_RF")
-    y_pred = cls.predict_words_only(test_df['text'])
+    y_pred = cls.predict_words_only(test_df['text'],test_df['topics'])
     cls.print_reports(y_pred, test_df['classa'])
     print("End of Actors")
 
@@ -450,6 +672,7 @@ if  __name__ == '__main__':
     print("Working on Outputs")
     texts = []
     classA = []
+    topics = []
     for anns in annotations:
         texts.append(anns[1])
         value = anns[4]
@@ -457,8 +680,12 @@ if  __name__ == '__main__':
             value = 1
         else:
             value =0
+        top = []
+        for key in anns[7].keys():
+            top.append(anns[7][key])
+        topics.append(top)
         classA.append(value)
-    df = pd.DataFrame({'text': texts, 'classa': classA})
+    df = pd.DataFrame({'text': texts, 'classa': classA,'topics':topics})
     print(df.classa.value_counts())
     train_df, test_df = train_test_split(df, test_size=0.2)
     train_df = train_df.sample(frac=1).reset_index(drop=True)
@@ -490,18 +717,21 @@ if  __name__ == '__main__':
         print("FOLD:" + str(i))
         cls = UniversalClassifier()
         X_train = train_df['text'][train_index]
+        X_train_top = train_df['topics'][train_index]
         y_train = train_df['classa'][train_index]
-        cls.train_cost_sensitive_RF_words_only(X_train, y_train)
+        cls.train_cost_sensitive_RF_words_only(X_train,X_train_top, y_train)
         X_test = train_df['text'][test_index]
+        X_test_top = train_df['topics'][test_index]
         y_test = train_df['classa'][test_index]
-        y_pred = cls.predict_words_only(X_test)
+        y_pred = cls.predict_words_only(X_test,X_test_top)
         cls.print_reports(y_pred, y_test)
     cls = UniversalClassifier()
     X_train = train_df['text']
+    X_topics = train_df['topics']
     y_train = train_df['classa']
-    cls.train_cost_sensitive_RF_words_only(X_train, y_train)
+    cls.train_cost_sensitive_RF_words_only(X_train,X_topics, y_train)
     cls.save_RF_words_only("Outputs_RF")
-    y_pred = cls.predict_words_only(test_df['text'])
+    y_pred = cls.predict_words_only(test_df['text'],test_df['topics'])
     cls.print_reports(y_pred, test_df['classa'])
     print("End of Outputs")
 
@@ -509,15 +739,20 @@ if  __name__ == '__main__':
     print("Working on Innovativness")
     texts = []
     classA = []
+    topics = []
     for anns in annotations:
         texts.append(anns[1])
         value = anns[5]
-        if value>=2:
+        if value >= 2:
             value = 1
         else:
-            value =0
+            value = 0
+        top = []
+        for key in anns[7].keys():
+            top.append(anns[7][key])
+        topics.append(top)
         classA.append(value)
-    df = pd.DataFrame({'text': texts, 'classa': classA})
+    df = pd.DataFrame({'text': texts, 'classa': classA, 'topics': topics})
     print(df.classa.value_counts())
     train_df, test_df = train_test_split(df, test_size=0.2)
     train_df = train_df.sample(frac=1).reset_index(drop=True)
@@ -548,17 +783,20 @@ if  __name__ == '__main__':
         print("FOLD:" + str(i))
         cls = UniversalClassifier()
         X_train = train_df['text'][train_index]
+        X_train_top = train_df['topics'][train_index]
         y_train = train_df['classa'][train_index]
-        cls.train_cost_sensitive_RF_words_only(X_train, y_train)
+        cls.train_cost_sensitive_RF_words_only(X_train,X_train_top, y_train)
         X_test = train_df['text'][test_index]
+        X_test_top = train_df['topics'][test_index]
         y_test = train_df['classa'][test_index]
-        y_pred = cls.predict_words_only(X_test)
+        y_pred = cls.predict_words_only(X_test,X_test_top)
         cls.print_reports(y_pred, y_test)
     cls = UniversalClassifier()
     X_train = train_df['text']
+    X_train_top = train_df['topics']
     y_train = train_df['classa']
-    cls.train_cost_sensitive_RF_words_only(X_train, y_train)
+    cls.train_cost_sensitive_RF_words_only(X_train,X_train_top, y_train)
     cls.save_RF_words_only("Innovativeness_RF")
-    y_pred = cls.predict_words_only(test_df['text'])
+    y_pred = cls.predict_words_only(test_df['text'],test_df['topics'])
     cls.print_reports(y_pred, test_df['classa'])
     print("End of Innovativeness")

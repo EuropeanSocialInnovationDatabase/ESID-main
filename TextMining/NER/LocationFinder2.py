@@ -18,7 +18,7 @@ print("Selecting projects from mysql")
 sql_projects = "Select idProjects,ProjectName,ProjectWebpage from Projects where Exclude = 0"
 cursor.execute(sql_projects)
 results = cursor.fetchall()
-csvfile = open('locations_tab_both.csv', 'w')
+csvfile = open('locations_tab2.csv', 'w')
 mongo_client = MongoClient()
 mongo_db = mongo_client.ESID
 writer = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -63,17 +63,17 @@ for row in results:
                             countries[str(FoundCountry)] = 1
                         else:
                             countries[str(FoundCountry)] = countries[str(FoundCountry)] + 1
-                    new_sql = "SELECT CountryName FROM Semanticon.Country where CountryName like '{0}'".format(
-                        tag[0].encode('utf-8'))
-                    # print new_sql
-                    cursor2.execute(new_sql)
-                    results2 = cursor2.fetchall()
-                    for r in results2:
-                        FoundCountry = r[0]
-                        if FoundCountry not in countries.keys():
-                            countries[str(FoundCountry)] = 1
-                        else:
-                            countries[str(FoundCountry)] = countries[str(FoundCountry)] + 1
+                    # new_sql = "SELECT CountryName FROM Semanticon.Country where CountryName like '{0}'".format(
+                    #     tag[0].encode('utf-8'))
+                    # # print new_sql
+                    # cursor2.execute(new_sql)
+                    # results2 = cursor2.fetchall()
+                    # for r in results2:
+                    #     FoundCountry = r[0]
+                    #     if FoundCountry not in countries.keys():
+                    #         countries[str(FoundCountry)] = 1
+                    #     else:
+                    #         countries[str(FoundCountry)] = countries[str(FoundCountry)] + 1
                 except:
                     print("Cannot handle string: "+tag[0])
     except:
@@ -116,4 +116,7 @@ for row in results:
     for r in results2:
         database_city = r[0]
         database_country = r[1]
-    writer.writerow([idProject,projectName.encode('utf-8'),projectWebpage.encode('utf-8'),max_city.encode('utf-8'),max_country.encode('utf-8'),database_city,database_country])
+    writer.writerow([idProject, projectName.encode('utf-8'), projectWebpage.encode('utf-8'), max_city.encode('utf-8'),
+                     max_country.encode('utf-8'), database_city, database_country])
+
+    #writer.writerow([idProject,projectName.encode('utf-8'),projectWebpage.encode('utf-8'),max_city.encode('utf-8'),max_country.encode('utf-8')])

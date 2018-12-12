@@ -188,8 +188,13 @@ def submit_new_project():
         StartDate = 'Null'
     if EndDate =='':
         EndDate = 'Null'
-    project_sql = "Insert into Projects (ProjectName,Type,DateStart,DateEnd,ProjectWebpage,FacebookPage,ProjectTwitter,Suggestions,DataSources_idDataSources) VALUES ('{0}','{1}',{2},{3},'{4}','{5}','{6}','{7}',{8})"\
-        .format(Project_name,ProjectType,StartDate,EndDate,Project_website,Project_facebook,Project_twitter,1,'57')
+    # project_sql = "Insert into Projects (ProjectName,Type,DateStart,DateEnd,ProjectWebpage,FacebookPage,ProjectTwitter,Suggestions,DataSources_idDataSources) VALUES ('{0}','{1}',{2},{3},'{4}','{5}','{6}','{7}',{8})"\
+    #     .format(Project_name,ProjectType,StartDate,EndDate,Project_website,Project_facebook,Project_twitter,1,'57')
+    project_sql = "Insert into Projects (ProjectName,Type,DateStart,DateEnd,ProjectWebpage,FacebookPage,ProjectTwitter,Suggestions,DataSources_idDataSources) VALUES ('%s','%s',%s,%s,'%s','%s','%s','%s',%s)" \
+                  % (
+                  Project_name, ProjectType, StartDate, EndDate, Project_website, Project_facebook, Project_twitter, 1,
+                  '57')
+
     cursor.execute(project_sql)
     project_id = cursor.lastrowid
     location_sql = "Insert into ProjectLocation (Type,Address,City,Country,Projects_idProjects,Original_idProjects) Values ('{0}','{1}','{2}','{3}','{4}','{5}')".format('Main',Address,City,Country,project_id,project_id)
@@ -257,8 +262,13 @@ def submit_related_project():
         StartDate = 'Null'
     if EndDate =='':
         EndDate = 'Null'
-    project_sql = "Insert into Projects (ProjectName,Type,DateStart,DateEnd,ProjectWebpage,FacebookPage,ProjectTwitter,Suggestions,DataSources_idDataSources) VALUES ('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}',{8})"\
-        .format(Project_name,ProjectType,StartDate,EndDate,Project_website,Project_facebook,Project_twitter,1,'57')
+    # project_sql = "Insert into Projects (ProjectName,Type,DateStart,DateEnd,ProjectWebpage,FacebookPage,ProjectTwitter,Suggestions,DataSources_idDataSources) VALUES ('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}',{8})"\
+    #     .format(Project_name,ProjectType,StartDate,EndDate,Project_website,Project_facebook,Project_twitter,1,'57')
+
+    project_sql = "Insert into Projects (ProjectName,Type,DateStart,DateEnd,ProjectWebpage,FacebookPage,ProjectTwitter,Suggestions,DataSources_idDataSources) VALUES ('%s','%s',%s,%s,'%s','%s','%s','%s',%s)" \
+        % (Project_name, ProjectType, StartDate, EndDate, Project_website, Project_facebook, Project_twitter, 1,
+                '57')
+
     cursor.execute(project_sql)
     project_id = cursor.lastrowid
     location_sql = "Insert into ProjectLocation (Type,Address,City,Country,Projects_idProjects,Original_idProjects) Values ('{0}','{1}','{2}','{3}','{4}','{5}')".format('Main',Address,City,Country,project_id,project_id)

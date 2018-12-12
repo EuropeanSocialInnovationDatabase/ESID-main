@@ -123,7 +123,8 @@ class UniversalClassifier():
         # X_train_tf = self.tf_transformer.transform(X_train_counts)
         #print("Training")
         self.clf = RandomForestClassifier(n_jobs=3, random_state=0, n_estimators=150)
-        self.clf.fit(map(lambda x: [x],X_train), y_train)
+        m = map(lambda x: [x],X_train)
+        self.clf.fit(X_train, y_train)
         # self.clf =SVC()
     def train_cost_sensitive_RF_words_only(self,X_train,y_train):
         self.count_vect1 = CountVectorizer(max_features=1000)
@@ -195,7 +196,7 @@ class UniversalClassifier():
 
 
     def predict_features_only(self,X_test):
-        y_pred = self.clf.predict(map(lambda x: [x],X_test))
+        y_pred = self.clf.predict(X_test)
         return y_pred
 
 

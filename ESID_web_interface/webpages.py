@@ -129,7 +129,7 @@ def edit_project(id):
 @webpage.route('/submit_edit', methods=['POST'])
 def edit_submit():
     conn = mysql.connect()
-    cursor = conn.cursor
+    cursor = conn.cursor()
     project_id = request.form['project_id']
     q = "Select * from Projects where idProjects={0} and Exclude=0".format(project_id)
     cursor.execute(q)
@@ -264,27 +264,61 @@ def edit_submit():
         conn.commit()
 
 
-
-    if Objectives!=str(project_data['Objectives']):
+    try:
+        if Objectives!=str(project_data['Objectives']):
+            sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id,Comment)" \
+                  "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}','{8}')".format(user,0,1,project_id,'TypeOfSocialInnotation','CriterionObjectives',Objectives,project_id,Comment)
+            cursor.execute(sql)
+            conn.commit()
+    except:
         sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id,Comment)" \
-              "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}','{8}')".format(user,0,1,project_id,'TypeOfSocialInnotation','CriterionObjectives',Objectives,project_id,Comment)
+              "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}','{8}')".format(user, 0, 1, project_id,
+                                                                                        'TypeOfSocialInnotation',
+                                                                                        'CriterionObjectives',
+                                                                                        Objectives, project_id, Comment)
         cursor.execute(sql)
         conn.commit()
-
-    if Outputs!=str(project_data['Outputs']):
+    try:
+        if Outputs!=str(project_data['Outputs']):
+            sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id,Comment)" \
+                  "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}','{8}')".format(user,0,1,project_id,'TypeOfSocialInnotation','CriterionOutputs',Outputs,project_id,Comment)
+            cursor.execute(sql)
+            conn.commit()
+    except:
         sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id,Comment)" \
-              "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}','{8}')".format(user,0,1,project_id,'TypeOfSocialInnotation','CriterionOutputs',Outputs,project_id,Comment)
+              "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}','{8}')".format(user, 0, 1, project_id,
+                                                                                        'TypeOfSocialInnotation',
+                                                                                        'CriterionOutputs', Outputs,
+                                                                                        project_id, Comment)
         cursor.execute(sql)
         conn.commit()
-    if Actors!=str(project_data['Actors_s']):
+    try:
+        if Actors!=str(project_data['Actors_s']):
+            sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id,Comment)" \
+                  "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}','{8}')".format(user,0,1,project_id,'TypeOfSocialInnotation','CriterionActors',Actors,project_id,Comment)
+            cursor.execute(sql)
+            conn.commit()
+    except:
         sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id,Comment)" \
-              "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}','{8}')".format(user,0,1,project_id,'TypeOfSocialInnotation','CriterionActors',Actors,project_id,Comment)
+              "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}','{8}')".format(user, 0, 1, project_id,
+                                                                                        'TypeOfSocialInnotation',
+                                                                                        'CriterionActors', Actors,
+                                                                                        project_id, Comment)
         cursor.execute(sql)
         conn.commit()
-
-    if Innovativeness!=str(project_data['Innovativeness']):
+    try:
+        if Innovativeness!=str(project_data['Innovativeness']):
+            sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id,Comment)" \
+                  "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}','{8}')".format(user,0,1,project_id,'TypeOfSocialInnotation','CriterionInnovativeness',Innovativeness,project_id,Comment)
+            cursor.execute(sql)
+            conn.commit()
+    except:
         sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id,Comment)" \
-              "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}','{8}')".format(user,0,1,project_id,'TypeOfSocialInnotation','CriterionInnovativeness',Innovativeness,project_id,Comment)
+              "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}','{8}')".format(user, 0, 1, project_id,
+                                                                                        'TypeOfSocialInnotation',
+                                                                                        'CriterionInnovativeness',
+                                                                                        Innovativeness, project_id,
+                                                                                        Comment)
         cursor.execute(sql)
         conn.commit()
 

@@ -9,6 +9,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.metrics import confusion_matrix
 from sklearn.naive_bayes import GaussianNB, MultinomialNB
+from sklearn.pipeline import Pipeline, FeatureUnion
+from sklearn.preprocessing import FunctionTransformer
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
 from sklearn.utils import resample
@@ -16,7 +18,8 @@ from database_access import *
 import pickle
 import os
 from sklearn.model_selection import train_test_split
-
+import pke
+import numpy as np
 
 
 def read_files(path):
@@ -35,8 +38,6 @@ def read_files(path):
             lines = f.readlines()
             for line in lines:
                 content = content + line
-            if ".txt.ann1" in ann:
-                continue
             f = open(path + "/" + ann.replace('.txt','.ann'), "r")
             lines = f.readlines()
             for line in lines:
@@ -127,18 +128,49 @@ class UniversalClassifier():
         self.clf = RandomForestClassifier(n_jobs=3, random_state=0, n_estimators=150)
         self.clf.fit(X_train_tf, y_train)
         # self.clf =SVC()
-    def train_cost_sensitive_RF_words_only(self,X_train,y_train):
+
+
+    def get_keywords(self,text):
+        extractor = pke.unsupervised.TextRank()
+        arr = []
+        for t in text:
+            extractor.load_document(input=t, language='en')
+            extractor.candidate_selection()
+
+            # candidate weighting, in the case of TopicRank: using a random walk algorithm
+            extractor.candidate_weighting()
+
+            # N-best selection, keyphrases contains the 10 highest scored candidates as
+            # (keyphrase, score) tuples
+            keyphrases = extractor.get_n_best(n=10)
+            phrases =""
+            for keyphrase in keyphrases:
+                phrases = phrases+" "+keyphrase[0]
+            arr.append(phrases)
+        return arr
+
+
+    def train_cost_sensitive_RF_words_only(self,X_train,X_topics,y_train):
         stopWords = set(nltk.corpus.stopwords.words('english'))
-        self.count_vect1 = CountVectorizer(max_features=2000000,ngram_range=(1,4),stop_words=stopWords,lowercase=True)
-        X_train_counts = self.count_vect1.fit_transform(X_train)
-        self.tf_transformer = TfidfTransformer(use_idf=False).fit(X_train_counts)
-        X_train_tf = self.tf_transformer.transform(X_train_counts)
-        #print("Training")
-        self.clf = RandomForestClassifier(n_jobs=3, n_estimators=200)
-        #self.clf = MultinomialNB()
-        #self.clf = SVC()
-        #self.clf = DecisionTreeClassifier(max_depth=6)
-        self.clf.fit(X_train_tf, y_train)
+
+        self.clf = Pipeline([
+            ('features', FeatureUnion([
+                ('text', Pipeline([
+                    ('vectorizer', CountVectorizer(min_df=1, max_df=50,max_features=200000,ngram_range=(1,4),stop_words=stopWords,lowercase=True)),
+                    ('tfidf', TfidfTransformer()),
+                ])),
+                ('keywords', Pipeline([
+                    ('kw', FunctionTransformer(self.get_keywords, validate=False)),
+                    ('vectorizer',
+                     CountVectorizer(min_df=1, max_df=50, max_features=200, ngram_range=(1, 4),
+                                     lowercase=True)),
+                    ('tfidf', TfidfTransformer()),
+                ]))
+            ])),
+            ('clf', RandomForestClassifier(n_estimators=200))])
+
+        self.clf.fit(X_train, y_train)
+
 
     def save_RF_words_only(self,path):
         if not os.path.exists(path):
@@ -264,9 +296,9 @@ class UniversalClassifier():
         # self.clf.fit(features2, y)
         #print("Trained")
     def predict_words_only(self,X_test):
-        X_new_counts = self.count_vect1.transform(X_test)
-        X_test_tf = self.tf_transformer.transform(X_new_counts)
-        y_pred = self.clf.predict(X_test_tf)
+        # X_new_counts = self.count_vect1.transform(X_test)
+        # X_test_tf = self.tf_transformer.transform(X_new_counts)
+        y_pred = self.clf.predict(X_test)
         return y_pred
 
     def print_reports(self,y_pred,y_test):
@@ -320,7 +352,7 @@ class UniversalClassifier():
 
 
 if  __name__ == '__main__':
-    path = "../../../../Helpers/SI_dataset/Output/Merged_dataset_all_workshop_with_excluded2"
+    path = "../../../../Helpers/SI_dataset/Output/Merged_dataset_all_workshop_with_excluded"
     #path = "../../../../Helpers/SI_dataset/Output/Merged_dataset_all_workshop_with_excluded2"
     #path = "../../../../Helpers/SI_dataset/Output/SI_withExcluded3"
     #path = "../../../../Helpers/SI_dataset/Output/SI_only_balanced"
@@ -367,7 +399,7 @@ if  __name__ == '__main__':
 
     folder = sklearn.model_selection.KFold(5)
     i = 0
-    for train_index,test_index in folder.split(train_df):
+    for test_index,train_index in folder.split(train_df):
         i = i +1
         print("FOLD:"+str(i))
         cls = UniversalClassifier()

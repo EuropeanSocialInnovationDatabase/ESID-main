@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, send_file
 from flask import render_template,request
 from my_settings import *
 import MySQLdb
@@ -146,6 +146,16 @@ def add():
 def find_locations():
     pass
 
+@app.route('/download/<path>')
+def DownloadFile(path=None):
+    if path is None:
+        print("400")
+        return(400)
+    else:
+        try:
+            return send_file(path,as_attachment=True)
+        except:
+            pass
 
 
 if __name__ == '__main__':
