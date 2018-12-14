@@ -17,7 +17,11 @@ if __name__ == '__main__':
     projects = []
     pro_file = open(output_path + "/projects.csv", 'wb')
     pro_writer = csv.writer(pro_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    topic_file = open(output_path + "/topics.csv", 'wb')
+    topic_writer = csv.writer(topic_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    topic_writer.writerow(["TopicName","TopicScore1","TopicScore2","Keywords","Project_id","TextLength"])
     pro_writer.writerow(["SIP_ID","Title","Start_date","End_date","Website","Description","ObjectiveScore","ActorScore","OutputScore","InnovativenessScore"])
+
     actor_file = open(output_path + "/actors.csv", 'wb')
     actor_writer = csv.writer(actor_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
     actor_writer.writerow(["SIA_ID", "Title", "Webpage"])
@@ -61,6 +65,29 @@ if __name__ == '__main__':
             actor_ids.append(res3[0])
             pro_act_writer.writerow(res3)
 
+        sql4 = "Select * from EDSI.Project_Topics where Version like '%v2%' and Projects_idProject ="+str(res[0])
+        cursor.execute(sql4)
+        results4 = cursor.fetchall()
+        r_topics = []
+        for res4 in results4:
+            lenght = res4[9]
+            score = res4[2]
+            if lenght > 100000:
+                score = score * 10
+            elif lenght > 50000:
+                score = score * 7
+            elif lenght > 30000:
+                score = score * 2
+            elif lenght > 10000:
+                score = score * 1.7
+            if score > 3:
+                r_topics.append(
+                    {"TopicName": res4[1], "TopicScore1": res4[2], "TopicScore2": res4[3], "Keywords": res4[4],"Length":lenght})
+        r_topics2 = sorted(r_topics, key=lambda k: k['TopicScore1'], reverse=True)
+        r_topics2 = r_topics2[:10]
+        for topic in r_topics2:
+            topic_writer.writerow([topic["TopicName"], topic["TopicScore1"], topic["TopicScore2"], topic["Keywords"], res[0], topic["Length"]])
+
 
     pro_file.close()
     pro_loc_file = open(output_path + "/project_locations.csv", 'wb')
@@ -91,5 +118,6 @@ if __name__ == '__main__':
     pro_loc_file.close()
     pro_act_file.close()
     actor_file.close()
+    topic_file.close()
 
 

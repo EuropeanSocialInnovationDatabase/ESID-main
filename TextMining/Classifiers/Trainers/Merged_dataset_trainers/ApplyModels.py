@@ -27,7 +27,7 @@ if  __name__ == '__main__':
     for res in results:
         print res[0]
         message = ""
-        option = "v18 classifier origninal balanced dataset 2M features balanced with SI overall, with stopwords, with 1-3 grams, 18/10/2018"
+        option = "v20 classifier new dataset (naturally balanced) random forests, with 1-4 grams, 13/12/2018"
         objective = 0
         actors = 0
         outputs = 0
