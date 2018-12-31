@@ -151,18 +151,19 @@ class LSTMClassifier():
         model = None
         model = Sequential()
         model.add(embedding_layer)
-        model.add(Dropout(0.2))
-        model.add(Conv1D(filters=512, kernel_size=2, padding='same', activation='relu'))
-        model.add(MaxPooling1D(pool_size=2))
-        model.add(Dropout(0.2))
-        model.add(Conv1D(filters=256, kernel_size=2, padding='same', activation='relu'))
-        model.add(MaxPooling1D(pool_size=2))
-        model.add(Dropout(0.2))
-        model.add(Conv1D(filters=128, kernel_size=2, padding='same', activation='relu'))
-        model.add(MaxPooling1D(pool_size=2))
-        model.add(Dropout(0.2))
-        model.add(Bidirectional(LSTM(100)))
-        model.add(Dropout(0.2))
+        model.add(LSTM(100))
+        # model.add(Dropout(0.2))
+        # model.add(Conv1D(filters=512, kernel_size=2, padding='same', activation='relu'))
+        # model.add(MaxPooling1D(pool_size=2))
+        # model.add(Dropout(0.2))
+        # model.add(Conv1D(filters=256, kernel_size=2, padding='same', activation='relu'))
+        # model.add(MaxPooling1D(pool_size=2))
+        # model.add(Dropout(0.2))
+        # model.add(Conv1D(filters=128, kernel_size=2, padding='same', activation='relu'))
+        # model.add(MaxPooling1D(pool_size=2))
+        # model.add(Dropout(0.2))
+        # model.add(Bidirectional(LSTM(100)))
+        # model.add(Dropout(0.2))
         model.add(Dense(2))
         model.add(Dropout(0.2))
         model.add(Activation('sigmoid'))
@@ -223,7 +224,7 @@ class LSTMClassifier():
 
 
 if  __name__ == '__main__':
-    path = "../../../../Helpers/SI_dataset/Output/Merged_dataset_all_workshop_with_excluded2"
+    path = "../../../../Helpers/SI_dataset/Output/Merged_dataset_all_workshop_with_excluded"
     np.random.seed(2)
 
     #path = "../../../../Helpers/SI_dataset/Output/SI_withExcluded3"
@@ -255,22 +256,22 @@ if  __name__ == '__main__':
     #
     #
     #
-    # df_majority = train_df[train_df.classa == 1]
-    # df_minority = train_df[train_df.classa == 0]
-    # df_minority_upsampled = resample(df_minority,
-    #                                   replace=True,     # sample with replacement
-    #                                   n_samples=420,    # to match majority class
-    #                                   random_state=83293) # reproducible results
-    #
-    # df_upsampled = pd.concat([df_majority, df_minority_upsampled],ignore_index=True)
-    # df_upsampled = df_upsampled.sample(frac=1).reset_index(drop=True)
-    # print(df_upsampled.classa.value_counts())
-    # train_df = df_upsampled
+    df_majority = train_df[train_df.classa == 1]
+    df_minority = train_df[train_df.classa == 0]
+    df_minority_upsampled = resample(df_minority,
+                                      replace=True,     # sample with replacement
+                                      n_samples=420,    # to match majority class
+                                      random_state=83293) # reproducible results
+
+    df_upsampled = pd.concat([df_majority, df_minority_upsampled],ignore_index=True)
+    df_upsampled = df_upsampled.sample(frac=1).reset_index(drop=True)
+    print(df_upsampled.classa.value_counts())
+    train_df = df_upsampled
 
 
     folder = sklearn.model_selection.KFold(5)
     i = 0
-    for test_index,train_index in folder.split(train_df):
+    for train_index,test_index in folder.split(train_df):
         i = i +1
         print("FOLD:"+str(i))
         cls = LSTMClassifier()
@@ -315,17 +316,17 @@ if  __name__ == '__main__':
     train_df = train_df.sample(frac=1).reset_index(drop=True)
     test_df = test_df.sample(frac=1).reset_index(drop=True)
     #
-    # df_majority = train_df[train_df.classa == 1]
-    # df_minority = train_df[train_df.classa == 0]
-    # df_minority_upsampled = resample(df_minority,
-    #                                  replace=True,  # sample with replacement
-    #                                  n_samples=350,  # to match majority class
-    #                                  random_state=83293)  # reproducible results
-    #
-    # df_upsampled = pd.concat([df_majority, df_minority_upsampled], ignore_index=True)
-    # df_upsampled = df_upsampled.sample(frac=1).reset_index(drop=True)
-    # print(df_upsampled.classa.value_counts())
-    # train_df = df_upsampled
+    df_majority = train_df[train_df.classa == 1]
+    df_minority = train_df[train_df.classa == 0]
+    df_minority_upsampled = resample(df_minority,
+                                     replace=True,  # sample with replacement
+                                     n_samples=350,  # to match majority class
+                                     random_state=83293)  # reproducible results
+
+    df_upsampled = pd.concat([df_majority, df_minority_upsampled], ignore_index=True)
+    df_upsampled = df_upsampled.sample(frac=1).reset_index(drop=True)
+    print(df_upsampled.classa.value_counts())
+    train_df = df_upsampled
 
 
 
@@ -376,17 +377,17 @@ if  __name__ == '__main__':
     train_df = train_df.sample(frac=1).reset_index(drop=True)
     test_df = test_df.sample(frac=1).reset_index(drop=True)
     #
-    # df_majority = train_df[train_df.classa == 1]
-    # df_minority = train_df[train_df.classa == 0]
-    # df_minority_upsampled = resample(df_minority,
-    #                                  replace=True,  # sample with replacement
-    #                                  n_samples=400,  # to match majority class
-    #                                  random_state=83293)  # reproducible results
-    #
-    # df_upsampled = pd.concat([df_majority, df_minority_upsampled], ignore_index=True)
-    # df_upsampled = df_upsampled.sample(frac=1).reset_index(drop=True)
-    # print(df_upsampled.classa.value_counts())
-    # train_df = df_upsampled
+    df_majority = train_df[train_df.classa == 1]
+    df_minority = train_df[train_df.classa == 0]
+    df_minority_upsampled = resample(df_minority,
+                                     replace=True,  # sample with replacement
+                                     n_samples=400,  # to match majority class
+                                     random_state=83293)  # reproducible results
+
+    df_upsampled = pd.concat([df_majority, df_minority_upsampled], ignore_index=True)
+    df_upsampled = df_upsampled.sample(frac=1).reset_index(drop=True)
+    print(df_upsampled.classa.value_counts())
+    train_df = df_upsampled
 
 
 
@@ -437,16 +438,16 @@ if  __name__ == '__main__':
     test_df = test_df.sample(frac=1).reset_index(drop=True)
     # #
     # #
-    # df_majority = train_df[train_df.classa == 1]
-    # df_minority = train_df[train_df.classa == 0]
-    # df_minority_upsampled = resample(df_minority,
-    #                                  replace=True,  # sample with replacement
-    #                                  n_samples=400,  # to match majority class
-    #                                  random_state=83293)  # reproducible results
-    # df_upsampled = pd.concat([df_majority, df_minority_upsampled], ignore_index=True)
-    # df_upsampled = df_upsampled.sample(frac=1).reset_index(drop=True)
-    # print(df_upsampled.classa.value_counts())
-    # train_df = df_upsampled
+    df_majority = train_df[train_df.classa == 1]
+    df_minority = train_df[train_df.classa == 0]
+    df_minority_upsampled = resample(df_minority,
+                                     replace=True,  # sample with replacement
+                                     n_samples=400,  # to match majority class
+                                     random_state=83293)  # reproducible results
+    df_upsampled = pd.concat([df_majority, df_minority_upsampled], ignore_index=True)
+    df_upsampled = df_upsampled.sample(frac=1).reset_index(drop=True)
+    print(df_upsampled.classa.value_counts())
+    train_df = df_upsampled
 
 
 
