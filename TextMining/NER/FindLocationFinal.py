@@ -127,23 +127,62 @@ def FindLocation(project_text,st_tagger,countries1):
     print "Max city:" + max_city
     print "Max country:" + max_country
     print "Max country boosted:" + max_country
-    return max_city,max_country,max_country_boosted,st_tagger
+    return max_city,max_country,max_country_boosted,st_tagger,cities,countries_boosted
 
 def findBestMatch(FoundCity,FoundCountry):
-    for i in range(0,3):
-        for j in range(0,3):
+    pair_candidates = []
+    for i in range(0,5):
+        for j in range(0,5):
             if len(FoundCity)>i and len(FoundCountry)>j:
                 sql = "SELECT City,Country_CountryName,Longitude,Latitude FROM Semanticon.City where city like '{0}' and Country_CountryName like '{1}' and Population>0 order by Population desc".format(FoundCity[i]['City'].encode('utf-8'),FoundCountry[j]['Country'].encode('utf-8'))
                 cursor.execute(sql)
                 resul = cursor.fetchall()
                 if len(resul)>0:
-                    return FoundCity[i]['City'],FoundCountry[j]['Country'],FoundCity[i]['Confidence']
-    return "","",0
+                    pair_candidates.append({"City":FoundCity[i]['City'],"Country":FoundCountry[j]['Country'],"Score":(FoundCity[i]["Confidence"]+FoundCountry[j]["Confidence"]+0.5*(FoundCity[i]["Mentions"]+FoundCountry[j]["Mentions"]))})
+                    #return FoundCity[i]['City'],FoundCountry[j]['Country'],FoundCity[i]['Confidence']
+    City = ""
+    Country = ""
+    Score = 0
+    for pair in pair_candidates:
+        if pair["Score"]>Score:
+            Score = pair["Score"]
+            City = pair["City"]
+            Country = pair["Country"]
+    return City,Country,Score
+
+def AddRelevantLocationsToList(city,country_boosted,FoundCity,FoundCountry,Confidence,PageName):
+    CityAlreadyFound = False
+    CountryAlreadyFound = False
+    if city != "":
+        for fc in FoundCity:
+            if city.lower().replace(" ", "") == fc["City"].lower().replace(" ", ""):
+                fc["Confidence"] = fc["Confidence"] + Confidence
+                fc["Mentions"] = fc["Mentions"] + ct[country_boosted]
+                CityAlreadyFound = True
+        if CityAlreadyFound == False:
+            FoundCity.append({"City": city, "Page": PageName, "Confidence": Confidence,"Mentions":ct[city]})
+            for c in ct:
+                if city == c:
+                    continue
+                FoundCity.append({"City": c, "Page": PageName, "Confidence": Confidence,"Mentions":ct[c]})
+    if country_boosted != "":
+        for fc in FoundCountry:
+            if country_boosted.lower().replace(" ", "") == fc["Country"].lower().replace(" ", ""):
+                fc["Confidence"] = fc["Confidence"] + Confidence
+                fc["Mentions"] = fc["Mentions"] + cntry[country_boosted]
+                CountryAlreadyFound = True
+        if CountryAlreadyFound == False:
+            FoundCountry.append({"Country": country_boosted, "Page": PageName, "Confidence": Confidence,"Mentions":cntry[country_boosted]})
+            for c in cntry:
+                if c == country_boosted:
+                    for ca in cntry:
+                        if ca == country_boosted:
+                            continue
+                        FoundCountry.append({"Country": ca, "Page": PageName, "Confidence": Confidence,"Mentions":cntry[ca]})
+    return FoundCity,FoundCountry
 
 
-
-
-csvfile = open('locations_final2.csv', 'w')
+csvfile = open('locations_final_fin2.csv', 'w')
 writer = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 writer.writerow(["ProjectID","ProjectName","FoundCity","FoundCountry","DatabaseCity","DatabaseCountry","Confidence","FoundWhere","Website"])
 db = MySQLdb.connect(host, username, password, database, charset='utf8')
@@ -160,10 +199,10 @@ for r in results2:
     countries.append(r[0].lower())
 cursor2 = db2.cursor()
 print("Selecting projects from mysql")
-sql_projects = "Select idProjects,ProjectName,ProjectWebpage from Projects where Exclude = 0 and idProjects>=2000"
+sql_projects = "Select idProjects,ProjectName,ProjectWebpage from Projects where Exclude = 0 and idProjects> 6800"
 cursor.execute(sql_projects)
 results = cursor.fetchall()
-csvfile = open('locations_tab2.csv', 'w')
+#csvfile = open('locations_tab2.csv', 'w')
 mongo_client = MongoClient()
 mongo_db = mongo_client.ESID
 st_tagger = StanfordTagger('../Resources')
@@ -195,18 +234,31 @@ for row in results:
         text = doc['text']
         projectText = projectText + " " + text
     projectText = checkEngAndTranslate(projectText)
-    city, country, country_boosted,st_tagger = FindLocation(projectText, st_tagger,countries)
+    country_boosted = ""
+    city, country, country_boosted,st_tagger,ct,cntry = FindLocation(projectText, st_tagger,countries)
     print city
     print country
     print country_boosted
     print page_at
     if city!="" and city!="uk":
-        FoundCity.append({"City":city,"Page":"Contact","Confidence":10})
-    if country!="":
-        FoundCountry.append({"Country":country,"Page":"Contact","Confidence":10})
+        FoundCity.append({"City":city,"Page":"Contact","Confidence":10,"Mentions":ct[city]})
+        for c in ct:
+            if c == city:
+                for ca in ct:
+                    if ct[ca]==ct[c]:
+                        FoundCity.append({"City": city, "Page": "Contact", "Confidence": 10,"Mentions":ct[city]})
+    if country_boosted!="":
+        FoundCountry.append({"Country":country_boosted,"Page":"Contact","Confidence":10,"Mentions":cntry[country_boosted]})
+        for c in cntry:
+            if c == country_boosted:
+                for ca in cntry:
+                    if cntry[ca]==cntry[c]:
+                        FoundCity.append({"Country": ca, "Page": "Contact", "Confidence": 10,"Mentions":cntry[country_boosted]})
+
     if len(FoundCity)>0 and len(FoundCountry)>0:
         try:
-            writer.writerow([idProject,projectName,FoundCity[0]["City"].title(),FoundCountry[0]["Country"],database_city,database_country,FoundCity[0]["Confidence"],"Contact",projectWebpage])
+            c, cn, conf = findBestMatch(FoundCity, FoundCountry)
+            writer.writerow([idProject,projectName,c.title(),cn,database_city,database_country,10,"Contact",projectWebpage])
         except:
             print("Problem")
         continue
@@ -218,27 +270,16 @@ for row in results:
         text = doc['text']
         projectText = projectText + " " + text
     projectText = checkEngAndTranslate(projectText)
-    city, country, country_boosted,st_tagger = FindLocation(projectText,st_tagger,countries)
+    city, country, country_boosted,st_tagger,ct,cntry = FindLocation(projectText,st_tagger,countries)
     print city
     print country
     print country_boosted
     print page_at
-    CityAlreadyFound = False
-    CountryAlreadyFound = False
-    if city!="":
-        for fc in FoundCity:
-            if city.lower().replace(" ","") == fc["City"].lower().replace(" ",""):
-                fc["Confidence"] = fc["Confidence"] + 8
-                CityAlreadyFound = True
-        if CityAlreadyFound == False:
-            FoundCity.append({"City": city, "Page": "About", "Confidence": 8})
-    if country_boosted!="":
-        for fc in FoundCountry:
-            if country_boosted.lower().replace(" ","") == fc["Country"].lower().replace(" ",""):
-                fc["Confidence"] = fc["Confidence"] + 8
-                CountryAlreadyFound = True
-        if CountryAlreadyFound == False:
-            FoundCountry.append({"Country": country_boosted, "Page": "About", "Confidence": 8})
+
+    ######################################
+    FoundCity,FoundCountry = AddRelevantLocationsToList(city,country_boosted,FoundCity,FoundCountry,8,"About")
+    ####################################
+
     c,cn,conf = findBestMatch(FoundCity,FoundCountry)
     if c!="" and cn!="":
         try:
@@ -258,38 +299,26 @@ for row in results:
         text = r2[2]
         projectText = projectText + " " + text
     projectText = checkEngAndTranslate(projectText)
-    city, country, country_boosted,st_tagger = FindLocation(projectText, st_tagger,countries)
+    city, country, country_boosted,st_tagger,ct,cntry = FindLocation(projectText, st_tagger,countries)
     print city
     print country
     print country_boosted
     print page_at
 
-    CityAlreadyFound = False
-    CountryAlreadyFound = False
-    if city!="" and city!="uk":
-        for fc in FoundCity:
-            if city.lower().replace(" ","") == fc["City"].lower().replace(" ",""):
-                fc["Confidence"] = fc["Confidence"] + 6
-                CityAlreadyFound = True
-        if CityAlreadyFound == False:
-            FoundCity.append({"City": city, "Page": "Description", "Confidence": 6})
-    if country_boosted!="":
-        for fc in FoundCountry:
-            if country_boosted.lower().replace(" ","") == fc["Country"].lower().replace(" ",""):
-                fc["Confidence"] = fc["Confidence"] + 6
-                CountryAlreadyFound = True
-        if CountryAlreadyFound == False:
-            FoundCountry.append({"Country": country_boosted, "Page": "Description", "Confidence": 6})
+    ######################################
+    FoundCity, FoundCountry = AddRelevantLocationsToList(city, country_boosted, FoundCity, FoundCountry, 6, "Description")
+    ####################################
     c,cn,conf = findBestMatch(FoundCity,FoundCountry)
     if c!="" and cn!="":
         print(c)
         print(cn)
         print(database_city)
-
-        writer.writerow(
-        [idProject, projectName, c.title().encode('utf-8'), cn.encode('utf-8'), database_city, database_country.encode('utf-8'),
-         conf, "Description",projectWebpage.encode('utf-8')])
-
+        try:
+            writer.writerow(
+            [idProject, projectName, c.title().encode('utf-8'), cn.encode('utf-8'), database_city, database_country.encode('utf-8'),
+            conf, "Description",projectWebpage.encode('utf-8')])
+        except:
+            print("Problem 12")
         continue
 
     documents = mongo_db.crawl20190109.find(
@@ -302,28 +331,16 @@ for row in results:
             text = doc['text']
             projectText = projectText + " " + text
         projectText = checkEngAndTranslate(projectText)
-        city, country, country_boosted,st_tagger = FindLocation(projectText, st_tagger,countries)
+        city, country, country_boosted,st_tagger,ct,cntry = FindLocation(projectText, st_tagger,countries)
         print city
         print country
         print country_boosted
         print page_at
 
-        CityAlreadyFound = False
-        CountryAlreadyFound = False
-        if city != "" and city!="uk":
-            for fc in FoundCity:
-                if city.lower().replace(" ", "") == fc["City"].lower().replace(" ", ""):
-                    fc["Confidence"] = fc["Confidence"] + 4
-                    CityAlreadyFound = True
-            if CityAlreadyFound == False:
-                FoundCity.append({"City": city, "Page": "One page", "Confidence": 4})
-        if country_boosted != "":
-            for fc in FoundCountry:
-                if country_boosted.lower().replace(" ", "") == fc["Country"].lower().replace(" ", ""):
-                    fc["Confidence"] = fc["Confidence"] + 4
-                    CountryAlreadyFound = True
-            if CountryAlreadyFound == False:
-                FoundCountry.append({"Country": country_boosted, "Page": "One page", "Confidence": 4})
+        ######################################
+        FoundCity, FoundCountry = AddRelevantLocationsToList(city, country_boosted, FoundCity, FoundCountry, 4,
+                                                             "One page")
+        ####################################
         c, cn, conf = findBestMatch(FoundCity, FoundCountry)
         if c != "" and cn != "":
             try:
@@ -344,27 +361,15 @@ for row in results:
         projectText = main_text
         if projectText !="":
             projectText = checkEngAndTranslate(projectText)
-            city, country, country_boosted,st_tagger = FindLocation(projectText, st_tagger,countries)
+            city, country, country_boosted,st_tagger,ct,cntry = FindLocation(projectText, st_tagger,countries)
             print city
             print country
             print country_boosted
             print page_at
-            CityAlreadyFound = False
-            CountryAlreadyFound = False
-            if city != "" and city!="uk":
-                for fc in FoundCity:
-                    if city.lower().replace(" ", "") == fc["City"].lower().replace(" ", ""):
-                        fc["Confidence"] = fc["Confidence"] + 2
-                        CityAlreadyFound = True
-                if CityAlreadyFound == False:
-                    FoundCity.append({"City": city, "Page": "Main page", "Confidence": 2})
-            if country_boosted != "":
-                for fc in FoundCountry:
-                    if country_boosted.lower().replace(" ", "") == fc["Country"].lower().replace(" ", ""):
-                        fc["Confidence"] = fc["Confidence"] + 2
-                        CountryAlreadyFound = True
-                if CountryAlreadyFound == False:
-                    FoundCountry.append({"Country": country_boosted, "Page": "Main page", "Confidence": 2})
+            ######################################
+            FoundCity, FoundCountry = AddRelevantLocationsToList(city, country_boosted, FoundCity, FoundCountry, 2,
+                                                                 "Main page")
+            ####################################
             c, cn, conf = findBestMatch(FoundCity, FoundCountry)
             if c != "" and cn != "":
                 try:
@@ -379,28 +384,16 @@ for row in results:
         projectText = projectText + " "+doc["text"]
     page_at = "General"
     projectText = checkEngAndTranslate(projectText)
-    city, country, country_boosted,st_tagger = FindLocation(projectText, st_tagger,countries)
+    city, country, country_boosted,st_tagger,ct,cntry = FindLocation(projectText, st_tagger,countries)
     print city
     print country
     print country_boosted
     print page_at
 
-    CityAlreadyFound = False
-    CountryAlreadyFound = False
-    if city != "" and city!="uk":
-        for fc in FoundCity:
-            if city.lower().replace(" ", "") == fc["City"].lower().replace(" ", ""):
-                fc["Confidence"] = fc["Confidence"] + 1
-                CityAlreadyFound = True
-        if CityAlreadyFound == False:
-            FoundCity.append({"City": city, "Page": "General", "Confidence": 1})
-    if country_boosted != "":
-        for fc in FoundCountry:
-            if country.lower().replace(" ", "") == fc["Country"].lower().replace(" ", ""):
-                fc["Confidence"] = fc["Confidence"] + 1
-                CountryAlreadyFound = True
-        if CountryAlreadyFound == False:
-            FoundCountry.append({"Country": country_boosted, "Page": "General", "Confidence": 1})
+    ######################################
+    FoundCity, FoundCountry = AddRelevantLocationsToList(city, country_boosted, FoundCity, FoundCountry, 1,
+                                                         "General")
+    ####################################
     c, cn, conf = findBestMatch(FoundCity, FoundCountry)
     if c != "" and cn != "":
         try:
