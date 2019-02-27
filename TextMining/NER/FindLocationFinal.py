@@ -41,6 +41,7 @@ def checkEngAndTranslate(project_text):
             except:
                 print "Timeout translation"
                 translationTimeout = translationTimeout + 1
+                en_text  = ""
             translated = translated + " " + en_text
             text_to_translate = ""
         print translated
@@ -182,7 +183,7 @@ def AddRelevantLocationsToList(city,country_boosted,FoundCity,FoundCountry,Confi
     return FoundCity,FoundCountry
 
 
-csvfile = open('locations_final_fin2.csv', 'w')
+csvfile = open('locations_final_fin4.csv', 'w')
 writer = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 writer.writerow(["ProjectID","ProjectName","FoundCity","FoundCountry","DatabaseCity","DatabaseCountry","Confidence","FoundWhere","Website"])
 db = MySQLdb.connect(host, username, password, database, charset='utf8')
@@ -199,7 +200,7 @@ for r in results2:
     countries.append(r[0].lower())
 cursor2 = db2.cursor()
 print("Selecting projects from mysql")
-sql_projects = "Select idProjects,ProjectName,ProjectWebpage from Projects where Exclude = 0 and idProjects> 6800"
+sql_projects = "Select idProjects,ProjectName,ProjectWebpage from Projects where Exclude = 0 and idProjects> 13193"
 cursor.execute(sql_projects)
 results = cursor.fetchall()
 #csvfile = open('locations_tab2.csv', 'w')
