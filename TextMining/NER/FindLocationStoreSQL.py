@@ -11,7 +11,6 @@ from mtranslate import translate
 translationTimeout = 0
 def checkEngAndTranslate(project_text):
     global translationTimeout
-    print("Language detection")
     language = 'en'
     if project_text == "":
         language = 'en'
@@ -130,7 +129,7 @@ def FindLocation(project_text,st_tagger,countries1):
     print "Max country boosted:" + max_country
     return max_city,max_country,max_country_boosted,st_tagger,cities,countries_boosted
 
-def findBestMatch(FoundCity,FoundCountry):
+def findBestMatch(FoundCity,FoundCountry,database_country):
     pair_candidates = []
     for i in range(0,5):
         for j in range(0,5):
@@ -150,12 +149,36 @@ def findBestMatch(FoundCity,FoundCountry):
     City = ""
     Country = ""
     Score = 0
+    selected_pair = None
     for pair in pair_candidates:
         if pair["Score"]>Score:
             Score = pair["Score"]
             City = pair["City"]
             Country = pair["Country"]
-    return City,Country,Score
+            selected_pair = pair
+    if Country == "":
+        return City, Country, Score
+    if database_country == "":
+        return City,Country,Score
+    if database_country == Country:
+        return City,Country,Score
+    else:
+        while database_country != Country:
+            pair_candidates.remove(selected_pair)
+            City = ""
+            Country = ""
+            Score = 0
+            selected_pair = None
+            for pair in pair_candidates:
+                if pair["Score"] > Score:
+                    Score = pair["Score"]
+                    City = pair["City"]
+                    Country = pair["Country"]
+                    selected_pair = pair
+            if database_country == Country:
+                return City, Country, Score
+            if len(pair_candidates)==1:
+                return "",database_country
 
 def AddRelevantLocationsToList(city,country_boosted,FoundCity,FoundCountry,Confidence,PageName):
     CityAlreadyFound = False
@@ -188,6 +211,21 @@ def AddRelevantLocationsToList(city,country_boosted,FoundCity,FoundCountry,Confi
                         FoundCountry.append({"Country": ca, "Page": PageName, "Confidence": Confidence,"Mentions":cntry[ca]})
     return FoundCity,FoundCountry
 
+def WriteToDB(City,Country,ProjectId,Confidence,Location,Version,cursor,db,database_country):
+    sql = None
+    if database_country!="":
+        if database_country == Country:
+            if City != "":
+                sql = "UPDATE  ProjectLocation SET City='{0}',DataTrace='{1}',Confidence={2},FoundWhere='{3}' WHERE Projects_idProjects={4} and Country='{5}';".format(City," City text mined, Country from datasource",Confidence,Location,ProjectId,Country)
+        if database_country!=Country:
+            print("Country conflict in project:"+str(ProjectId))
+    else:
+        sql = "Insert into ProjectLocation (Type,City,Country,Projects_idProjects,Original_idProjects,IsLocationFromDataset,Confidence,FoundWhere,Version)" \
+          "Values ('{0}','{1}','{2}',{3},{4},0,{5},'{6}','{7}')".format("Main",City,Country,ProjectId,ProjectId,Confidence,Location,Version)
+    if sql!=None:
+        cursor.execute(sql)
+        db.commit()
+
 
 csvfile = open('locations_final_fin4.csv', 'w')
 writer = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -206,7 +244,7 @@ for r in results2:
     countries.append(r[0].lower())
 cursor2 = db2.cursor()
 print("Selecting projects from mysql")
-sql_projects = "Select idProjects,ProjectName,ProjectWebpage from Projects where Exclude = 0 and idProjects> 13193"
+sql_projects = "Select idProjects,ProjectName,ProjectWebpage from Projects where Exclude = 0"
 cursor.execute(sql_projects)
 results = cursor.fetchall()
 #csvfile = open('locations_tab2.csv', 'w')
@@ -215,6 +253,7 @@ mongo_db = mongo_client.ESID
 st_tagger = StanfordTagger('../Resources')
 for row in results:
     idProject = row[0]
+    print("Project ID:"+str(idProject))
     projectName = row[1]
     projectWebpage = row[2]
     page_at = ""
@@ -231,6 +270,8 @@ for row in results:
         database_country = r[1]
         if database_country != None:
             database_country = database_country.encode('utf-8')
+    if (database_city==None or database_city=="" or database_city==" ") and(database_country==None or database_country==" " or database_country==""):
+        continue
 
     documents = mongo_db.crawl20190109.find(
         {"mysql_databaseID": str(idProject), "page_title": {"$regex": "([C|c]ontact)"}},
@@ -264,7 +305,8 @@ for row in results:
 
     if len(FoundCity)>0 and len(FoundCountry)>0:
         try:
-            c, cn, conf = findBestMatch(FoundCity, FoundCountry)
+            c, cn, conf = findBestMatch(FoundCity, FoundCountry,database_country)
+            WriteToDB(c.title(), cn, idProject, 10, "Contact", "v1", cursor, db, database_country)
             writer.writerow([idProject,projectName,c.title(),cn,database_city,database_country,10,"Contact",projectWebpage])
         except:
             print("Problem")
@@ -287,9 +329,10 @@ for row in results:
     FoundCity,FoundCountry = AddRelevantLocationsToList(city,country_boosted,FoundCity,FoundCountry,8,"About")
     ####################################
 
-    c,cn,conf = findBestMatch(FoundCity,FoundCountry)
+    c,cn,conf = findBestMatch(FoundCity,FoundCountry,database_country)
     if c!="" and cn!="":
         try:
+            WriteToDB(c.title(), cn, idProject, 10, "About", "v1", cursor, db, database_country)
             writer.writerow(
             [idProject, projectName, c.title(), cn, database_city, database_country,
              conf, "About",projectWebpage,])
@@ -315,12 +358,13 @@ for row in results:
     ######################################
     FoundCity, FoundCountry = AddRelevantLocationsToList(city, country_boosted, FoundCity, FoundCountry, 6, "Description")
     ####################################
-    c,cn,conf = findBestMatch(FoundCity,FoundCountry)
+    c,cn,conf = findBestMatch(FoundCity,FoundCountry,database_country)
     if c!="" and cn!="":
         print(c)
         print(cn)
         print(database_city)
         try:
+            WriteToDB(c.title(), cn, idProject, conf, "Description", "v1", cursor, db, database_country)
             writer.writerow(
             [idProject, projectName, c.title().encode('utf-8'), cn.encode('utf-8'), database_city, database_country.encode('utf-8'),
             conf, "Description",projectWebpage.encode('utf-8')])
@@ -348,9 +392,10 @@ for row in results:
         FoundCity, FoundCountry = AddRelevantLocationsToList(city, country_boosted, FoundCity, FoundCountry, 4,
                                                              "One page")
         ####################################
-        c, cn, conf = findBestMatch(FoundCity, FoundCountry)
+        c, cn, conf = findBestMatch(FoundCity, FoundCountry,database_country)
         if c != "" and cn != "":
             try:
+                WriteToDB(c.title(), cn, idProject, conf, "One page", "v1", cursor, db, database_country)
                 writer.writerow(
                 [idProject, projectName, c.title(), cn, database_city, database_country,
                  conf, "One page", projectWebpage, ])
@@ -377,9 +422,10 @@ for row in results:
             FoundCity, FoundCountry = AddRelevantLocationsToList(city, country_boosted, FoundCity, FoundCountry, 2,
                                                                  "Main page")
             ####################################
-            c, cn, conf = findBestMatch(FoundCity, FoundCountry)
+            c, cn, conf = findBestMatch(FoundCity, FoundCountry,database_country)
             if c != "" and cn != "":
                 try:
+                    WriteToDB(c.title(), cn, idProject, conf, "Main page", "v1", cursor, db, database_country)
                     writer.writerow(
                     [idProject, projectName, c.title(), cn, database_city, database_country,
                      conf, "Main page", projectWebpage, ])
@@ -401,9 +447,10 @@ for row in results:
     FoundCity, FoundCountry = AddRelevantLocationsToList(city, country_boosted, FoundCity, FoundCountry, 1,
                                                          "General")
     ####################################
-    c, cn, conf = findBestMatch(FoundCity, FoundCountry)
+    c, cn, conf = findBestMatch(FoundCity, FoundCountry,database_country)
     if c != "" and cn != "":
         try:
+            WriteToDB(c.title(), cn, idProject, conf, "General", "v1", cursor, db, database_country)
             writer.writerow(
             [idProject, projectName, c.title(), cn, database_city, database_country,
              conf, "General", projectWebpage, ])
@@ -416,6 +463,7 @@ for row in results:
         cn = FoundCountry[0]["Country"]
     try:
         if c!="" or cn!="":
+            WriteToDB(c.title(), cn, idProject, conf, "AfterAll", "v1", cursor, db, database_country)
             writer.writerow(
             [idProject, projectName, c.title(), cn, database_city, database_country,
             0.5, "AfterAll", projectWebpage, ])

@@ -391,6 +391,14 @@ def project_view(id):
     conn = mysql.connect()
     cursor = conn.cursor()
     project_id = id
+
+    sq = "SELECT Distinct(TopicName) as tn,Sum(TopicScore)/Count(TopicName) FROM EDSI.Project_Topics where Version like '%v3%' group by tn;"
+    cursor.execute(sq)
+    means = cursor.fetchall()
+    topic_means = {}
+    for m in means:
+        topic_means[m[0]]=m[1]
+
     q = "Select * from Projects where idProjects={0} and Exclude=0".format(project_id)
     cursor.execute(q)
     project_list = cursor.fetchall()
@@ -443,13 +451,18 @@ def project_view(id):
         project_data['Objectives']=mark[2]
         project_data['Actors_s']=mark[3]
         project_data['Innovativeness']=mark[4]
-    q5 = "Select * from Project_Topics where Projects_idProject={0} and Version like '%v2%'".format(project_id)
+    q5 = "Select * from Project_Topics where Projects_idProject={0} and Version like '%v3%'".format(project_id)
     cursor.execute(q5)
     topics = cursor.fetchall()
     r_topics = []
     for topic in topics:
         lenght = topic[9]
         score = topic[2]
+        topic_name = topic[1]
+        keywords = topic[4].split(',')
+        if len(keywords)<=1:
+            continue
+
         if lenght>100000:
             score = score*10
         elif lenght>50000:
@@ -458,11 +471,23 @@ def project_view(id):
             score = score*2
         elif lenght>10000:
             score = score*1.7
-        if score>3:
+
+        if score>0.7*topic_means[topic_name]:
             r_topics.append({"TopicName":topic[1],"TopicScore1":topic[2],"TopicScore2":topic[3],"Keywords":topic[4]})
     r_topics2 = sorted(r_topics, key=lambda k: k['TopicScore1'],reverse=True)
-    r_topics2 = r_topics2[:10]
-    project_data['Topic'] = r_topics2
+    if len(r_topics2)==0:
+        cursor.close()
+        conn.close()
+        project_data['Topic'] = r_topics2
+
+        return render_template('project_view.html', project=project_data)
+    top_topic = r_topics2[0]
+    r_topics3 = []
+    for r_top in r_topics2:
+        if r_top["TopicScore1"]>0.4*top_topic["TopicScore1"]:
+            r_topics3.append(r_top)
+    r_topics3 = r_topics3[:10]
+    project_data['Topic'] = r_topics3
     cursor.close()
     conn.close()
     return render_template('project_view.html',project = project_data)
