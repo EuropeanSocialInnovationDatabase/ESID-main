@@ -500,21 +500,23 @@ def project_view(id):
         lenght = topic[9]
         score = topic[2]
         topic_name = topic[1]
-        keywords = topic[4].split(',')
-        if len(keywords)<=1:
-            continue
-
-        if lenght>100000:
-            score = score*10
-        elif lenght>50000:
-            score = score*7
-        elif lenght>30000:
-            score = score*2
-        elif lenght>10000:
-            score = score*1.7
-
-        if score>0.7*topic_means[topic_name]:
+        if score>0.7:
             r_topics.append({"TopicName":topic[1],"TopicScore1":topic[2],"TopicScore2":topic[3],"Keywords":topic[4]})
+    #     keywords = topic[4].split(',')
+    #     if len(keywords)<=1:
+    #         continue
+    #
+    #     if lenght>100000:
+    #         score = score*10
+    #     elif lenght>50000:
+    #         score = score*7
+    #     elif lenght>30000:
+    #         score = score*2
+    #     elif lenght>10000:
+    #         score = score*1.7
+    #
+    #     if score>0.7*topic_means[topic_name]:
+    #         r_topics.append({"TopicName":topic[1],"TopicScore1":topic[2],"TopicScore2":topic[3],"Keywords":topic[4]})
     r_topics2 = sorted(r_topics, key=lambda k: k['TopicScore1'],reverse=True)
     if len(r_topics2)==0:
         cursor.close()
@@ -523,12 +525,12 @@ def project_view(id):
 
         return render_template('project_view.html', project=project_data)
     top_topic = r_topics2[0]
-    r_topics3 = []
-    for r_top in r_topics2:
-        if r_top["TopicScore1"]>0.4*top_topic["TopicScore1"]:
-            r_topics3.append(r_top)
-    r_topics3 = r_topics3[:10]
-    project_data['Topic'] = r_topics3
+    # r_topics3 = []
+    # for r_top in r_topics2:
+    #     if r_top["TopicScore1"]>0.4*top_topic["TopicScore1"]:
+    #         r_topics3.append(r_top)
+    r_topics2 = r_topics2[:10]
+    project_data['Topic'] = r_topics2
     cursor.close()
     conn.close()
     return render_template('project_view.html',project = project_data)
