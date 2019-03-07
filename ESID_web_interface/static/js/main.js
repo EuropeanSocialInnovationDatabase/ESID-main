@@ -4,6 +4,27 @@
 jQuery(document).ready(function ($) {
 
 
+    $('.list-group li').click(function(e) {
+
+        e.preventDefault()
+
+        var $that = $(this);
+
+        $that.parent().find('li').removeClass('active');
+        $that.addClass('active');
+    });
+
+    $('#add_data').click(function(e) {
+        var $that = $(this);
+
+        var $instance = $('li.list-group-item.active');
+        var $value_added = $instance.text();
+        $("#additional_topics").append('<input type="checkbox" class="form-check-input" checked id="'+$value_added+'" value="'+$value_added+'" name="topic_added_checkbox"><label>'+$value_added+'</label><br/>');
+
+    });
+
+
+
 
 	$(window).load(function () {
 		$(".loaded").fadeOut();
@@ -158,7 +179,6 @@ jQuery(document).ready(function ($) {
 //        autoplayHoverPause: true
 //
 //    });
-
 
 
 // scroll Up

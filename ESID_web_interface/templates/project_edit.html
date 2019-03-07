@@ -18,7 +18,6 @@
         <!--For Plugins external css-->
         <link rel="stylesheet" href="{{ url_for('static', filename='css/plugins.css') }}" />
         <link rel="stylesheet" href="{{ url_for('static', filename='css/roboto-webfont.css')}}" />
-
         <!--Theme custom css -->
         <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}}">
 
@@ -115,7 +114,18 @@
                                         <u>Project Type (if available):</u> <input value="{{project['type']}}" type="text" class="form-control" id="project_type" name="project_type" placeholder="Enter project type"><br/>
                                         <u>Project Start Date:</u> <input type="date" value="{{project['DateStart']}}" class="form-control" id="project_date_start" name="project_date_start" placeholder="Enter project start date"><br/>
                                         <u>Project End Date:</u> <input type="date" value="{{project['DateEnd']}}" class="form-control" id="project_date_end" name="project_date_end" placeholder="Enter project start date"><br/>
-                                        <u>Descriptions:</u><br/>
+                                            <table border="0" id="Topics"><tr><td><u>Topics</u></td><td><u>Exclude</u></td></tr>
+                                                {% for topic in project['Topics'] %}
+                                                <tr><td>{{topic}}</td><td><input type="checkbox" class="form-check-input" id="{{topic}}" value="{{topic}}" name="topic_checkbox"></td></tr>
+                                                {% endfor %}
+
+                                            </table>
+                                            <div id="additional_topics"><u>Topics to add:</u><br/></div>
+                                            <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Add Topic</button><br/>
+
+
+
+                                            <u>Descriptions:</u><br/>
                                         <textarea name="project_description" id="project_description" cols="150" rows="10" >{% for desc in  project['Descriptions'] %} {{desc}} {% endfor %}</textarea>
                                          <u>Comment:</u><br/>
                                         <textarea name="project_comment" id="project_comment" cols="150" rows="10" required></textarea>
@@ -123,6 +133,114 @@
                                             <input type="submit" class="form-control" id="submit" value="Submit"/>
                                             <input type="hidden" class="form-control" name="project_id" id="project_id" value="{{project['id']}}"/>
                                         </form>
+
+<!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+  <div class="modal-dialog" style="width:800px">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Add Topic</h4>
+      </div>
+      <div class="modal-body">
+        <p style="color:#000">Some text in the modal.</p>
+          <ul class="list-group">
+                <li class="list-group-item active"><u>http://www.gate.ac.uk/ns/ontologies/knowmak/bioeconomy</u></li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/agriculture_and_forestry</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/biomass</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/food_consumption</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/food_production</li>
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/land_use</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/marine_resources</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/marine_technology</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/food_consumption</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/food_production</li>
+              <li class="list-group-item"><u>http://www.gate.ac.uk/ns/ontologies/knowmak/climate_change_and_the_environment</u></li>
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/air_quality_management</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/carbon_footprint</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/noise</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/packaging</li>
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/soil_quality</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/waste_management_and_recycling</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/water_resources</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/water_systems</li>
+                <li class="list-group-item"><u>http://www.gate.ac.uk/ns/ontologies/knowmak/energy</u></li>
+                     <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/alternative_fuels</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/biofuels</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/carbon_capture_and_storage</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/concentrated_solar_power</li>
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/energy_efficiency</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/energy_storage</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/energy_supply</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/geothermal_energy</li>
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/hydro_power</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/low_carbon_technology</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/nuclear_energy</li>
+                              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/ocean_energy</li>
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/photovoltaics</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/renewable_heating_and_cooling</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/smart_cities_and_communities</li>
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/wind_energy</li>
+                <li class="list-group-item"><u>http://www.gate.ac.uk/ns/ontologies/knowmak/health</u></li>
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/active_ageing_and_self_management_of_health</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/preventing_disease</li>
+                              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/treating_and_managing_disease</li>
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/e_health</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/health_biotechnology</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/health_care_provision_and_integrated_care</li>
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/health_data</li>
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/personalized_medicine</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/pharmaceuticals</li>
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/social_care</li>
+              <li class="list-group-item"><u>http://www.gate.ac.uk/ns/ontologies/knowmak/security</u></li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/border_security</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/catastrophe_fighting</li>
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/crime_and_terrorism</li>
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/digital_security</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/public_safety_communication</li>
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/security_monitoring</li>
+
+              <li class="list-group-item"><u>http://www.gate.ac.uk/ns/ontologies/knowmak/society</u></li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/co_creation</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/cultural_heritage</li>
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/democracy</li>
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/education</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/employment</li>
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/entrepreneurship</li>
+
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/global_engagement</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/housing</li>
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/knowledge_transfer</li>
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/local_engagement</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/migration</li>
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/poverty</li>
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/social_inequality</li>
+
+              <li class="list-group-item"><u>http://www.gate.ac.uk/ns/ontologies/knowmak/transport</u></li>
+
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/aeronautics</li>
+                <li class="list-group-item"> http://www.gate.ac.uk/ns/ontologies/knowmak/automobiles</li>
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/freight</li>
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/intelligent_transport</li>
+                <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/maritime_transport</li>
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/rail_transport</li>
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/sustainable_transport</li>
+
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/transport_infrastructure</li>
+              <li class="list-group-item">http://www.gate.ac.uk/ns/ontologies/knowmak/urban_mobility</li>
+</ul>
+
+      </div>
+      <div class="modal-footer">
+           <button type="button" class="btn btn-default" id="add_data">Add topic</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 
                                     </div>
@@ -217,6 +335,7 @@
         <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
         <script src="{{ url_for('static', filename='js/vendor/bootstrap.min.js')}}"></script>
         <script src="{{ url_for('static', filename='js/semanticus.js')}}"></script>
+
         <script src="{{ url_for('static', filename='js/plugins.js')}}"></script>
         <script src="{{ url_for('static', filename='js/modernizr.js')}}"></script>
         <script src="{{ url_for('static', filename='js/main.js')}}"></script>

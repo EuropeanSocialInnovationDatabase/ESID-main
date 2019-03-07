@@ -20,7 +20,7 @@ def checkEngAndTranslate(project_text):
         except:
             print("Error translating")
     original_text = project_text
-    print "Language:" + str(language)
+    print("Language:" + str(language))
     if language == "en":
         return project_text
     if language != "en":
@@ -38,12 +38,12 @@ def checkEngAndTranslate(project_text):
             try:
                 en_text = translate(text_to_translate.encode('utf-8').strip(), "en", "auto")
             except:
-                print "Timeout translation"
+                print("Timeout translation")
                 translationTimeout = translationTimeout + 1
                 en_text  = ""
             translated = translated + " " + en_text
             text_to_translate = ""
-        print translated
+        print(translated)
         project_text = translated
         print("End translating")
         return project_text
@@ -103,9 +103,9 @@ def FindLocation(project_text,st_tagger,countries1):
         print("Error with st_tagger")
         st_tagger = StanfordTagger('../Resources')
 
-    print cities
-    print countries
-    print countries_boosted
+    print(cities)
+    print(countries)
+    print(countries_boosted)
     max_city = ""
     max_city_count = 0
     max_country = ""
@@ -124,9 +124,9 @@ def FindLocation(project_text,st_tagger,countries1):
         if countries_boosted[country] > max_country_boosted_count:
             max_country_boosted_count = countries_boosted[country]
             max_country_boosted = country
-    print "Max city:" + max_city
-    print "Max country:" + max_country
-    print "Max country boosted:" + max_country
+    print("Max city:" + max_city)
+    print("Max country:" + max_country)
+    print("Max country boosted:" + max_country)
     return max_city,max_country,max_country_boosted,st_tagger,cities,countries_boosted
 
 def findBestMatch(FoundCity,FoundCountry,database_country):
@@ -158,27 +158,32 @@ def findBestMatch(FoundCity,FoundCountry,database_country):
             selected_pair = pair
     if Country == "":
         return City, Country, Score
-    if database_country == "":
+    elif database_country == "":
         return City,Country,Score
-    if database_country == Country:
+    elif Country in database_country:
         return City,Country,Score
+    elif "Europe" in database_country or "international" in database_country or "amp" in database_country:
+        return City, Country, Score
     else:
         while database_country != Country:
-            pair_candidates.remove(selected_pair)
-            City = ""
-            Country = ""
-            Score = 0
-            selected_pair = None
-            for pair in pair_candidates:
-                if pair["Score"] > Score:
-                    Score = pair["Score"]
-                    City = pair["City"]
-                    Country = pair["Country"]
-                    selected_pair = pair
-            if database_country == Country:
-                return City, Country, Score
-            if len(pair_candidates)==1:
-                return "",database_country
+            if len(pair_candidates)>0:
+                pair_candidates.remove(selected_pair)
+                City = ""
+                Country = ""
+                Score = 0
+                selected_pair = None
+                for pair in pair_candidates:
+                    if pair["Score"] > Score:
+                        Score = pair["Score"]
+                        City = pair["City"]
+                        Country = pair["Country"]
+                        selected_pair = pair
+                if Country in database_country  :
+                    return City, Country, Score
+                if len(pair_candidates)==1:
+                    return "",database_country,-1
+            else:
+                return City,Country,Score
 
 def AddRelevantLocationsToList(city,country_boosted,FoundCity,FoundCountry,Confidence,PageName):
     CityAlreadyFound = False
@@ -187,7 +192,8 @@ def AddRelevantLocationsToList(city,country_boosted,FoundCity,FoundCountry,Confi
         for fc in FoundCity:
             if city.lower().replace(" ", "") == fc["City"].lower().replace(" ", ""):
                 fc["Confidence"] = fc["Confidence"] + Confidence
-                fc["Mentions"] = fc["Mentions"] + ct[country_boosted]
+                if country_boosted in ct.keys():
+                    fc["Mentions"] = fc["Mentions"] + ct[country_boosted]
                 CityAlreadyFound = True
         if CityAlreadyFound == False:
             FoundCity.append({"City": city, "Page": PageName, "Confidence": Confidence,"Mentions":ct[city]})
@@ -216,9 +222,14 @@ def WriteToDB(City,Country,ProjectId,Confidence,Location,Version,cursor,db,datab
     if database_country!="":
         if database_country == Country:
             if City != "":
-                sql = "UPDATE  ProjectLocation SET City='{0}',DataTrace='{1}',Confidence={2},FoundWhere='{3}' WHERE Projects_idProjects={4} and Country='{5}';".format(City," City text mined, Country from datasource",Confidence,Location,ProjectId,Country)
+                sql = "UPDATE  ProjectLocation SET City='{0}',DataTrace='{1}',Confidence={2},FoundWhere='{3}' WHERE Projects_idProjects={4} and Country='{5}';".format(City," City text mined, Country from datasource",Confidence,Location,ProjectId,original_database_cntry)
         if database_country!=Country:
-            print("Country conflict in project:"+str(ProjectId))
+            if Country in database_country:
+                sql = "UPDATE  ProjectLocation SET City='{0}',DataTrace='{1}',Confidence={2},FoundWhere='{3}' WHERE Projects_idProjects={4} and Country='{5}';".format(
+                    City, " City text mined, Country from datasource", Confidence, Location, ProjectId,
+                    original_database_cntry)
+            else:
+                print("Country conflict in project:"+str(ProjectId))
     else:
         sql = "Insert into ProjectLocation (Type,City,Country,Projects_idProjects,Original_idProjects,IsLocationFromDataset,Confidence,FoundWhere,Version)" \
           "Values ('{0}','{1}','{2}',{3},{4},0,{5},'{6}','{7}')".format("Main",City,Country,ProjectId,ProjectId,Confidence,Location,Version)
@@ -226,6 +237,14 @@ def WriteToDB(City,Country,ProjectId,Confidence,Location,Version,cursor,db,datab
         cursor.execute(sql)
         db.commit()
 
+def processDatabaseCountry(country):
+    if country == "USA":
+        country = "United States"
+    if country == "UK":
+        country = "United Kingdom"
+    if "UK" in country:
+        country = country.replace("UK","United Kingdom")
+    return country
 
 csvfile = open('locations_final_fin4.csv', 'w')
 writer = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -244,7 +263,7 @@ for r in results2:
     countries.append(r[0].lower())
 cursor2 = db2.cursor()
 print("Selecting projects from mysql")
-sql_projects = "Select idProjects,ProjectName,ProjectWebpage from Projects where Exclude = 0"
+sql_projects = "Select idProjects,ProjectName,ProjectWebpage from Projects where Exclude = 0 and idProjects>6804"
 cursor.execute(sql_projects)
 results = cursor.fetchall()
 #csvfile = open('locations_tab2.csv', 'w')
@@ -272,7 +291,12 @@ for row in results:
             database_country = database_country.encode('utf-8')
     if (database_city==None or database_city=="" or database_city==" ") and(database_country==None or database_country==" " or database_country==""):
         continue
-
+        original_database_cntry = ""
+        database_country = ""
+        database_city = ""
+    else:
+        original_database_cntry = database_country
+        database_country = processDatabaseCountry(database_country)
     documents = mongo_db.crawl20190109.find(
         {"mysql_databaseID": str(idProject), "page_title": {"$regex": "([C|c]ontact)"}},
         no_cursor_timeout=True).batch_size(100)
@@ -284,10 +308,10 @@ for row in results:
     projectText = checkEngAndTranslate(projectText)
     country_boosted = ""
     city, country, country_boosted,st_tagger,ct,cntry = FindLocation(projectText, st_tagger,countries)
-    print city
-    print country
-    print country_boosted
-    print page_at
+    print(city)
+    print(country)
+    print(country_boosted)
+    print(page_at)
     if city!="" and city!="uk":
         FoundCity.append({"City":city,"Page":"Contact","Confidence":10,"Mentions":ct[city]})
         for c in ct:
@@ -320,10 +344,10 @@ for row in results:
         projectText = projectText + " " + text
     projectText = checkEngAndTranslate(projectText)
     city, country, country_boosted,st_tagger,ct,cntry = FindLocation(projectText,st_tagger,countries)
-    print city
-    print country
-    print country_boosted
-    print page_at
+    print(city)
+    print(country)
+    print(country_boosted)
+    print(page_at)
 
     ######################################
     FoundCity,FoundCountry = AddRelevantLocationsToList(city,country_boosted,FoundCity,FoundCountry,8,"About")
@@ -350,10 +374,10 @@ for row in results:
         projectText = projectText + " " + text
     projectText = checkEngAndTranslate(projectText)
     city, country, country_boosted,st_tagger,ct,cntry = FindLocation(projectText, st_tagger,countries)
-    print city
-    print country
-    print country_boosted
-    print page_at
+    print(city)
+    print(country)
+    print(country_boosted)
+    print(page_at)
 
     ######################################
     FoundCity, FoundCountry = AddRelevantLocationsToList(city, country_boosted, FoundCity, FoundCountry, 6, "Description")
@@ -383,10 +407,10 @@ for row in results:
             projectText = projectText + " " + text
         projectText = checkEngAndTranslate(projectText)
         city, country, country_boosted,st_tagger,ct,cntry = FindLocation(projectText, st_tagger,countries)
-        print city
-        print country
-        print country_boosted
-        print page_at
+        print(city)
+        print(country)
+        print(country_boosted)
+        print(page_at)
 
         ######################################
         FoundCity, FoundCountry = AddRelevantLocationsToList(city, country_boosted, FoundCity, FoundCountry, 4,
@@ -414,10 +438,10 @@ for row in results:
         if projectText !="":
             projectText = checkEngAndTranslate(projectText)
             city, country, country_boosted,st_tagger,ct,cntry = FindLocation(projectText, st_tagger,countries)
-            print city
-            print country
-            print country_boosted
-            print page_at
+            print(city)
+            print(country)
+            print(country_boosted)
+            print(page_at)
             ######################################
             FoundCity, FoundCountry = AddRelevantLocationsToList(city, country_boosted, FoundCity, FoundCountry, 2,
                                                                  "Main page")
@@ -438,10 +462,10 @@ for row in results:
     page_at = "General"
     projectText = checkEngAndTranslate(projectText)
     city, country, country_boosted,st_tagger,ct,cntry = FindLocation(projectText, st_tagger,countries)
-    print city
-    print country
-    print country_boosted
-    print page_at
+    print(city)
+    print(country)
+    print(country_boosted)
+    print(page_at)
 
     ######################################
     FoundCity, FoundCountry = AddRelevantLocationsToList(city, country_boosted, FoundCity, FoundCountry, 1,

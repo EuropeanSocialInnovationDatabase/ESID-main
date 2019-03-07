@@ -122,6 +122,14 @@ def edit_project(id):
         project_data['Objectives'] = mark[2]
         project_data['Actors_s'] = mark[3]
         project_data['Innovativeness'] = mark[4]
+    q5 = "Select TopicName,TopicScore,KeyWords from Project_Topics where Projects_idProject={0} and Version like '%v4%' order by TopicScore desc limit 10".format(
+        project_id);
+    cursor.execute(q5)
+    topics = cursor.fetchall()
+    project_data['Topics'] = []
+    for topic in topics:
+        if topic[1]>0.7:
+            project_data['Topics'].append(topic[0])
     cursor.close()
     conn.close()
     return render_template('project_edit.html', project=project_data)
@@ -131,6 +139,8 @@ def edit_submit():
     conn = mysql.connect()
     cursor = conn.cursor()
     project_id = request.form['project_id']
+    topics_to_exclude = request.form.getlist('topic_checkbox')
+    topics_to_add = request.form.getlist('topic_added_checkbox')
     q = "Select * from Projects where idProjects={0} and Exclude=0".format(project_id)
     cursor.execute(q)
     project_list = cursor.fetchall()
@@ -145,6 +155,9 @@ def edit_submit():
         project_data['Facebook'] = project[12]
         project_data['Twitter'] = project[13]
         project_data['FirstDataSource'] = project[16]
+
+
+
     project_data['Locations'] = []
     q1 = "Select * From ProjectLocation where Projects_idProjects={0}".format(project_id)
     cursor.execute(q1)
@@ -323,7 +336,7 @@ def edit_submit():
         conn.commit()
 
 
-    if len(project_data['Locations'])>0 and Address!=project_data['Locations'][0]['address']:
+    if len(project_data['Locations'])>0 and Address.strip()!=str(project_data['Locations'][0]['address']):
         sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id,Comment)" \
               "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}','{8}')".format(user,0,1,project_id,'ProjectLocation','Address',Address,project_data['Locations'][0]['id_location'],Comment)
         cursor.execute(sql)
@@ -335,7 +348,7 @@ def edit_submit():
                                                                                   -1,Comment)
         cursor.execute(sql)
         conn.commit()
-    if len(project_data['Locations'])>0 and City!=project_data['Locations'][0]['city']:
+    if len(project_data['Locations'])>0 and City.strip()!=project_data['Locations'][0]['city']:
         sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id,Comment)" \
               "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}','{8}')".format(user,0,1,project_id,'ProjectLocation','City',City,project_data['Locations'][0]['id_location'],Comment)
         cursor.execute(sql)
@@ -359,6 +372,34 @@ def edit_submit():
                                                                                   -1,Comment)
         cursor.execute(sql)
         conn.commit()
+
+
+    for topic in topics_to_add:
+        sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id,Comment)" \
+              "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}','{8}')".format(user, 1, 0, project_id,
+                                                                                        'Project_Topics',
+                                                                                        'TopicName', topic, -1,
+                                                                                        Comment)
+        cursor.execute(sql)
+        conn.commit()
+
+    for topic in topics_to_exclude:
+        sql_sel = "Select * from Project_Topics where Projects_idProject={0} and Version like '%v4%' and TopicName='{1}'".format(project_id,topic)
+        cursor.execute(sql_sel)
+        entries = cursor.fetchall()
+        id_entry = -1
+        for ent in entries:
+            id_entry = ent[0]
+
+        sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id,Comment)" \
+              "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}','{8}')".format(user, 0, 1, project_id,
+                                                                                        'Project_Topics',
+                                                                                        'Exclude', 0, id_entry,
+                                                                                        Comment)
+        cursor.execute(sql)
+        conn.commit()
+
+
     desc = ""
     for description in project_data['Descriptions']:
         desc = desc + description

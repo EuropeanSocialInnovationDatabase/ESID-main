@@ -5,13 +5,14 @@ from pymongo import MongoClient
 from TextMining.database_access import *
 import requests
 import json
-project_text = """
-A social financial system where inflation is transformed into basic income using blockchain.
-
-We believe that basic income is inevitable because of the growing optimisation and automation in almost every sector of our society, which probably will lead to loss of numerous jobs. The programmable nature of blockchain technology is making it possible to introduce a fair way to create a basic income. The idea is to issue a blockchain-based token (cryptocurrency) programmed with a negative interest in currency board with a fiat currency 1:1. The fairness is in the financing of the basic income, which will come not from the societal consumption, but from the storage of means.
-
-
-"""
+project_text = ""
+# project_text = """
+# A social financial system where inflation is transformed into basic income using blockchain.
+#
+# We believe that basic income is inevitable because of the growing optimisation and automation in almost every sector of our society, which probably will lead to loss of numerous jobs. The programmable nature of blockchain technology is making it possible to introduce a fair way to create a basic income. The idea is to issue a blockchain-based token (cryptocurrency) programmed with a negative interest in currency board with a fiat currency 1:1. The fairness is in the financing of the basic income, which will come not from the societal consumption, but from the storage of means.
+#
+#
+# """
 db = MySQLdb.connect(host, username, password, database, charset='utf8')
 cursor = db.cursor()
 sql_projects = "Select ProjectName, idProjects from Projects where Exclude = 0"
@@ -49,7 +50,7 @@ for pro in results:
             keywords = keywords[1:]
             insert_sql = "Insert into Project_Topics (TopicName,TopicScore,KeyWords,Projects_idProject,Comment,Version,Sources,TopicScore2,Text_length)" \
                          "VALUES ('{0}',{1},'{2}',{3},'{4}','{5}','{6}',{7},{8})".format(clas,data["classification"][clas]["score"][0],
-                                                                                 keywords,id,"Whole data, concatinated descriptions and whole webpages with titles","14/01/2018 v3 SI-new ontology","Title,Desctiptions,Webpages",data["classification"][clas]["score"][1],len(project_text))
+                                                                                 keywords,id,"Whole data, concatinated descriptions and whole webpages with titles","01/03/2018 v4 SI-new ontology","Title,Desctiptions,Webpages",data["classification"][clas]["score"][1],len(project_text))
             cursor.execute(insert_sql)
             db.commit()
     except:
