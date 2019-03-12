@@ -39,7 +39,7 @@ def find_org(org,tokens):
     return False
 
 domainMap = {
-    ".ac":"Ascension Island",
+   # ".ac":"Ascension Island",
     ".ad":"Andorra",
     ".ae":"United Arab Emirates",
     ".af":"Afghanistan",
@@ -110,7 +110,7 @@ domainMap = {
     ".er" : "Eritrea",
     ".es" : "Spain",
     ".et" : "Ethiopia",
-    ".eu" : "European Union",
+    #".eu" : "European Union",
     ".fi" : "Finland",
     ".fj" : "Fiji",
     ".fk" : "Falkland Islands",
@@ -147,7 +147,7 @@ domainMap = {
     ".il" : "Israel",
     ".im" : "Isle of Man",
     ".in" : "India",
-    ".io" : "British Indian Ocean Territory",
+    #".io" : "British Indian Ocean Territory",
     ".iq" : "Iraq",
     ".ir" : "Iran",
     ".is" : "Iceland",
@@ -181,7 +181,7 @@ domainMap = {
     ".ma" : "Morocco",
     ".mc" : "Monaco",
     ".md" : "Moldova",
-    ".me" : "Montenegro",
+   # ".me" : "Montenegro",
     ".mg" : "Madagascar",
     ".mh" : "Marshall Islands",
     ".mk" : "Macedonia",
@@ -305,7 +305,7 @@ if __name__ == '__main__':
     print("Processing database")
     db = MySQLdb.connect(host, username, password, database, charset='utf8')
     cursor = db.cursor()
-    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects, Country, City from Projects left join ProjectLocation on idProjects = Projects_idProjects where Country is Null or Country = ''"
+    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects, Country, City from Projects left join ProjectLocation on idProjects = Projects_idProjects where (Country is Null or Country = '') and Exclude=0"
     cursor.execute(sql_projects)
     results = cursor.fetchall()
 
@@ -339,7 +339,7 @@ if __name__ == '__main__':
         print "-----------"
         print "Locations:"+str(country)
         if country!="":
-            cursor.execute("Insert into ProjectLocation(Type,Country,Projects_idProjects) VALUES (%s,%s,%s)",("Main",country,str(pro.idProject)))
+            cursor.execute("Insert into ProjectLocation(Type,Country,Projects_idProjects,FoundWhere,DataTrace) VALUES (%s,%s,%s,%s,%s)",("Main",country,str(pro.idProject),"Domain extension","Country found from domain"))
             db.commit()
             output_file.write("\nLocations:"+str(country))
             output_file.close()

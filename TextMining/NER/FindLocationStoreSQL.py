@@ -263,7 +263,7 @@ for r in results2:
     countries.append(r[0].lower())
 cursor2 = db2.cursor()
 print("Selecting projects from mysql")
-sql_projects = "Select idProjects,ProjectName,ProjectWebpage from Projects where Exclude = 0 and idProjects>6804"
+sql_projects = "Select idProjects,ProjectName,ProjectWebpage from Projects where Exclude = 0 and idProjects>13889"
 cursor.execute(sql_projects)
 results = cursor.fetchall()
 #csvfile = open('locations_tab2.csv', 'w')
