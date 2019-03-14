@@ -187,7 +187,13 @@ class GeneralWebsiteRulespiderNew(CrawlSpider):
                 "url": item.URL,
                 "page_title": item.PageTitle,
                 "content": item.Content.decode('utf8',errors='ignore'),
-                "text": item.Text
+                "text": item.Text,
+                "version":"1.1",
+                "version_desc":"New entries added to the database",
+                "date_crawler_started":"13.03.2019",
+                "crawl_type":"new_entries",
+
+
             }
 
         )
