@@ -231,8 +231,8 @@ def WriteToDB(City,Country,ProjectId,Confidence,Location,Version,cursor,db,datab
             else:
                 print("Country conflict in project:"+str(ProjectId))
     else:
-        sql = "Insert into ProjectLocation (Type,City,Country,Projects_idProjects,Original_idProjects,IsLocationFromDataset,Confidence,FoundWhere,Version)" \
-          "Values ('{0}','{1}','{2}',{3},{4},0,{5},'{6}','{7}')".format("Main",City,Country,ProjectId,ProjectId,Confidence,Location,Version)
+        sql = "Insert into ProjectLocation (Type,City,Country,Projects_idProjects,Original_idProjects,IsLocationFromDataset,Confidence,FoundWhere,Version,DataTrace)" \
+          "Values ('{0}','{1}','{2}',{3},{4},0,{5},'{6}','{7}','{8}')".format("Main",City,Country,ProjectId,ProjectId,Confidence,Location,Version,"Both minded from text v0.1")
     if sql!=None:
         cursor.execute(sql)
         db.commit()
@@ -263,7 +263,7 @@ for r in results2:
     countries.append(r[0].lower())
 cursor2 = db2.cursor()
 print("Selecting projects from mysql")
-sql_projects = "Select idProjects,ProjectName,ProjectWebpage from Projects where Exclude = 0 and idProjects>13889"
+sql_projects = "Select idProjects,ProjectName,ProjectWebpage,City,Country from Projects left join ProjectLocation on idProjects=Projects_idProjects where Exclude = 0 and (Country is Null or Country = '')"
 cursor.execute(sql_projects)
 results = cursor.fetchall()
 #csvfile = open('locations_tab2.csv', 'w')
@@ -290,7 +290,7 @@ for row in results:
         if database_country != None:
             database_country = database_country.encode('utf-8')
     if (database_city==None or database_city=="" or database_city==" ") and(database_country==None or database_country==" " or database_country==""):
-        continue
+        #continue
         original_database_cntry = ""
         database_country = ""
         database_city = ""
