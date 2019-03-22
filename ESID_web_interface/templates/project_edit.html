@@ -129,6 +129,7 @@
                                         <textarea name="project_description" id="project_description" cols="150" rows="10" >{% for desc in  project['Descriptions'] %} {{desc}} {% endfor %}</textarea>
                                          <u>Comment:</u><br/>
                                         <textarea name="project_comment" id="project_comment" cols="150" rows="10" required></textarea>
+                                        KNOWMAK Ready:<input type="checkbox" class="form-check-input" id="knowmak_ready" value="knowmak_ready" name="knowmak_checkbox">
 
                                             <input type="submit" class="form-control" id="submit" value="Submit"/>
                                             <input type="hidden" class="form-control" name="project_id" id="project_id" value="{{project['id']}}"/>

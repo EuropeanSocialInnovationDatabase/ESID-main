@@ -140,6 +140,7 @@ def edit_submit():
     cursor = conn.cursor()
     project_id = request.form['project_id']
     topics_to_exclude = request.form.getlist('topic_checkbox')
+    knowmak_ready = request.form.getlist('knowmak_checkbox')
     topics_to_add = request.form.getlist('topic_added_checkbox')
     q = "Select * from Projects where idProjects={0} and Exclude=0".format(project_id)
     cursor.execute(q)
@@ -420,7 +421,10 @@ def edit_submit():
         cursor.execute(sql_user_log)
         act_location_sql = "Insert into ActorLocation (Type,City,Country,Actors_idActors) Values ('{0}','{1}','{2}','{3}')".format("Headquaters",act['City'],act['Country'],actor_id)
         cursor.execute(act_location_sql)
-
+    for kr in knowmak_ready:
+        if kr == 'knowmak_ready':
+            sql_p = "Update Projects set KNOWMAK_ready = 1 where idProjects={0}".format(project_id)
+            cursor.execute(sql_p)
     conn.commit()
     cursor.close()
     conn.close()
@@ -540,6 +544,60 @@ def project_view(id):
 def suggest_related_project():
     related_id = request.form['project_id']
     return render_template('suggest_related.html',related_project= related_id)
+
+@webpage.route('/check_projects', methods=['POST','GET'])
+def check_projects():
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    q = "Select * from Projects where ReadyForCheck=1 and KNOWMAK_ready=0 and Exclude=0"
+    cursor.execute(q)
+    project_list = cursor.fetchall()
+    projects = []
+    for pro in project_list:
+        q2 = "Select * from ProjectLocation where Projects_idProjects={0}".format(pro[0])
+        cursor.execute(q2)
+        locs = cursor.fetchall()
+        for loc in locs:
+            Country = loc[5]
+        q2 = "Select * from AdditionalProjectData where FieldName like '%Desc%' and  Projects_idProjects={0}".format(
+            pro[0])
+        cursor.execute(q2)
+        descs = cursor.fetchall()
+        Description = ""
+        for desc in descs:
+            Description = Description + desc[2] + " "
+        Description = Description[0:150] + "..."
+        projects.append({"id": pro[0], "Name": pro[2], "Country": Country, "Description": Description})
+    cursor.close()
+    conn.close()
+    return render_template('check_projects.html',projects=projects)
+
+@webpage.route('/knowmak_ready', methods=['POST','GET'])
+def knowmak_ready():
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    q = "Select * from Projects where KNOWMAK_ready=1 and Exclude=0"
+    cursor.execute(q)
+    project_list = cursor.fetchall()
+    projects = []
+    for pro in project_list:
+        q2 = "Select * from ProjectLocation where Projects_idProjects={0}".format(pro[0])
+        cursor.execute(q2)
+        locs = cursor.fetchall()
+        for loc in locs:
+            Country = loc[5]
+        q2 = "Select * from AdditionalProjectData where FieldName like '%Desc%' and  Projects_idProjects={0}".format(
+            pro[0])
+        cursor.execute(q2)
+        descs = cursor.fetchall()
+        Description = ""
+        for desc in descs:
+            Description = Description + desc[2] + " "
+        Description = Description[0:150] + "..."
+        projects.append({"id": pro[0], "Name": pro[2], "Country": Country, "Description": Description})
+    cursor.close()
+    conn.close()
+    return render_template('knowmak_ready.html',projects=projects)
 
 
 @webpage.route('/error', methods=['POST','GET'])

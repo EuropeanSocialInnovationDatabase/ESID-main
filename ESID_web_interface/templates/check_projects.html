@@ -74,8 +74,8 @@
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 
                     <ul class="nav navbar-nav navbar-right">
-                        <li><a href="/home">Search</a></li>
-                        <li class="active"><a href="/suggest_new_project">Suggest project</a></li>
+                        <li class="active"><a href="/home">Search</a></li>
+                        <li><a href="/suggest_new_project">Suggest project</a></li>
                         <li><a href="/check_projects">Check projects</a></li>
                         <li><a href="/knowmak_ready">KNOWMAK ready</a></li>
                         <li><a href="#contact">Contact</a></li>
@@ -95,38 +95,20 @@
                                 <div class="home-content">
 
                                     <h1>ESID</h1>
-                                    <div class="project_overview">
-                                        <form action="/submit_project" method="post" id="new_project">
-                                        <u>Project Name:</u> <input type="text" class="form-control" id="project_name" name="project_name" placeholder="Enter project name" required><br/>
-                                        <u>Project Website:</u> <input type="text" class="form-control" id="project_website" name="project_website" placeholder="Enter project website" required><br/>
-                                        <u>Project Facebook:</u> <input type="text" class="form-control" id="project_facebook" name="project_facebook" placeholder="Enter project Facebook"><br/>
-                                        <u>Project Twitter:</u> <input type="text" class="form-control" id="project_twitter" name="project_twitter" placeholder="Enter project Twitter"><br/>
-                                        <u>Address:</u> <input type="text" class="form-control" id="project_address" name="project_address" placeholder="Enter project Address"><br/>
-                                        <u>City:</u> <input type="text" class="form-control" id="project_city" name="project_city" placeholder="Enter project city"><br/>
-                                        <u>Country:</u> <input required type="text" class="form-control" id="project_country" name="project_country" placeholder="Enter project country"><br/>
-                                        <u>Objectives:</u> <select id="objectives_satisfy" name="objectives_satisfy"><option value="-1">-1</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option> </select><br/>
-                                        <u>Actors:</u> <select id="actors_satisfy" name="actors_satisfy"><option value="-1">-1</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option> </select><br/>
-                                        <u>Outputs:</u> <select id="outputs_satisfy" name="outputs_satisfy"><option value="-1">-1</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option> </select><br/>
-                                        <u>Innovativeness:</u> <select id="innovativeness_satisfy" name="innovativeness_satisfy"><option value="-1">-1</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option> </select><br/>
-                                        <u>Related actors:</u><br/>
-                                            <div id="actors">
-                                                <input type="hidden" class="form-control" name="counter" id="counter" value="0"/>
 
-                                            </div>
-                                            <input type="button" class="form-control" id="add_actor" value="Add Actor"/>
-                                        <u>Project Type (if available):</u> <input type="text" class="form-control" id="project_type" name="project_type" placeholder="Enter project type"><br/>
-                                        <u>Project Start Date:</u> <input type="date" class="form-control" id="project_date_start" name="project_date_start" placeholder="Enter project start date"><br/>
-                                        <u>Project End Date:</u> <input type="date" class="form-control" id="project_date_end" name="project_date_end" placeholder="Enter project start date"><br/>
-                                        <u>Descriptions:</u><br/>
-                                        <textarea name="project_description" id="project_description" cols="150" rows="10"></textarea>
-                                            <u>Comment:</u><br/>
-                                        <textarea name="project_comment" id="project_comment" cols="150" rows="10" required></textarea>
-                                        <input type="submit" class="form-control" id="submit" value="Submit"/>
-                                        </form>
-
+                                    <div>
+                                        <strong>Results for query:</strong> Ready for checks
+                                    </div>
+                                    {% for project in projects %}
+                                    <div class="project_rep">
+                                        <strong>
+                                            <div class="project_name"><a href="project_view/{{project['id']}}">{{ project['Name'] }}</a></div>
+                                            <div class="project_location"><strong>Country:</strong> {{ project['Country'] }}</div>
+                                            <div class="project_description"> {{ project['Description'] }}</div>
+                                        </strong>
 
                                     </div>
-
+                                    {% endfor %}
 
 
 
@@ -222,10 +204,6 @@
         <script src="{{ url_for('static', filename='js/main.js')}}"></script>
     <script src="{{ url_for('static',filename='js/js.cookie.js') }}"></script>
     <script>userLoggedIn()</script>
-    <script>
-
-        $('#new_project').append(" <input name='user' value='"+Cookies.get("username")+"' type='hidden'>");
-    </script>
 
     </body>
 </html>
