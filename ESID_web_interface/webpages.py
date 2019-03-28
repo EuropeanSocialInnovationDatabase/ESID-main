@@ -45,6 +45,7 @@ def perform_search():
     project_list = cursor.fetchall()
     projects = []
     for pro in project_list:
+        Country = ""
         q2 = "Select * from ProjectLocation where Projects_idProjects={0}".format(pro[0])
         cursor.execute(q2)
         locs = cursor.fetchall()
