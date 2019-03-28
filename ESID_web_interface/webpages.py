@@ -51,12 +51,19 @@ def perform_search():
         locs = cursor.fetchall()
         for loc in locs:
             Country = loc[5]
-        q2 = "Select * from AdditionalProjectData where FieldName like '%Desc%' and  Projects_idProjects={0}".format(pro[0])
+        q2 = "Select * from AdditionalProjectData where FieldName like '%Description_sum%' and  Projects_idProjects={0}".format(pro[0])
         cursor.execute(q2)
         descs = cursor.fetchall()
         Description = ""
         for desc in descs:
             Description = Description+desc[2]+" "
+        if Description == "":
+            q2 = "Select * from AdditionalProjectData where FieldName like '%Desc%' and  Projects_idProjects={0}".format(
+                pro[0])
+            cursor.execute(q2)
+            descs = cursor.fetchall()
+            for desc in descs:
+                Description = Description + desc[2] + " "
         Description = Description[0:150]+"..."
         projects.append({"id":pro[0],"Name":pro[2],"Country":Country,"Description":Description})
     cursor.close()
@@ -107,13 +114,22 @@ def edit_project(id):
         act['Name'] = actor[5]
         act['Website'] = actor[12]
         project_data['Actors'].append(act)
-    q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%desc%'".format(
+    q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%'".format(
         project_id)
     cursor.execute(q3)
     descriptions = cursor.fetchall()
     project_data['Descriptions'] = []
     for description in descriptions:
         project_data['Descriptions'].append(description[2])
+    if len(project_data['Descriptions']) == 0:
+        q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Desc%'".format(
+            project_id)
+        cursor.execute(q3)
+        descriptions = cursor.fetchall()
+        project_data['Descriptions'] = []
+        for description in descriptions:
+            project_data['Descriptions'].append(description[2])
+
     q4 = "SELECT * FROM EDSI.TypeOfSocialInnotation where SourceModel like '%v14%' and Projects_idProjects={0}".format(
         project_id);
     cursor.execute(q4)
@@ -157,9 +173,6 @@ def edit_submit():
         project_data['Facebook'] = project[12]
         project_data['Twitter'] = project[13]
         project_data['FirstDataSource'] = project[16]
-
-
-
     project_data['Locations'] = []
     q1 = "Select * From ProjectLocation where Projects_idProjects={0}".format(project_id)
     cursor.execute(q1)
@@ -184,13 +197,21 @@ def edit_submit():
         act['Name'] = actor[5]
         act['Website'] = actor[12]
         project_data['Actors'].append(act)
-    q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%desc%'".format(
+    q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%'".format(
         project_id)
     cursor.execute(q3)
     descriptions = cursor.fetchall()
     project_data['Descriptions'] = []
     for description in descriptions:
         project_data['Descriptions'].append(description[2])
+    if len(project_data['Descriptions']) == 0:
+        q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Desc%'".format(
+            project_id)
+        cursor.execute(q3)
+        descriptions = cursor.fetchall()
+        project_data['Descriptions'] = []
+        for description in descriptions:
+            project_data['Descriptions'].append(description[2])
     q4 = "SELECT * FROM EDSI.TypeOfSocialInnotation where SourceModel like '%v14%' and Projects_idProjects={0}".format(
         project_id);
     cursor.execute(q4)
@@ -410,7 +431,7 @@ def edit_submit():
     Description = Description.replace('\r','').replace('\n','').replace(' ','')
     if Description!=desc:
         sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id,Comment)" \
-              "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}','{8}')".format(user,0,1,project_id,'AdditionalProjectData','Description',orig_desc,-1,Comment)
+              "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}','{8}')".format(user,0,1,project_id,'AdditionalProjectData','Description_sum',orig_desc,-1,Comment)
         cursor.execute(sql)
         conn.commit()
     for act in actors_list:
@@ -483,12 +504,21 @@ def project_view(id):
         act['Name'] = actor[5]
         act['Website'] = actor[12]
         project_data['Actors'].append(act)
-    q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%desc%'".format(project_id)
+    q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%'".format(
+        project_id)
     cursor.execute(q3)
     descriptions = cursor.fetchall()
     project_data['Descriptions'] = []
     for description in descriptions:
         project_data['Descriptions'].append(description[2])
+    if len(project_data['Descriptions']) == 0:
+        q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Desc%'".format(
+            project_id)
+        cursor.execute(q3)
+        descriptions = cursor.fetchall()
+        project_data['Descriptions'] = []
+        for description in descriptions:
+            project_data['Descriptions'].append(description[2])
     q4 = "SELECT * FROM EDSI.TypeOfSocialInnotation where SourceModel like '%v14%' and Projects_idProjects={0}".format(project_id);
     cursor.execute(q4)
     marks = cursor.fetchall()
@@ -560,13 +590,21 @@ def check_projects():
         locs = cursor.fetchall()
         for loc in locs:
             Country = loc[5]
-        q2 = "Select * from AdditionalProjectData where FieldName like '%Desc%' and  Projects_idProjects={0}".format(
+        q2 = "Select * from AdditionalProjectData where FieldName like '%Description_sum%' and  Projects_idProjects={0}".format(
             pro[0])
         cursor.execute(q2)
         descs = cursor.fetchall()
         Description = ""
         for desc in descs:
             Description = Description + desc[2] + " "
+        if Description == "":
+            q2 = "Select * from AdditionalProjectData where FieldName like '%Desc%' and  Projects_idProjects={0}".format(
+                pro[0])
+            cursor.execute(q2)
+            descs = cursor.fetchall()
+            Description = ""
+            for desc in descs:
+                Description = Description + desc[2] + " "
         Description = Description[0:150] + "..."
         projects.append({"id": pro[0], "Name": pro[2], "Country": Country, "Description": Description})
     cursor.close()

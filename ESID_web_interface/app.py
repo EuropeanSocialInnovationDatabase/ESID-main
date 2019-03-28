@@ -204,7 +204,7 @@ def submit_new_project():
     )
     cursor.execute(si_marks)
     desc = "Insert into AdditionalProjectData (FieldName,Value,Projects_idProjects,DateObtained,SourceURL) VALUES ('{0}','{1}','{2}',NOW(),'{3}')".format(
-        "Description",Description,project_id,"Manual"
+        "Description_sum",Description,project_id,"Manual"
     )
     cursor.execute(desc)
     for act in actors_list:
@@ -278,7 +278,7 @@ def submit_related_project():
     )
     cursor.execute(si_marks)
     desc = "Insert into AdditionalProjectData (FieldName,Value,Projects_idProjects,DateObtained,SourceURL) VALUES ('{0}','{1}','{2}',NOW(),'{3}')".format(
-        "Description",Description,project_id,"Manual"
+        "Description_sum",Description,project_id,"Manual"
     )
     cursor.execute(desc)
     for act in actors_list:
