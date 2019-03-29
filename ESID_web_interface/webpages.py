@@ -239,6 +239,10 @@ def edit_submit():
     EndDate_f = request.form['project_date_end']
     Description = request.form['project_description']
     Comment = request.form['project_comment']
+    if len(Description)>7000:
+        return render_template('error.html',error="Description length is too large (it should be up to 7000 characters")
+    if len(Comment)>1000:
+        return render_template('error.html',error="Comment length is too large (it should be up to 1000 characters")
     actors_list = []
     actor_count = int(request.form['counter'])
     if actor_count>0:
