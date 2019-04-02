@@ -157,6 +157,8 @@ def submit_new_project():
     cursor = conn.cursor()
     Project_name = request.form['project_name']
     user = request.form['user']
+    knowmak_ready = request.form.getlist('knowmak_checkbox')
+    topics_to_add = request.form.getlist('topic_added_checkbox')
     Project_website = request.form['project_website']
     Project_facebook = request.form['project_facebook']
     Project_twitter = request.form['project_twitter']
@@ -221,6 +223,19 @@ def submit_new_project():
     cursor.execute(sql_user_log)
 
     conn.commit()
+    for topic in topics_to_add:
+        sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id,Comment)" \
+              "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}','{8}')".format(user, 1, 0, project_id,
+                                                                                        'Project_Topics',
+                                                                                        'TopicName', topic, -1,
+                                                                                        Comment)
+        cursor.execute(sql)
+        conn.commit()
+    for kr in knowmak_ready:
+        if kr == 'knowmak_ready':
+            sql_p = "Update Projects set KNOWMAK_ready = 1 where idProjects={0}".format(project_id)
+            cursor.execute(sql_p)
+    conn.commit()
     cursor.close()
     conn.close()
     return render_template('thank_you_project.html')
@@ -231,6 +246,8 @@ def submit_related_project():
     cursor = conn.cursor()
     Project_id_to_which_is_related = request.form['related_project']
     user = request.form['user']
+    knowmak_ready = request.form.getlist('knowmak_checkbox')
+    topics_to_add = request.form.getlist('topic_added_checkbox')
     Relationship = request.form['project_relationship']
     Project_name = request.form['project_name']
     Project_website = request.form['project_website']
@@ -295,6 +312,19 @@ def submit_related_project():
     cursor.execute(sql_relation)
     sql_user_log = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id,entry_id,date_time,table_name,Comment) VALUES ('{0}','{1}','{2}','{3}','{4}',NOW(),'Projects','{5}')".format(user,1,0,project_id,project_id,Comment)
     cursor.execute(sql_user_log)
+    conn.commit()
+    for topic in topics_to_add:
+        sql = "Insert into user_suggestions (username,add_suggestion,edit_suggestion,project_id, date_time,table_name,table_field,field_value,entry_id,Comment)" \
+              "VALUES ('{0}',{1},{2},'{3}',NOW(),'{4}','{5}','{6}','{7}','{8}')".format(user, 1, 0, project_id,
+                                                                                        'Project_Topics',
+                                                                                        'TopicName', topic, -1,
+                                                                                        Comment)
+        cursor.execute(sql)
+        conn.commit()
+    for kr in knowmak_ready:
+        if kr == 'knowmak_ready':
+            sql_p = "Update Projects set KNOWMAK_ready = 1 where idProjects={0}".format(project_id)
+            cursor.execute(sql_p)
     conn.commit()
     cursor.close()
     conn.close()
