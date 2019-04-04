@@ -11,7 +11,7 @@ if __name__ == '__main__':
     print(output_path)
     if not os.path.exists(output_path):
         os.makedirs(output_path)
-    sql = "SELECT distinct(idProjects),ProjectName,DateStart,DateEnd,ProjectWebpage FROM Projects left join ProjectLocation on idProjects=Projects_idProjects where Exclude =0"
+    sql = "SELECT distinct(idProjects),ProjectName,DateStart,DateEnd,ProjectWebpage FROM Projects left join ProjectLocation on idProjects=Projects_idProjects where Exclude =0 and KNOWMAK_ready=1"
     cursor.execute(sql)
     results = cursor.fetchall()
     projects = []

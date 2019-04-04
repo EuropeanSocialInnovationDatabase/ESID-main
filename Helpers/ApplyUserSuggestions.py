@@ -3,7 +3,7 @@ from database_access import *
 
 dba = MySQLdb.connect(host, username, password, database, charset='utf8')
 cursor = dba.cursor()
-select_sql = "Select * from user_suggestions where Applied=0"
+select_sql = "Select * from user_suggestions where Applied=1 and table_field='ProjectWebsite'"
 cursor.execute(select_sql)
 user_suggestions = cursor.fetchall()
 for us in user_suggestions:
@@ -24,7 +24,11 @@ for us in user_suggestions:
         if table_name == "ProjectLocation":
             edit_sql = "Update "+table_name+" set "+table_field+"= '"+filed_value+"' where Projects_idProjects="+str(entry_id)
         if table_name == "Projects":
-            edit_sql = "Update "+table_name+" set "+table_field+"= '"+filed_value+"' where idProjects="+str(entry_id)
+            if table_field=="ProjectWebsite":
+                table_field = "ProjectWebpage"
+                edit_sql = "Update " + table_name + " set " + table_field + "= '" + filed_value + "',CrawlAgain=1 where idProjects=" + str(
+                    entry_id)
+            #edit_sql = "Update "+table_name+" set "+table_field+"= '"+filed_value+"' where idProjects="+str(entry_id)
         if table_name == "Actors":
             edit_sql = "Update "+table_name+" set "+table_field+"= '"+filed_value+"' where idActors="+str(entry_id)
         if table_name == "TypeOfSocialInnovation":

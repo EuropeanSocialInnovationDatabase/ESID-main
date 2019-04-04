@@ -9,6 +9,7 @@ from pymongo import MongoClient
 from langdetect import detect
 from mtranslate import translate
 import nltk
+import signal
 import pandas as pd
 from stemmed_vectorizer import StemmedCountVectorizer
 
@@ -18,12 +19,16 @@ from stemmed_vectorizer import StemmedCountVectorizer
 # parser.add_argument('-input', type=str, default='input.json')
 # parser.add_argument('-sents_per_topic', type=int, default=2)
 # args = parser.parse_args()
-
+def handler(signum, frame):
+    print("Forever is over!")
+    raise Exception("end of time")
 MODEL_FOLDER = 'Models/'
 SPLIT_TOKEN = '\n'
 SENTS_PER_TOPIC = 2 #args.sents_per_topic
 translationTimeout = 0
 def checkEngAndTranslate(project_text):
+    signal.signal(signal.SIGALRM, handler)
+    signal.alarm(30)
     global translationTimeout
     language = 'en'
     if project_text == "":
