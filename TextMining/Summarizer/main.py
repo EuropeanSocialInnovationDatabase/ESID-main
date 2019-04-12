@@ -13,12 +13,6 @@ import signal
 import pandas as pd
 from stemmed_vectorizer import StemmedCountVectorizer
 
-# parser = argparse.ArgumentParser(description='SVM Summarizer')
-# parser.add_argument('-type', type=int, default=1)
-# parser.add_argument('-output', type=str, default='output.json')
-# parser.add_argument('-input', type=str, default='input.json')
-# parser.add_argument('-sents_per_topic', type=int, default=2)
-# args = parser.parse_args()
 def handler(signum, frame):
     print("Forever is over!")
     raise Exception("end of time")

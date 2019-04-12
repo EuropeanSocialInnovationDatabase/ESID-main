@@ -51,7 +51,7 @@ def perform_search():
         locs = cursor.fetchall()
         for loc in locs:
             Country = loc[5]
-        q2 = "Select * from AdditionalProjectData where FieldName like '%Description_sum%' and  Projects_idProjects={0}".format(pro[0])
+        q2 = "Select * from AdditionalProjectData where FieldName like '%Description_sum%' and SourceURL like '%v1%' and  Projects_idProjects={0}".format(pro[0])
         cursor.execute(q2)
         descs = cursor.fetchall()
         Description = ""
@@ -114,7 +114,7 @@ def edit_project(id):
         act['Name'] = actor[5]
         act['Website'] = actor[12]
         project_data['Actors'].append(act)
-    q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%'".format(
+    q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%' and SourceURL like '%v1%'".format(
         project_id)
     cursor.execute(q3)
     descriptions = cursor.fetchall()
@@ -197,7 +197,7 @@ def edit_submit():
         act['Name'] = actor[5]
         act['Website'] = actor[12]
         project_data['Actors'].append(act)
-    q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%'".format(
+    q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%' and SourceURL like '%v1%'".format(
         project_id)
     cursor.execute(q3)
     descriptions = cursor.fetchall()
@@ -508,7 +508,7 @@ def project_view(id):
         act['Name'] = actor[5]
         act['Website'] = actor[12]
         project_data['Actors'].append(act)
-    q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%'".format(
+    q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%' and SourceURL like '%v1%'".format(
         project_id)
     cursor.execute(q3)
     descriptions = cursor.fetchall()
@@ -594,7 +594,7 @@ def check_projects():
         locs = cursor.fetchall()
         for loc in locs:
             Country = loc[5]
-        q2 = "Select * from AdditionalProjectData where FieldName like '%Description_sum%' and  Projects_idProjects={0}".format(
+        q2 = "Select * from AdditionalProjectData where FieldName like '%Description_sum%' and SourceURL like '%v1%' and  Projects_idProjects={0}".format(
             pro[0])
         cursor.execute(q2)
         descs = cursor.fetchall()

@@ -70,7 +70,7 @@ if  __name__ == '__main__':
     for res in results:
         print res[0]
         message = ""
-        option = "v24 classifier new dataset (naturally balanced) random forests, with 1-4 grams, 11/04/2019"
+        option = "v23 classifier new dataset (naturally balanced) random forests, with 1-4 grams, 13/12/2018"
         objective = 0
         actors = 0
         outputs = 0
@@ -78,23 +78,23 @@ if  __name__ == '__main__':
         document_text = ""
         si = 0
         project_id = res[0]
-        sql_desc = "Select * from AdditionalProjectData where FieldName like '%Desc%' and (SourceURL not like '%v1%' or SourceURL not like '%v2%')"
-        mysql_cursor.execute(sql_desc)
-        results_desc = mysql_cursor.fetchall()
-        for desc in results_desc:
-            document_text = document_text + " "+desc[2]
-        documents = mongo_db.crawl20190109.find({"mysql_databaseID": str(project_id)},
+        # sql_desc = "Select * from AdditionalProjectData where FieldName like '%Desc%' and (SourceURL not like '%v1%' or SourceURL not like '%v2%')"
+        # mysql_cursor.execute(sql_desc)
+        # results_desc = mysql_cursor.fetchall()
+        # for desc in results_desc:
+        #     document_text = document_text + " "+desc[2]
+        documents = mongo_db.crawl20180801_translated.find({"mysql_databaseID": str(project_id)},
                                                 no_cursor_timeout=True).batch_size(100)
 
         for doc in documents:
-            txt = checkEngAndTranslate(doc['text'])
-            document_text = document_text+" "+ txt
+            #txt = checkEngAndTranslate(doc['text'])
+            document_text = document_text+" "+ doc['translation']
         if len(document_text)<350 or "domain sale" in document_text:
             documents2 = mongo_db.crawl20180801_wayback_translated.find({"mysql_databaseID": str(project_id)},
                                                     no_cursor_timeout=True).batch_size(100)
             document_text = ""
             for doc in documents2:
-                document_text = document_text + " "+doc['text']
+                document_text = document_text + " "+doc['translation']
         if "page not found" in document_text.lower():
             message = "Page not found"
             sql = "Insert into TypeOfSocialInnotation (CriterionObjectives,CriterionActors,CriterionOutputs,CriterionInnovativeness,Projects_idProjects,SourceModel,AnnotationComment,Social_Innovation_overall)" \

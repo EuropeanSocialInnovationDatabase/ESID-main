@@ -3,7 +3,16 @@
 from joblib import load
 import numpy as np
 import json
-from sklearn.feature_extraction.text import TfidfVectorizer
+
+from pandas import DataFrame
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer, TfidfTransformer
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.svm import SVC
+from sklearn import metrics
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.naive_bayes import MultinomialNB
+import pickle
 
 from TextMining.database_access import *
 import MySQLdb
@@ -99,23 +108,84 @@ def collect_data():
 def tf_idf_classify_sentences(sum,orig):
     positive = []
     negative = []
+    max_cos = 0
+    whole_txt = sum+orig
+    tfidf = TfidfVectorizer(stop_words='english').fit(whole_txt)
     for i in range(0,len(sum)):
-        whole_txt = sum.extend(orig)
-        tfidf = TfidfVectorizer(stop_words='english').fit(whole_txt)
-        sum_sents = nltk.sent_tokenize(sum)
-        orig_sents = nltk.sent_tokenize(orig)
+        sum_sents = nltk.sent_tokenize(sum[i])
+        orig_sents = nltk.sent_tokenize(orig[i])
         for ss in sum_sents:
             for os in orig_sents:
                 tfidf_scores = tfidf.transform([ss,os])
                 cos_sim = ((tfidf_scores * tfidf_scores.T).A)[0,1]
-                if cos_sim>0.8:
+                if cos_sim>max_cos:
+                    max_cos = cos_sim
+                if cos_sim>0.35:
                     positive.append(os)
                 else:
                     negative.append(os)
+                if len(positive)>30000:
+                    return positive,negative
     return positive,negative
 
 
 
-mySQLSummaries,mongo_original = collect_data()
-positive,negative = tf_idf_classify_sentences(mySQLSummaries,mongo_original)
-print(positive)
+#mySQLSummaries,mongo_original = collect_data()
+# with open('descriptions.json') as f:
+#     mySQLSummaries = json.load(f)
+# with open('original_texts.json') as f:
+#     mongo_original = json.load(f)
+# positive,negative = tf_idf_classify_sentences(mySQLSummaries,mongo_original)
+# y = json.dumps(positive)
+# z = json.dumps(negative)
+# f = open("positive.json", "w")
+# f.write(y)
+# f.close()
+# f = open("negative.json", "w")
+# f.write(z)
+# f.close()
+# exit(5)
+with open('positive.json') as f:
+    positive = json.load(f)
+with open('negative.json') as f:
+    negative = json.load(f)
+
+print(len(positive))
+print(len(negative))
+dataset = []
+for pos in positive:
+    dataset.append([pos,1])
+i = 0
+while i <10000:
+    dataset.append([negative[i],0])
+    i = i+1
+data = DataFrame.from_records(dataset)
+data = data.sample(frac=1).reset_index(drop=True)
+X_train, X_test, y_train, y_test = train_test_split(data[0], data[1], test_size=0.2, random_state=432)
+text_clf = Pipeline([
+    ('vect', CountVectorizer()),
+    ('tfidf', TfidfTransformer()),
+    ('clf', MultinomialNB()), ])
+
+text_clf.fit(X_train, y_train)
+
+y_pred = text_clf.predict(X_test)
+print(metrics.classification_report(y_test, y_pred))
+
+print(metrics.confusion_matrix(y_test, y_pred))
+
+pickle.dump(text_clf,open("NaiveBayesSummarizer.sav", 'wb'))
+
+text_clf = None
+
+text_clf = Pipeline([
+    ('vect', CountVectorizer()),
+    ('tfidf', TfidfTransformer()),
+    ('clf', MultinomialNB()), ])
+
+text_clf = pickle.load(open("NaiveBayesSummarizer.sav", 'rb'))
+
+y_pred = text_clf.predict(X_test)
+print(metrics.classification_report(y_test, y_pred))
+
+print(metrics.confusion_matrix(y_test, y_pred))
