@@ -86,9 +86,10 @@ def edit_project(id):
         project_data['DateStart'] = project[8]
         project_data['DateEnd'] = project[9]
         project_data['Website'] = project[11]
-        project_data['Facebook'] = project[12]
-        project_data['Twitter'] = project[13]
+        project_data['Facebook'] = project[13]
+        project_data['Twitter'] = project[14]
         project_data['FirstDataSource'] = project[16]
+        project_data['Knowmak_ready'] = project[24]
     project_data['Locations'] = []
     q1 = "Select * From ProjectLocation where Projects_idProjects={0}".format(project_id)
     cursor.execute(q1)
@@ -114,13 +115,25 @@ def edit_project(id):
         act['Name'] = actor[5]
         act['Website'] = actor[12]
         project_data['Actors'].append(act)
-    q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%' and SourceURL like '%v1%'".format(
+    q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%' and SourceURL like '%Manual%'".format(
         project_id)
     cursor.execute(q3)
     descriptions = cursor.fetchall()
     project_data['Descriptions'] = []
     for description in descriptions:
         project_data['Descriptions'].append(description[2])
+    if len(project_data['Descriptions']) == 0:
+        if project_data['Knowmak_ready'] == 1:
+            q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%' and SourceURL like '%v1%'".format(
+                project_id)
+        else:
+            q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%' and SourceURL like '%v2%'".format(
+                project_id)
+        cursor.execute(q3)
+        descriptions = cursor.fetchall()
+
+        for description in descriptions:
+            project_data['Descriptions'].append(description[2])
     if len(project_data['Descriptions']) == 0:
         q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Desc%'".format(
             project_id)
@@ -170,9 +183,10 @@ def edit_submit():
         project_data['DateStart'] = project[8]
         project_data['DateEnd'] = project[9]
         project_data['Website'] = project[11]
-        project_data['Facebook'] = project[12]
-        project_data['Twitter'] = project[13]
+        project_data['Facebook'] = project[13]
+        project_data['Twitter'] = project[14]
         project_data['FirstDataSource'] = project[16]
+        project_data['Knowmak_ready'] = project[24]
     project_data['Locations'] = []
     q1 = "Select * From ProjectLocation where Projects_idProjects={0}".format(project_id)
     cursor.execute(q1)
@@ -197,13 +211,25 @@ def edit_submit():
         act['Name'] = actor[5]
         act['Website'] = actor[12]
         project_data['Actors'].append(act)
-    q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%' and SourceURL like '%v1%'".format(
+    q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%' and SourceURL like '%Manual%'".format(
         project_id)
     cursor.execute(q3)
     descriptions = cursor.fetchall()
     project_data['Descriptions'] = []
     for description in descriptions:
         project_data['Descriptions'].append(description[2])
+    if len(project_data['Descriptions']) == 0:
+        if project_data['Knowmak_ready'] == 1:
+            q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%' and SourceURL like '%v1%'".format(
+                project_id)
+        else:
+            q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%' and SourceURL like '%v2%'".format(
+                project_id)
+        cursor.execute(q3)
+        descriptions = cursor.fetchall()
+
+        for description in descriptions:
+            project_data['Descriptions'].append(description[2])
     if len(project_data['Descriptions']) == 0:
         q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Desc%'".format(
             project_id)
@@ -481,9 +507,10 @@ def project_view(id):
         project_data['DateStart'] = project[8]
         project_data['DateEnd'] = project[9]
         project_data['Website'] = project[11]
-        project_data['Facebook'] = project[12]
-        project_data['Twitter'] = project[13]
+        project_data['Facebook'] = project[13]
+        project_data['Twitter'] = project[14]
         project_data['FirstDataSource'] = project[16]
+        project_data['Knowmak_ready'] = project[24]
     project_data['Locations'] = []
     q1 = "Select * From ProjectLocation where Projects_idProjects={0}".format(project_id)
     cursor.execute(q1)
@@ -508,13 +535,25 @@ def project_view(id):
         act['Name'] = actor[5]
         act['Website'] = actor[12]
         project_data['Actors'].append(act)
-    q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%' and SourceURL like '%v1%'".format(
+    q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%' and SourceURL like '%Manual%'".format(
         project_id)
     cursor.execute(q3)
     descriptions = cursor.fetchall()
     project_data['Descriptions'] = []
     for description in descriptions:
         project_data['Descriptions'].append(description[2])
+    if len(project_data['Descriptions'])==0:
+        if project_data['Knowmak_ready']==1:
+            q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%' and SourceURL like '%v1%'".format(
+            project_id)
+        else:
+            q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%' and SourceURL like '%v2%'".format(
+                project_id)
+        cursor.execute(q3)
+        descriptions = cursor.fetchall()
+
+        for description in descriptions:
+            project_data['Descriptions'].append(description[2])
     if len(project_data['Descriptions']) == 0:
         q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Desc%'".format(
             project_id)
