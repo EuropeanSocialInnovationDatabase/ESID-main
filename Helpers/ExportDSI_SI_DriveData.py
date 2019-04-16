@@ -8,9 +8,9 @@ import os
 directory = "dsi_si_topics"
 if not os.path.exists(directory):
     os.makedirs(directory)
-csvfile = open('dsi_si_topics.csv', 'w')
+csvfile = open('dsi_si_topics2.csv', 'w')
 writer = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-writer.writerow(["ProjectID","ProjectName","Website","DataSource","Topics"])
+writer.writerow(["ProjectID","ProjectName","Website","DataSource","Topics","KNOWMAK topics"])
 db = MySQLdb.connect(host, username, password, database, charset='utf8')
 db.set_character_set("utf8")
 cursor = db.cursor()
@@ -19,6 +19,7 @@ cursor.execute(sql)
 results = cursor.fetchall()
 for res in results:
     idProject = res[0]
+    print(idProject)
     projectName = res[2]
     projectWeb = res[11]
     dataSource = res[16]
@@ -36,8 +37,14 @@ for res in results:
     cnt = ""
     for c in content:
         cnt = cnt + c[2]
+    sql_knowmak = "SELECT * FROM EDSI.Project_Topics where Version like '%v4%' and Projects_idProject='"+str(idProject)+"' order by TopicScore desc"
+    cursor.execute(sql_knowmak)
+    content = cursor.fetchall()
+    topics_knowmak= ""
+    for topic in content:
+        topics_knowmak = topics_knowmak+topic[1]+"("+str(topic[2])+")"+","
     if len(cnt)>300:
-        writer.writerow([idProject, projectName.encode('utf-8'), projectWeb, dataSource, topics.encode('utf-8')])
+        writer.writerow([idProject, projectName.encode('utf-8'), projectWeb, dataSource, topics.encode('utf-8'),topics_knowmak.encode('utf-8')])
         file = open(directory +"/" + str(idProject)+".txt","w")
         file.write(cnt.encode('utf-8'))
         file.close()
