@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import datetime
 from pymongo import MongoClient
 import nltk
 import MySQLdb
@@ -38,7 +39,7 @@ if __name__ == '__main__':
     db = MySQLdb.connect(host, username, password, database, charset='utf8')
     cursor = db.cursor()
     print("Selecting projects from mysql")
-    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects where Exclude=0 and idProjects>7479"
+    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects where Exclude=0 and idProjects>13303"
     cursor.execute(sql_projects)
     results = cursor.fetchall()
     print("Initializing Mongo")
@@ -48,6 +49,7 @@ if __name__ == '__main__':
 
     for res in results:
         #project_names.append(res[0])
+        print(datetime.datetime.now())
         print("Reading project "+str(res[0]) )
         number_of_pages = 0
         pro = Project()

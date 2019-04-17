@@ -163,6 +163,7 @@ class LSTMClassifier():
         model.add(Dropout(0.2))
         # model.add(Bidirectional(LSTM(100)))
         # model.add(Dropout(0.2))
+        model.add(Flatten())
         model.add(Dense(2))
         model.add(Dropout(0.2))
         model.add(Activation('sigmoid'))
