@@ -87,7 +87,7 @@ if  __name__ == '__main__':
                                                 no_cursor_timeout=True).batch_size(100)
 
         for doc in documents:
-            txt = checkEngAndTranslate(doc['text'])
+            txt = doc['translation']
             document_text = document_text+" "+ txt
         if len(document_text)<350 or "domain sale" in document_text:
             documents2 = mongo_db.crawl20180801_wayback_translated.find({"mysql_databaseID": str(project_id)},
