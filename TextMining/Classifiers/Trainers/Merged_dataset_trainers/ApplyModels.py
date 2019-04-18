@@ -83,7 +83,7 @@ if  __name__ == '__main__':
         results_desc = mysql_cursor.fetchall()
         for desc in results_desc:
             document_text = document_text + " "+desc[2]
-        documents = mongo_db.crawl20190109.find({"mysql_databaseID": str(project_id)},
+        documents = mongo_db.crawl20190109_translated.find({"mysql_databaseID": str(project_id)},
                                                 no_cursor_timeout=True).batch_size(100)
 
         for doc in documents:
