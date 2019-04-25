@@ -29,6 +29,12 @@ for us in user_suggestions:
                 table_field = "ProjectWebpage"
                 edit_sql = "Update " + table_name + " set " + table_field + "= '" + filed_value + "',CrawlAgain=1 where idProjects=" + str(
                     entry_id)
+        if table_name == "Project_Topics":
+            if filed_value == 0:
+                edit_sql = "Update Project_Topics set Exclude = 1 where idTopics = "+entry_id
+            else:
+                edit_sql = "Insert into Project_Topics (TopicName,TopicScore,TopicScore2,Projects_idProject,Comment,Version,Sources,Text_length,Exclude) " \
+                           "Values ('{0}',{1},{2},'{3}','{4}','{5}','{6}',{7},{8})".format(filed_value,500,500,project_id,"Manual applied","Manually added","Human annotators",0,0)
             #edit_sql = "Update "+table_name+" set "+table_field+"= '"+filed_value+"' where idProjects="+str(entry_id)
         if table_name == "Actors":
             edit_sql = "Update "+table_name+" set "+table_field+"= '"+filed_value+"' where idActors="+str(entry_id)
