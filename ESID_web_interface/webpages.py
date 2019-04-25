@@ -152,7 +152,7 @@ def edit_project(id):
         project_data['Objectives'] = mark[2]
         project_data['Actors_s'] = mark[3]
         project_data['Innovativeness'] = mark[4]
-    q5 = "Select TopicName,TopicScore,KeyWords from Project_Topics where Projects_idProject={0} and Version like '%v4%' order by TopicScore desc limit 10".format(
+    q5 = "Select TopicName,TopicScore,KeyWords from Project_Topics where Projects_idProject={0} and (Version like '%v4%' or Version like '%Manual%') order by TopicScore desc limit 10".format(
         project_id);
     cursor.execute(q5)
     topics = cursor.fetchall()
@@ -437,7 +437,7 @@ def edit_submit():
         conn.commit()
 
     for topic in topics_to_exclude:
-        sql_sel = "Select * from Project_Topics where Projects_idProject={0} and Version like '%v4%' and TopicName='{1}'".format(project_id,topic)
+        sql_sel = "Select * from Project_Topics where Projects_idProject={0} and (Version like '%v4%' or Version like '%Manual%') and TopicName='{1}'".format(project_id,topic)
         cursor.execute(sql_sel)
         entries = cursor.fetchall()
         id_entry = -1
@@ -489,7 +489,7 @@ def project_view(id):
     cursor = conn.cursor()
     project_id = id
 
-    sq = "SELECT Distinct(TopicName) as tn,Sum(TopicScore)/Count(TopicName) FROM EDSI.Project_Topics where Version like '%v3%' group by tn;"
+    sq = "SELECT Distinct(TopicName) as tn,Sum(TopicScore)/Count(TopicName) FROM EDSI.Project_Topics where (Version like '%v4%' or Version like '%Manual%') group by tn;"
     cursor.execute(sq)
     means = cursor.fetchall()
     topic_means = {}
@@ -570,7 +570,7 @@ def project_view(id):
         project_data['Objectives']=mark[2]
         project_data['Actors_s']=mark[3]
         project_data['Innovativeness']=mark[4]
-    q5 = "Select * from Project_Topics where Projects_idProject={0} and Version like '%v3%'".format(project_id)
+    q5 = "Select * from Project_Topics where Projects_idProject={0} and (Version like '%v4%' or Version like '%Manual%')".format(project_id)
     cursor.execute(q5)
     topics = cursor.fetchall()
     r_topics = []
