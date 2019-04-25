@@ -32,7 +32,7 @@ for us in user_suggestions:
         if table_name.strip() == "Project_Topics":
             print("here")
             if filed_value == '0':
-                print("0")
+                print("exclude")
                 edit_sql = "Update Project_Topics set Exclude = 1 where idTopics = "+entry_id
             # else:
             #     print("insert")
