@@ -3,11 +3,12 @@ from database_access import *
 
 dba = MySQLdb.connect(host, username, password, database, charset='utf8')
 cursor = dba.cursor()
-select_sql = "Select * from user_suggestions where Applied=1 and table_field='ProjectWebsite'"
+select_sql = "Select * from user_suggestions where Applied=0"
 cursor.execute(select_sql)
 user_suggestions = cursor.fetchall()
 for us in user_suggestions:
     id = us[0]
+    print(id)
     uname = us[1]
     add_suggestion = us[2]
     edit_suggestion = us[3]
