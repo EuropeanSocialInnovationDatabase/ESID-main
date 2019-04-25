@@ -31,13 +31,13 @@ for us in user_suggestions:
                     entry_id)
         if table_name.strip() == "Project_Topics":
             print("here")
-            if filed_value == 0:
+            if filed_value == '0':
                 print("0")
                 edit_sql = "Update Project_Topics set Exclude = 1 where idTopics = "+entry_id
-            else:
-                print("insert")
-                edit_sql = "Insert into Project_Topics (TopicName,TopicScore,TopicScore2,Projects_idProject,Comment,Version,Sources,Text_length,Exclude) " \
-                           "Values ('{0}',{1},{2},'{3}','{4}','{5}','{6}',{7},{8})".format(filed_value,500,500,project_id,"Manual applied","Manually added","Human annotators",0,0)
+            # else:
+            #     print("insert")
+            #     edit_sql = "Insert into Project_Topics (TopicName,TopicScore,TopicScore2,Projects_idProject,Comment,Version,Sources,Text_length,Exclude) " \
+            #                "Values ('{0}',{1},{2},'{3}','{4}','{5}','{6}',{7},{8})".format(filed_value,500,500,project_id,"Manual applied","Manually added","Human annotators",0,0)
             #edit_sql = "Update "+table_name+" set "+table_field+"= '"+filed_value+"' where idProjects="+str(entry_id)
         if table_name == "Actors":
             edit_sql = "Update "+table_name+" set "+table_field+"= '"+filed_value+"' where idActors="+str(entry_id)
@@ -52,6 +52,14 @@ for us in user_suggestions:
         cursor.execute(update_sql)
         dba.commit()
     if add_suggestion==1:
+        if table_name.strip() == "Project_Topics":
+            print("insert")
+            edit_sql = "Insert into Project_Topics (TopicName,TopicScore,TopicScore2,Projects_idProject,Comment,Version,Sources,Text_length,Exclude) " \
+                       "Values ('{0}',{1},{2},'{3}','{4}','{5}','{6}',{7},{8})".format(filed_value, 500, 500,
+                                                                                       project_id, "Manual applied",
+                                                                                       "Manually added",
+                                                                                       "Human annotators", 0, 0)
+            cursor.execute(edit_sql)
         update_sql = "Update user_suggestions set Applied=1 where id_suggestion=" + str(id)
         cursor.execute(update_sql)
         dba.commit()
