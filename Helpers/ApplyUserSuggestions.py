@@ -33,7 +33,7 @@ for us in user_suggestions:
             print("here")
             if filed_value == '0':
                 print("exclude")
-                edit_sql = "Update Project_Topics set Exclude = 1 where idTopics = "+entry_id
+                edit_sql = "Update Project_Topics set Exclude = 1 where idTopics = "+str(entry_id)
             # else:
             #     print("insert")
             #     edit_sql = "Insert into Project_Topics (TopicName,TopicScore,TopicScore2,Projects_idProject,Comment,Version,Sources,Text_length,Exclude) " \
