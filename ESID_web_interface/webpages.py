@@ -489,7 +489,7 @@ def project_view(id):
     cursor = conn.cursor()
     project_id = id
 
-    sq = "SELECT Distinct(TopicName) as tn,Sum(TopicScore)/Count(TopicName) FROM EDSI.Project_Topics where Version like '%v3%' group by tn;"
+    sq = "SELECT Distinct(TopicName) as tn,Sum(TopicScore)/Count(TopicName) FROM EDSI.Project_Topics where (Version like '%v4%' or Version like '%Manual%') group by tn;"
     cursor.execute(sq)
     means = cursor.fetchall()
     topic_means = {}

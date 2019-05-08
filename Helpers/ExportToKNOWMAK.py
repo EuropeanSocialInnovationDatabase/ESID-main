@@ -65,7 +65,7 @@ if __name__ == '__main__':
             actor_ids.append(res3[0])
             pro_act_writer.writerow(res3)
 
-        sql4 = "Select * from EDSI.Project_Topics where Version like '%v2%' and Projects_idProject ="+str(res[0])
+        sql4 = "Select * from EDSI.Project_Topics where (Version like '%v4%' or Version like '%Manual%') and Projects_idProject ="+str(res[0])
         cursor.execute(sql4)
         results4 = cursor.fetchall()
         r_topics = []
