@@ -97,7 +97,7 @@
                                     <div class="project_overview">
                                         <form action="/submit_edit" method="post" id="new_project">
                                         <u>Project Name:</u> <input type="text" class="form-control" id="project_name" value="{{project['project_name']}}" name="project_name" placeholder="Enter project name" required><br/>
-                                        <u>Project Website:</u> <input type="text" class="form-control" id="project_website" value="{{project['Website']}}" name="project_website" placeholder="Enter project website" required><br/>
+                                        <u>Project Website:</u> <input type="text" class="form-control" id="project_website" value="{{project['Website']}}" name="project_website" placeholder="Enter project website"><br/>
                                         <u>Project Facebook:</u> <input type="text" class="form-control" id="project_facebook" value="{{project['Facebook']}}" name="project_facebook" placeholder="Enter project Facebook"><br/>
                                         <u>Project Twitter:</u> <input type="text" class="form-control" id="project_twitter" value="{{project['Twitter']}}" name="project_twitter" placeholder="Enter project Twitter"><br/>
                                         <u>Address:</u> <input type="text" class="form-control" id="project_address" value="{% if project['Locations']|length>0 %}{{project['Locations'][0]['address']}} {% endif %}" name="project_address" placeholder="Enter project Address"><br/>
@@ -132,6 +132,8 @@
                                          <u>Comment:</u><br/>
                                         <textarea name="project_comment" id="project_comment" cols="150" rows="10" required></textarea>
                                         KNOWMAK Ready:<input type="checkbox" class="form-check-input" id="knowmak_ready" value="knowmak_ready" name="knowmak_checkbox">
+                                            No website:<input type="checkbox" class="form-check-input" id="knowmak_ready_no_web" onclick="KnowmakReadNoWeb()" value="knowmak_ready_no_web" name="knowmak_no_web_checkbox">
+
 
                                             <input type="submit" class="form-control" id="submit" value="Submit"/>
                                             <input type="hidden" class="form-control" name="project_id" id="project_id" value="{{project['id']}}"/>

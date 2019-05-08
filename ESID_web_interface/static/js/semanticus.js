@@ -244,3 +244,17 @@ function userLoggedIn() {
         }
     });
 }
+
+function KnowmakReadNoWeb() {
+  // Get the checkbox
+  var checkBox = document.getElementById("knowmak_ready_no_web");
+  // Get the output text
+  var text = document.getElementById("project_website");
+
+  // If the checkbox is checked, display the output text
+  if (checkBox.checked == true){
+    document.getElementById("project_website").required = false;
+  } else {
+    document.getElementById("project_website").required = true;
+  }
+}
