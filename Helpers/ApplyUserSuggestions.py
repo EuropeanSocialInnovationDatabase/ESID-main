@@ -23,12 +23,12 @@ for us in user_suggestions:
     comment = us[10]
     if edit_suggestion == 1:
         if table_name == "ProjectLocation":
-            edit_sql = "Update "+table_name+" set "+table_field+"= '"+filed_value+"' where Projects_idProjects="+str(entry_id)
+            edit_sql = "Update "+table_name+" set "+table_field+"= '"+filed_value+"' where Projects_idProjects="+str(project_id)
         if table_name == "Projects":
             if table_field=="ProjectWebsite":
                 table_field = "ProjectWebpage"
                 edit_sql = "Update " + table_name + " set " + table_field + "= '" + filed_value + "',CrawlAgain=1 where idProjects=" + str(
-                    entry_id)
+                    project_id)
         if table_name.strip() == "Project_Topics":
             print("here")
             if filed_value == '0':
@@ -41,8 +41,8 @@ for us in user_suggestions:
             #edit_sql = "Update "+table_name+" set "+table_field+"= '"+filed_value+"' where idProjects="+str(entry_id)
         if table_name == "Actors":
             edit_sql = "Update "+table_name+" set "+table_field+"= '"+filed_value+"' where idActors="+str(entry_id)
-        if table_name == "TypeOfSocialInnovation":
-            edit_sql = "Update "+table_name+" set "+table_field+"= '"+filed_value+"' where SourceModel='ManualAnnotationFix' Projects_idProjects="+str(entry_id)
+        if table_name == "TypeOfSocialInnotation":
+            edit_sql = "Update TypeOfSocialInnotation set "+table_field+"= '"+filed_value+"' where Projects_idProjects="+str(project_id)
 
         if table_name == "AdditionalProjectData":
             edit_sql = "Update " + table_name + " set Value= '" + filed_value + "' where FieldName='"+table_field+"' and Projects_idProjects=" + str(project_id)

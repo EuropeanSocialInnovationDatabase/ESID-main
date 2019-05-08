@@ -39,7 +39,7 @@ if __name__ == '__main__':
     db = MySQLdb.connect(host, username, password, database, charset='utf8')
     cursor = db.cursor()
     print("Selecting projects from mysql")
-    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects where Exclude=0 and DateOfLastCrawl is not Null and Translated=0"
+    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects where Exclude=0 and DateOfLastCrawl is not Null and Translated=0 and idProjects>2396"
     cursor.execute(sql_projects)
     results = cursor.fetchall()
     print("Initializing Mongo")
@@ -146,6 +146,9 @@ if __name__ == '__main__':
                     "translationLen2": int(len(project_text)),
                     "Language":language
                 })
+            s = "Update Projects set CrawlAgain=0 where idProjects="+str(pro.idProject)
+            cursor.execute(s)
+            db.commit()
         except:
             print("Error - file too large"+str(pro.idProject))
     print "Translation timeouts on: "+str(translationTimeout)+" pages"

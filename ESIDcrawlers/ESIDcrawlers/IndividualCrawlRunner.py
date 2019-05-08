@@ -10,7 +10,7 @@ from database_access import *
 #subprocess.check_output(['ls','-l']) #all that is technically needed...
 db = MySQLdb.connect(host, username, password, database, charset='utf8')
 cursor = db.cursor()
-sql = "Select idProjects,ProjectName,ProjectWebpage,FacebookPage from Projects where (Exclude=0 and idProjects>14076) or CrawlAgain=1"
+sql = "Select idProjects,ProjectName,ProjectWebpage,FacebookPage from Projects where Exclude=0 and (CrawlAgain=1 or DateOfLastCrawl is null)"
 cursor.execute(sql)
 results = cursor.fetchall()
 try:

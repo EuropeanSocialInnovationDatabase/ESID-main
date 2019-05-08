@@ -25,13 +25,13 @@ if  __name__ == '__main__':
     for res in results:
         print res[0]
         message = ""
-        option = "v19 CNN+LSTM 200d embeddings unbalanced, 15/11/2018"
+        option = "v26 CNN+LSTM 200d embeddings unbalanced, 08/05/2019"
         objective = 0
         actors = 0
         outputs = 0
         innovativeness = 0
         project_id = res[0]
-        documents = mongo_db.crawl20180801_translated.find({"mysql_databaseID": str(project_id)},
+        documents = mongo_db.crawl20190109_translated.find({"mysql_databaseID": str(project_id)},
                                                 no_cursor_timeout=True).batch_size(100)
         document_text = ""
         for doc in documents:

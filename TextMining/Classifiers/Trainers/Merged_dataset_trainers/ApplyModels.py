@@ -70,7 +70,7 @@ if  __name__ == '__main__':
     for res in results:
         print res[0]
         message = ""
-        option = "v25 classifier new dataset (naturally balanced) random forests, with 1-4 grams, 18/04/2019"
+        option = "v27 classifier new dataset (naturally balanced) random forests, with 1-4 grams, 08/05/2019"
         objective = 0
         actors = 0
         outputs = 0
