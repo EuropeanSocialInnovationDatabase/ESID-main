@@ -5,6 +5,12 @@ import sys
 import os
 
 if __name__ == '__main__':
+    Euro_County_list = ['Albania','Andora','Armenia','Austria','Azerbaijan','Belarus','Belgium','Bosnia and Herzegovina','Bulgaria',
+                        'Croatia','Cyprus','Czech republic','Denmark','Estonia','Finland','France','Georgia','Germany','Greece',
+                        'Hungary','Iceland','Ireland','Italy','Kazakhstan','Kosovo','Latvia','Liechtenstein','Lithuania','Luxembourg',
+                        'Malta','Moldova','Monaco','Montenegro','Netherlands','North Macedonia','Norway','Poland','Portugal','Romania',
+                        'Russia','San Marino','Serbia','Slovakia','Slovenia','Spain','Sweden','Switzerland','Turkey','Ukraine','UK',
+                        'Vatican','Holy See']
     output_path = sys.argv[1]
     dba = MySQLdb.connect(host, username, password, database, charset='utf8')
     cursor = dba.cursor()
@@ -30,32 +36,83 @@ if __name__ == '__main__':
     pro_act_writer = csv.writer(pro_act_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
     pro_act_writer.writerow(["SIA_ID", "SIP_ID","Role"])
     for res in results:
+        Outputs = 0
+        Objective = 0
+        Actors = 0
+        Innovativeness = 0
         projects.append(res)
+        id = res[0]
+        sql = "SELECT Projects_idProjects,City,Country,Longitude,Latitude FROM EDSI.ProjectLocation where Projects_idProjects =" + str(
+            id)
+        cursor.execute(sql)
+        results = cursor.fetchall()
+        for resS in results:
+            if resS[1] == None:
+                city = ""
+            else:
+                city = resS[1].encode('utf-8')
+            if resS[2] == None:
+                country = ""
+            else:
+                country = resS[2].encode('utf-8')
+        if country not in Euro_County_list:
+            continue
         if res[4] == None:
             web = ""
         else:
             web = res[4].encode('utf-8')
+        ########################################################
+        q4 = "SELECT * FROM EDSI.TypeOfSocialInnotation where SourceModel like '%Manual%' and Projects_idProjects={0}".format(
+            res[0]);
+        cursor.execute(q4)
+        marks = cursor.fetchall()
+        if len(marks) == 0:
+            q4 = "SELECT * FROM EDSI.TypeOfSocialInnotation where SourceModel like '%v14%' and Projects_idProjects={0}".format(
+                res[0]);
+            cursor.execute(q4)
+            marks = cursor.fetchall()
+        for mark in marks:
+            Outputs = mark[1]
+            Objective = mark[2]
+            Actors = mark[3]
+            Innovativeness = mark[4]
+            if Outputs > 1:
+                Outputs = 1
+            if Objective >1:
+                Objective = 1
+            if Actors>1:
+                Actors =1
+            if Innovativeness > 1:
+                Innovativeness = 1
+        ########################################################
 
-        sql11 = "SELECT * FROM EDSI.TypeOfSocialInnotation where SourceModel like '%v14%' and Projects_idProjects="+str(res[0])
-        cursor.execute(sql11)
-        Objective = 0
-        Actors = 0
-        Outputs = 0
-        Innovativeness = 0
-        results11 = cursor.fetchall()
-        for res11 in results11:
-            Objective = res11[2]
-            Actors = res11[3]
-            Outputs = res11[1]
-            Innovativeness = res11[4]
+        q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%' and SourceURL like '%Manual%'".format(
+            res[0])
+        cursor.execute(q3)
+        descriptions = cursor.fetchall()
+        Descriptions = []
+        for description in descriptions:
+            Descriptions.append(description[2])
+        if len(Descriptions) == 0:
+            q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%' and SourceURL like '%v1%'".format(
+                res[0])
 
+            cursor.execute(q3)
+            descriptions = cursor.fetchall()
 
-        sql2 = "SELECT * FROM EDSI.AdditionalProjectData where FieldName like '%Desc%' and Projects_idProjects ="+str(res[0])
-        cursor.execute(sql2)
-        description = ""
-        results2 = cursor.fetchall()
-        for res2 in results2:
-            description = description + " "+res2[2]
+            for description in descriptions:
+                Descriptions.append(description[2])
+        if len(Descriptions) == 0:
+            q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Desc%'".format(
+                res[0])
+            cursor.execute(q3)
+            descriptions = cursor.fetchall()
+            for description in descriptions:
+                Descriptions.append(description[2])
+        if len(Descriptions)>0:
+            description = Descriptions[0]
+        else:
+            description = ""
         pro_writer.writerow([res[0],res[1].encode('utf-8'),res[2],res[3],web,description.encode("utf-8"),Objective,Actors,Outputs,Innovativeness])
 
         sql3 = "SELECT Actors_idActors,Projects_idProjects,OrganisationRole FROM EDSI.Actors_has_Projects where Projects_idProjects="+str(res[0])

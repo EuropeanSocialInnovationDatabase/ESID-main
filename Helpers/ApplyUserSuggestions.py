@@ -23,8 +23,18 @@ for us in user_suggestions:
     comment = us[10]
     if edit_suggestion == 1:
         if table_name == "ProjectLocation":
-            edit_sql = "Update "+table_name+" set "+table_field+"= '"+filed_value+"' where Projects_idProjects="+str(project_id)
+            sel = "Select * from ProjectLocation where Projects_idProjects="+str(project_id)
+            cursor.execute(sel)
+            if(len(cursor.fetchall()))>0:
+                edit_sql = "Update "+table_name+" set "+table_field+"= '"+filed_value+"' where Projects_idProjects="+str(project_id)
+            else:
+                edit_sql = "Insert into "+table_name+" ("+table_field+",Projects_idProjects) Values ('{0}',{1})".format(filed_value,project_id)
         if table_name == "Projects":
+            if table_field == "Type":
+                continue
+            if table_field == "DateStart":
+                edit_sql = "Update " + table_name + " set " + table_field + "= '" + filed_value + "',CrawlAgain=1 where idProjects=" + str(
+                    project_id)
             if table_field=="ProjectWebsite":
                 table_field = "ProjectWebpage"
                 edit_sql = "Update " + table_name + " set " + table_field + "= '" + filed_value + "',CrawlAgain=1 where idProjects=" + str(
@@ -42,11 +52,21 @@ for us in user_suggestions:
         if table_name == "Actors":
             edit_sql = "Update "+table_name+" set "+table_field+"= '"+filed_value+"' where idActors="+str(entry_id)
         if table_name == "TypeOfSocialInnotation":
-            edit_sql = "Update TypeOfSocialInnotation set "+table_field+"= '"+filed_value+"' where Projects_idProjects="+str(project_id)
+            sel = "Select * from TypeOfSocialInnotation where Projects_idProjects=" + str(project_id)
+            cursor.execute(sel)
+            if (len(cursor.fetchall())) > 0:
+                edit_sql = "Update TypeOfSocialInnotation set " + table_field + "= '" + filed_value + "' where Projects_idProjects=" + str(
+                    project_id)
+            else:
+                edit_sql = "INSERT into TypeOfSocialInnotation ('"+table_field+"','Projects_idProjects','SourceModel') VALUES ("+filed_value+","+str(project_id)+",'ManualAnnotationCrowd')"
 
         if table_name == "AdditionalProjectData":
-            edit_sql = "Update " + table_name + " set Value= '" + filed_value + "' where FieldName='"+table_field+"' and Projects_idProjects=" + str(project_id)
-
+            sel = "Select * from AdditionalProjectData where Projects_idProjects=" + str(project_id)
+            cursor.execute(sel)
+            if (len(cursor.fetchall())) > 0:
+                edit_sql = "Update " + table_name + " set Value= '" + filed_value + "' where (FieldName='"+table_field+"' or FieldName='Description') and Projects_idProjects=" + str(project_id)
+            else:
+                edit_sql = "Insert into AdditionalProjectData (FieldName,Value,Projects_idProjects,DateObtained) VALUES ('Description_sum','{0}',{1},NOW())".format(filed_value.encode('utf-8', errors='ignore'),str(project_id))
         cursor.execute(edit_sql)
         update_sql = "Update user_suggestions set Applied=1 where id_suggestion="+str(id)
         cursor.execute(update_sql)

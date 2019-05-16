@@ -143,10 +143,15 @@ def edit_project(id):
         for description in descriptions:
             project_data['Descriptions'].append(description[2])
 
-    q4 = "SELECT * FROM EDSI.TypeOfSocialInnotation where SourceModel like '%v14%' and Projects_idProjects={0}".format(
+    q4 = "SELECT * FROM EDSI.TypeOfSocialInnotation where SourceModel like '%Manual%' and Projects_idProjects={0}".format(
         project_id);
     cursor.execute(q4)
     marks = cursor.fetchall()
+    if len(marks)==0:
+        q4 = "SELECT * FROM EDSI.TypeOfSocialInnotation where SourceModel like '%v14%' and Projects_idProjects={0}".format(
+            project_id);
+        cursor.execute(q4)
+        marks = cursor.fetchall()
     for mark in marks:
         project_data['Outputs'] = mark[1]
         project_data['Objectives'] = mark[2]
@@ -562,9 +567,14 @@ def project_view(id):
         project_data['Descriptions'] = []
         for description in descriptions:
             project_data['Descriptions'].append(description[2])
-    q4 = "SELECT * FROM EDSI.TypeOfSocialInnotation where SourceModel like '%v14%' and Projects_idProjects={0}".format(project_id);
+    q4 = "SELECT * FROM EDSI.TypeOfSocialInnotation where SourceModel like '%Manual%' and Projects_idProjects={0}".format(
+        project_id);
     cursor.execute(q4)
     marks = cursor.fetchall()
+    if len(marks)==0:
+        q4 = "SELECT * FROM EDSI.TypeOfSocialInnotation where SourceModel like '%v14%' and Projects_idProjects={0}".format(project_id);
+        cursor.execute(q4)
+        marks = cursor.fetchall()
     for mark in marks:
         project_data['Outputs']=mark[1]
         project_data['Objectives']=mark[2]
