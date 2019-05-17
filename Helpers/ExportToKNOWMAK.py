@@ -10,7 +10,7 @@ if __name__ == '__main__':
                         'Hungary','Iceland','Ireland','Italy','Kazakhstan','Kosovo','Latvia','Liechtenstein','Lithuania','Luxembourg',
                         'Malta','Moldova','Monaco','Montenegro','Netherlands','North Macedonia','Norway','Poland','Portugal','Romania',
                         'Russia','San Marino','Serbia','Slovakia','Slovenia','Spain','Sweden','Switzerland','Turkey','Ukraine','UK',
-                        'Vatican','Holy See']
+                        'Vatican','Holy See','European Union']
     output_path = sys.argv[1]
     dba = MySQLdb.connect(host, username, password, database, charset='utf8')
     cursor = dba.cursor()
@@ -107,8 +107,10 @@ if __name__ == '__main__':
                 res[0])
             cursor.execute(q3)
             descriptions = cursor.fetchall()
-            for description in descriptions:
-                Descriptions.append(description[2])
+            for descriptionA in descriptions:
+                if descriptionA[2] == "":
+                    continue
+                Descriptions.append(descriptionA[2])
         if len(Descriptions)>0:
             description = Descriptions[0]
         else:
