@@ -9,7 +9,7 @@ db2 = MySQLdb.connect(host, username, password, "Semanticon", charset='utf8')
 cursor = db.cursor()
 cursor2 = db2.cursor()
 print("Selecting projects from mysql")
-sql_projects = "Select idProjects,ProjectName,ProjectWebpage, City, Country, Longitude, Latitude from Projects left join ProjectLocation on idProjects=Projects_idProjects where Exclude = 0 and Longitude is Null and Latitude is Null and City is not Null and City <> ''"
+sql_projects = "Select idProjects,ProjectName,ProjectWebpage, City, Country, Longitude, Latitude, idLocation from Projects left join ProjectLocation on idProjects=Projects_idProjects where Exclude = 0 and Longitude is Null and Latitude is Null and City is not Null and City <> ''"
 cursor.execute(sql_projects)
 results = cursor.fetchall()
 csvfile = open('locations.csv', 'w')
@@ -21,6 +21,7 @@ for row in results:
     projectWebpage = row[2]
     projectCity = row[3]
     ProjectCountry = row[4]
+    idLocation = row[7]
     if ProjectCountry.strip() == "UK":
         ProjectCountry = "United Kingdom"
     if ProjectCountry.strip() == "USA":
@@ -111,7 +112,7 @@ for row in results:
         Longitude = "Null"
     if Latitude == None:
         Latitude = "Null"
-    update_sql = "Update ProjectLocation set Longitude={0}, Latitude={1} where Projects_idProjects={2};".format(Longitude,Latitude,idProject)
+    update_sql = "Update ProjectLocation set Longitude={0}, Latitude={1} where idLocation={2};".format(Longitude,Latitude,idLocation)
     print update_sql
     print(" "+projectCity+" "+ProjectCountry)
     count = count + 1

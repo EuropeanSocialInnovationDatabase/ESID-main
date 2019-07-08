@@ -28,7 +28,7 @@ summaries_folder = "Data/Summaries/"
 orig_folder = "Data/OrigData/"
 summaries = [f for f in listdir(summaries_folder) if isfile(join(summaries_folder, f))]
 orig_data = [f for f in listdir(orig_folder) if isfile(join(orig_folder, f))]
-sentences = open("sentences_dataset_summaries.txt","w")
+sentences = open("sentences_dataset_summaries_new_datasets.txt","w")
 for sum in summaries:
     for o in orig_data:
         if sum == o:
