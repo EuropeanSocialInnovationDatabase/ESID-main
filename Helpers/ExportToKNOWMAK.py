@@ -123,25 +123,34 @@ if __name__ == '__main__':
         for res3 in results3:
             actor_ids.append(res3[0])
             pro_act_writer.writerow(res3)
-
-        sql4 = "Select * from EDSI.Project_Topics where (Version like '%v4%' or Version like '%Manual%') and Projects_idProject ="+str(res[0])
-        cursor.execute(sql4)
+        q5 = "Select TopicName,TopicScore,TopicScore2,KeyWords,Text_length from Project_Topics where Projects_idProject={0} and (Version like '%v4%' or Version like '%Manual%') and Exclude=0 order by TopicScore desc limit 10".format(
+            str(res[0]));
+        cursor.execute(q5)
         results4 = cursor.fetchall()
         r_topics = []
         for res4 in results4:
-            lenght = res4[9]
-            score = res4[2]
-            if lenght > 100000:
-                score = score * 10
-            elif lenght > 50000:
-                score = score * 7
-            elif lenght > 30000:
-                score = score * 2
-            elif lenght > 10000:
-                score = score * 1.7
-            if score > 3:
-                r_topics.append(
-                    {"TopicName": res4[1], "TopicScore1": res4[2], "TopicScore2": res4[3], "Keywords": res4[4],"Length":lenght})
+            if res4[1] > 0.7:
+                lenght = res4[4]
+                r_topics.append( {"TopicName": res4[0], "TopicScore1": res4[1], "TopicScore2": res4[2], "Keywords": res4[3],"Length":lenght})
+
+        # sql4 = "Select * from EDSI.Project_Topics where (Version like '%v4%' or Version like '%Manual%') and Projects_idProject ="+str(res[0])
+        # cursor.execute(sql4)
+        # results4 = cursor.fetchall()
+        # r_topics = []
+        # for res4 in results4:
+        #     lenght = res4[9]
+        #     score = res4[2]
+        #     if lenght > 100000:
+        #         score = score * 10
+        #     elif lenght > 50000:
+        #         score = score * 7
+        #     elif lenght > 30000:
+        #         score = score * 2
+        #     elif lenght > 10000:
+        #         score = score * 1.7
+        #     if score > 3:
+        #         r_topics.append(
+        #             {"TopicName": res4[1], "TopicScore1": res4[2], "TopicScore2": res4[3], "Keywords": res4[4],"Length":lenght})
         r_topics2 = sorted(r_topics, key=lambda k: k['TopicScore1'], reverse=True)
         r_topics2 = r_topics2[:10]
         for topic in r_topics2:
