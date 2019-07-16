@@ -36,7 +36,7 @@ def find_org(org,tokens):
 
 if __name__ == '__main__':
     #output_file = open("output.txt",'w')
-    directory = "Sample10_ann"
+    directory = "Sample100_ann"
     text_too_short = 0
     not_english = 0
     files_made = 0
@@ -51,7 +51,7 @@ if __name__ == '__main__':
     db = MySQLdb.connect(host, username, password, database, charset='utf8')
     cursor = db.cursor()
 
-    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects where Exclude=0 and idProjects>4000 and idProjects<14000"
+    sql_projects = "Select ProjectName,ProjectWebpage,FirstDataSource,DataSources_idDataSources,idProjects from Projects left join TypeOfSocialInnotation on idProjects = Projects_idProjects where Exclude=0 and idProjects>4000 and idProjects<14000 and Social_Innovation_overall is not null and SourceModel like '%Manual%'"
     cursor.execute(sql_projects)
     results = cursor.fetchall()
     mongo_client = MongoClient()
@@ -92,7 +92,7 @@ if __name__ == '__main__':
         project_text = project_text.decode('utf-8','ignore').strip()
         if len(project_text)>500 and len(project_text)<300000:
             print("Writing "+str(pro.idProject))
-            f = open("Sample10_ann/"+str(pro.idProject)+".txt","w")
+            f = open("Sample100_ann/"+str(pro.idProject)+".txt","w")
             f.write(project_text)
             f.write("\r\n WHOLE PROJECT MARK")
             f.close()
