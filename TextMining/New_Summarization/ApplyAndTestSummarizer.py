@@ -166,6 +166,9 @@ print(list_sims)
 print(statistics.mean(list_sims))
 
 
+
+
+
 print(LDAvis_prepared)
 
 #LDAvis_prepared = np.real(LDAvis_prepared)

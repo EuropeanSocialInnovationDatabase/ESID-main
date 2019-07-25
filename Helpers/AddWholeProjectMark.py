@@ -7,7 +7,7 @@ import os
 import csv
 
 if __name__ == '__main__':
-    output_folder = "../ESIDcrawlers/ESIDcrawlers/Crawled"
+    output_folder = "KickStarterToClean"
     onlyfiles = [f for f in os.listdir(output_folder) if isfile(join(output_folder, f))]
 
 
