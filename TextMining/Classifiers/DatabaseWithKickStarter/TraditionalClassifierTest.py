@@ -27,7 +27,7 @@ def stemmed_words(doc):
 db = MySQLdb.connect(host, username, password, database, charset='utf8')
 cursor = db.cursor()
 
-sql = '(SELECT * FROM EDSI.TypeOfSocialInnotation where  (SourceModel like "%Kick%") limit 800)union (SELECT * FROM EDSI.TypeOfSocialInnotation where  (SourceModel like "%ManualAnnotation%"))'
+sql = '(SELECT * FROM EDSI.TypeOfSocialInnotation where  (SourceModel like "%Kick%") limit 620)union (SELECT * FROM EDSI.TypeOfSocialInnotation where  (SourceModel like "%ManualAnnotation%"))'
 cursor.execute(sql)
 results = cursor.fetchall()
 projectList = []
@@ -71,7 +71,7 @@ for res in results:
     for doc in documents:
         text = text + " "+ doc['translation']
     text_array.append(text)
-    classa.append(binObjectives)
+    classa.append(binActors)
     projectList.append((text,Outputs,Objectives,Actors,Innovativeness,SocialInnovation,bin_Outputs,binObjectives,binActors,binInnovativeness,bin_SocialInnovation))
 
 
@@ -104,7 +104,7 @@ df_upsampled = shuffle(df_upsampled).reset_index()
 stopWords = set(stopwords.words('english'))
 text_clf = Pipeline([('vect', CountVectorizer(analyzer=stemmed_words,stop_words=stopWords,ngram_range=(1,3))),
                       ('tfidf', TfidfTransformer()),
-                      ('clf', LinearSVC()),
+                      ('clf', MultinomialNB()),
  ])
 
 scores = cross_val_score(text_clf, df_upsampled.text, df_upsampled.classa, cv=10,scoring='f1')
