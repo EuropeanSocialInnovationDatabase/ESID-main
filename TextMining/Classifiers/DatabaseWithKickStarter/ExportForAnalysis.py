@@ -33,7 +33,7 @@ cursor = db.cursor()
 sql = '(SELECT * FROM EDSI.TypeOfSocialInnotation where  (SourceModel like "%Kick%") limit 620)union (SELECT * FROM EDSI.TypeOfSocialInnotation where  (SourceModel like "%ManualAnnotation%"))'
 cursor.execute(sql)
 results = cursor.fetchall()
-csv_file = open('for_stat_analysis.csv','w')
+csv_file = open('for_stat_analysis2_diff_bin_1.csv','w')
 csv_writer = csv.writer(csv_file, delimiter=',',quotechar='"', quoting=csv.QUOTE_MINIMAL)
 projectList = []
 text_array = []
@@ -46,28 +46,28 @@ innovativeness = []
 soci_inno = []
 for res in results:
     Outputs = res[1]
-    if Outputs>1:
+    if Outputs>=1:
         bin_Outputs = 1
     else:
         bin_Outputs = 0
     Objectives = res[2]
-    if Objectives>1:
+    if Objectives>=1:
         binObjectives = 1
     else:
         binObjectives = 0
     Actors = res[3]
-    if Actors>1:
+    if Actors>=1:
         binActors = 1
     else:
         binActors = 0
     Innovativeness = res[4]
-    if Innovativeness>1:
+    if Innovativeness>=1:
         binInnovativeness =1
     else:
         binInnovativeness = 0
     projectId = res[5]
     SocialInnovation = res[6]
-    if SocialInnovation>1:
+    if SocialInnovation>=1:
         bin_SocialInnovation = 1
     else:
         bin_SocialInnovation = 0
@@ -168,7 +168,7 @@ pickle.dump(text_clf_objectives, open("model_objectives.pkl", 'wb'))
 pickle.dump(text_clf_outputs, open("model_outputs.pkl", 'wb'))
 pickle.dump(text_clf_innovativeness, open("model_innovativeness.pkl", 'wb'))
 pickle.dump(text_clf_social_inno, open("model_social_inno.pkl", 'wb'))
-exit(2)
+#exit(2)
 
 
 text_clf_actor.fit(df_upsampled.text[0:1200], df_upsampled.actors[0:1200])
@@ -218,7 +218,7 @@ for index, row in df_upsampled[1200:].iterrows():
                 text = text
             else:
                 text = ""
-            csv_writer.writerow([pro_id,name,url,OrigTxt,text,pro[4],pro[5],pro[6],pro[7],pro[8],pro[9],pro[10],pro[11],pro[12],pro[13],pro[14],predictions_objectives[i],predictions_actor[i],predictions_outputs[i],predictions_innovativeness[i],predictions_social_inno[i]])
+            csv_writer.writerow([pro_id,name,url,"","",pro[4],pro[5],pro[6],pro[7],pro[8],pro[9],pro[10],pro[11],pro[12],pro[13],pro[14],predictions_objectives[i],predictions_actor[i],predictions_outputs[i],predictions_innovativeness[i],predictions_social_inno[i]])
     i = i + 1
 
 
@@ -294,7 +294,7 @@ for index, row in df_upsampled[0:400].iterrows():
                 text = text
             else:
                 text = ""
-            csv_writer.writerow([pro_id,name,url,OrigTxt,text,pro[4],pro[5],pro[6],pro[7],pro[8],pro[9],pro[10],pro[11],pro[12],pro[13],pro[14],predictions_objectives[i],predictions_actor[i],predictions_outputs[i],predictions_innovativeness[i],predictions_social_inno[i]])
+            csv_writer.writerow([pro_id,name,url,"","",pro[4],pro[5],pro[6],pro[7],pro[8],pro[9],pro[10],pro[11],pro[12],pro[13],pro[14],predictions_objectives[i],predictions_actor[i],predictions_outputs[i],predictions_innovativeness[i],predictions_social_inno[i]])
     i = i + 1
 
 
@@ -370,7 +370,7 @@ for index, row in df_upsampled[400:800].iterrows():
                 text = text
             else:
                 text = ""
-            csv_writer.writerow([pro_id,name,url,OrigTxt,text,pro[4],pro[5],pro[6],pro[7],pro[8],pro[9],pro[10],pro[11],pro[12],pro[13],pro[14],predictions_objectives[i],predictions_actor[i],predictions_outputs[i],predictions_innovativeness[i],predictions_social_inno[i]])
+            csv_writer.writerow([pro_id,name,url,"","",pro[4],pro[5],pro[6],pro[7],pro[8],pro[9],pro[10],pro[11],pro[12],pro[13],pro[14],predictions_objectives[i],predictions_actor[i],predictions_outputs[i],predictions_innovativeness[i],predictions_social_inno[i]])
     i = i + 1
 
 # 4nd part
@@ -445,5 +445,5 @@ for index, row in df_upsampled[800:1200].iterrows():
                 text = text
             else:
                 text = ""
-            csv_writer.writerow([pro_id,name,url,OrigTxt,text,pro[4],pro[5],pro[6],pro[7],pro[8],pro[9],pro[10],pro[11],pro[12],pro[13],pro[14],predictions_objectives[i],predictions_actor[i],predictions_outputs[i],predictions_innovativeness[i],predictions_social_inno[i]])
+            csv_writer.writerow([pro_id,name,url,"","",pro[4],pro[5],pro[6],pro[7],pro[8],pro[9],pro[10],pro[11],pro[12],pro[13],pro[14],predictions_objectives[i],predictions_actor[i],predictions_outputs[i],predictions_innovativeness[i],predictions_social_inno[i]])
     i = i + 1
