@@ -540,33 +540,79 @@ def project_view(id):
         act['Name'] = actor[5]
         act['Website'] = actor[12]
         project_data['Actors'].append(act)
+
     q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%' and SourceURL like '%Manual%'".format(
-        project_id)
+        id)
     cursor.execute(q3)
     descriptions = cursor.fetchall()
-    project_data['Descriptions'] = []
+    Descriptions = []
     for description in descriptions:
-        project_data['Descriptions'].append(description[2])
-    if len(project_data['Descriptions'])==0:
-        if project_data['Knowmak_ready']==1:
-            q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%' and SourceURL like '%v1%'".format(
-            project_id)
-        else:
-            q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%' and SourceURL like '%v2%'".format(
-                project_id)
+        Descriptions.append(description[2])
+    if len(Descriptions) == 0:
+        q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%' and SourceURL like '%v2%'".format(
+            id)
+
         cursor.execute(q3)
         descriptions = cursor.fetchall()
 
         for description in descriptions:
-            project_data['Descriptions'].append(description[2])
-    if len(project_data['Descriptions']) == 0:
-        q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Desc%'".format(
-            project_id)
+            Descriptions.append(description[2])
+    if len(Descriptions) == 0:
+        q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%' and SourceURL like '%v1%'".format(
+            id)
+
         cursor.execute(q3)
         descriptions = cursor.fetchall()
-        project_data['Descriptions'] = []
+
         for description in descriptions:
-            project_data['Descriptions'].append(description[2])
+            Descriptions.append(description[2])
+    if len(Descriptions) == 0:
+        q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Desc%'".format(
+            id)
+        cursor.execute(q3)
+        descriptions = cursor.fetchall()
+        for descriptionA in descriptions:
+            if descriptionA[2] == "":
+                continue
+            Descriptions.append(descriptionA[2])
+
+    if len(Descriptions) > 0:
+        description = Descriptions[0]
+    else:
+        description = ""
+    project_data['Descriptions'] = []
+    project_data['Descriptions'].append(description)
+    # q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%' and SourceURL like '%Manual%'".format(
+    #     project_id)
+    # cursor.execute(q3)
+    # descriptions = cursor.fetchall()
+    # project_data['Descriptions'] = []
+    # for description in descriptions:
+    #     project_data['Descriptions'].append(description[2])
+    # if len(project_data['Descriptions'])==0:
+    #     if project_data['Knowmak_ready']==1:
+    #         q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%' and SourceURL like '%v1%'".format(
+    #         project_id)
+    #     else:
+    #         q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Description_sum%' and SourceURL like '%v2%'".format(
+    #             project_id)
+    #     cursor.execute(q3)
+    #     descriptions = cursor.fetchall()
+    #
+    #     for description in descriptions:
+    #         project_data['Descriptions'].append(description[2])
+    # if len(project_data['Descriptions']) == 0:
+    #     q3 = "SELECT * FROM EDSI.AdditionalProjectData where Projects_idProjects={0} and FieldName like '%Desc%'".format(
+    #         project_id)
+    #     cursor.execute(q3)
+    #     descriptions = cursor.fetchall()
+    #     project_data['Descriptions'] = []
+    #     for description in descriptions:
+    #         project_data['Descriptions'].append(description[2])
+
+
+
+
     q4 = "SELECT * FROM EDSI.TypeOfSocialInnotation where SourceModel like '%Manual%' and Projects_idProjects={0}".format(
         project_id);
     cursor.execute(q4)
@@ -580,7 +626,7 @@ def project_view(id):
         project_data['Objectives']=mark[2]
         project_data['Actors_s']=mark[3]
         project_data['Innovativeness']=mark[4]
-    q5 = "Select * from Project_Topics where Projects_idProject={0} and (Version like '%v4%' or Version like '%Manual%')".format(project_id)
+    q5 = "Select * from Project_Topics where Projects_idProject={0} and (Version like '%v5%' or Version like '%Manual%')".format(project_id)
     cursor.execute(q5)
     topics = cursor.fetchall()
     r_topics = []

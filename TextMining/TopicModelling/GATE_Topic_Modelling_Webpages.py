@@ -50,7 +50,7 @@ for pro in results:
             keywords = keywords[1:]
             insert_sql = "Insert into Project_Topics (TopicName,TopicScore,KeyWords,Projects_idProject,Comment,Version,Sources,TopicScore2,Text_length)" \
                          "VALUES ('{0}',{1},'{2}',{3},'{4}','{5}','{6}',{7},{8})".format(clas,data["classification"][clas]["score"][0],
-                                                                                 keywords,id,"Whole data, concatinated descriptions and whole webpages with titles","01/03/2018 v4 SI-new ontology","Title,Desctiptions,Webpages",data["classification"][clas]["score"][1],len(project_text))
+                                                                                 keywords,id,"Whole data, concatinated descriptions and whole webpages with titles","19/09/2019 v5 SI-new ontology","Title,Desctiptions,Webpages",data["classification"][clas]["score"][1],len(project_text))
             cursor.execute(insert_sql)
             db.commit()
     except:

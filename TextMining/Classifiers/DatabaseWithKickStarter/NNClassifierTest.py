@@ -13,8 +13,12 @@ from sklearn.utils import resample, shuffle
 from sklearn.model_selection import cross_val_score
 from pymongo import MongoClient
 import pickle
-from bert_text import run_on_dfs
+from bert_text import run_on_dfs,make_features,create_tokenizer_from_hub_module
 from nltk.stem.snowball import EnglishStemmer
+import pprint
+import tensorflow as tf
+import bert
+from bert import run_classifier
 
 import MySQLdb
 from database_access import *
@@ -35,6 +39,9 @@ results = cursor.fetchall()
 projectList = []
 text_array = []
 classa = []
+objectives = []
+outputs = []
+innovativeness = []
 for res in results:
     Outputs = res[1]
     if Outputs>1:
@@ -75,11 +82,19 @@ for res in results:
     for doc in documents:
         text = text + " "+ doc['translation']
     text_array.append(text)
-    classa.append(binObjectives)
+    classa.append(binActors)
+    objectives.append(binObjectives)
+    outputs.append(bin_Outputs)
+    innovativeness.append(binInnovativeness)
     projectList.append((text,Outputs,Objectives,Actors,Innovativeness,SocialInnovation,bin_Outputs,binObjectives,binActors,binInnovativeness,bin_SocialInnovation))
 
 
 df = pd.DataFrame({'text':text_array,'classa':classa})
+
+#resample(df_minority,
+#                                  replace=True,     # sample with replacement
+#                                  n_samples=300,    # to match majority class
+#                                  random_state=83293) # reproducible results
 
 df_upsampled = df
 # print df_upsampled
@@ -96,9 +111,26 @@ myparam = {
     "DATA_COLUMN": "text",
     "LABEL_COLUMN": "classa",
     "LEARNING_RATE": 2e-5,
-    "NUM_TRAIN_EPOCHS": 20
+    "NUM_TRAIN_EPOCHS": 20,
+    "SAVE_SUMMARY_STEPS":100,
+    "SAVE_CHECKPOINTS_STEPS":1500,
+    #"bert_model_hub":"https://tfhub.dev/google/bert_uncased_L-24_H-1024_A-16"
 }
 df_train = pd.DataFrame({'text':X,'classa':Y})
 df_test = pd.DataFrame({'text':X_test,'classa':Y_test})
-resultAA, estimator = run_on_dfs(df_train, df_test, **myparam)
+resultAA, estimator,tokenizer = run_on_dfs(df_train, df_test, **myparam)
 print(resultAA)
+pp = pprint.PrettyPrinter(indent=4)
+pp.pprint(resultAA)
+for_prediction_input = pd.DataFrame({text:"This is a great project about making refugies finding their way in Germany. We provide them with services that they neeed",
+                                     'classa':None})
+test_features = make_features(for_prediction_input, [1,0], 128, tokenizer, 'text', 'classa')
+test_input_fn = run_classifier.input_fn_builder(
+        features=test_features,
+        seq_length=128,
+        is_training=False,
+        drop_remainder=False)
+
+n = estimator.predict(input_fn=test_input_fn, steps=None)
+print(n)
+

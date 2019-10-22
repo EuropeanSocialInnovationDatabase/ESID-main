@@ -64,7 +64,7 @@ for us in user_suggestions:
             sel = "Select * from AdditionalProjectData where Projects_idProjects=" + str(project_id)
             cursor.execute(sel)
             if (len(cursor.fetchall())) > 0:
-                edit_sql = "Update " + table_name + " set Value= '" + filed_value + "' where (FieldName='"+table_field+"' or FieldName='Description') and Projects_idProjects=" + str(project_id)
+                edit_sql = "Update " + table_name + " set Value= '" + filed_value + "', SourceURL='Manual' where (FieldName='"+table_field+"' or FieldName='Description') and Projects_idProjects=" + str(project_id)
             else:
                 edit_sql = "Insert into AdditionalProjectData (FieldName,Value,Projects_idProjects,DateObtained) VALUES ('Description_sum','{0}',{1},NOW())".format(filed_value.encode('utf-8', errors='ignore'),str(project_id))
         cursor.execute(edit_sql)

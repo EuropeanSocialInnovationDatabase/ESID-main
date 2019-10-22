@@ -123,7 +123,7 @@ if __name__ == '__main__':
         for res3 in results3:
             actor_ids.append(res3[0])
             pro_act_writer.writerow(res3)
-        q5 = "Select TopicName,TopicScore,TopicScore2,KeyWords,Text_length from Project_Topics where Projects_idProject={0} and (Version like '%v4%' or Version like '%Manual%') and Exclude=0 order by TopicScore desc limit 10".format(
+        q5 = "Select TopicName,TopicScore,TopicScore2,KeyWords,Text_length from Project_Topics where Projects_idProject={0} and (Version like '%v5%' or Version like '%Manual%') and Exclude=0 order by TopicScore desc limit 10".format(
             str(res[0]));
         cursor.execute(q5)
         results4 = cursor.fetchall()
