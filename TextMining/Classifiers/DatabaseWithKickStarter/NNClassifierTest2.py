@@ -146,7 +146,7 @@ sess = tf.Session()
 bert_path = "https://tfhub.dev/google/bert_uncased_L-12_H-768_A-12/1"
 def create_tokenizer_from_hub_module():
     """Get the vocab file and casing info from the Hub module."""
-    bert_module =  hub.Module(bert_path)
+    bert_module =  hub.Module(bert_path,trainable=True)
     tokenization_info = bert_module(signature="tokenization_info", as_dict=True)
     vocab_file, do_lower_case = sess.run(
         [
@@ -361,7 +361,7 @@ def build_model(max_seq_length):
     pred = tf.keras.layers.Dense(1, activation='sigmoid')(dp)
 
     model = tf.keras.models.Model(inputs=bert_inputs, outputs=pred)
-    Adam = tf.keras.optimizers.Adam(lr=0.000005)
+    Adam = tf.keras.optimizers.Adam(lr=0.00002)
     model.compile(loss='binary_crossentropy', optimizer=Adam, metrics=['sparse_categorical_accuracy'])
     model.summary()
 
@@ -384,7 +384,7 @@ model.fit(
     [train_input_ids, train_input_masks, train_segment_ids],
     train_labels,
     validation_data=([test_input_ids, test_input_masks, test_segment_ids], test_labels),
-    epochs=30,
+    epochs=3,
     batch_size=32
 )
 model.save('BertModel.h5')
