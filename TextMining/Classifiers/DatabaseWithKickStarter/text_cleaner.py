@@ -5,8 +5,8 @@ from nltk.corpus import wordnet as wn
 
 def clean_text(text):
     parts = text.split('\n')
-    print(len(parts))
-    print(parts)
+    #print(len(parts))
+    #print(parts)
     final_text = ""
     for pt in parts:
         if len(pt)<2:

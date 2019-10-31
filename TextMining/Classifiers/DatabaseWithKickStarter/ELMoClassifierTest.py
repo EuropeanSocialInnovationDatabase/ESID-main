@@ -128,17 +128,20 @@ embed = hub.Module(url)
 import keras.backend as K
 
 def ELMoEmbedding(x):
-    return tf.expand_dims(embed(tf.squeeze(tf.cast(x, tf.string)), signature="default", as_dict=True)["default"], axis=-1)
+    #return tf.expand_dims(embed(tf.squeeze(tf.cast(x, tf.string)), signature="default", as_dict=True)["default"], axis=-1)
+    return embed(tf.squeeze(tf.cast(x, tf.string)), signature="default", as_dict=True)["default"]
 
 input_text = Input(shape=(1,), dtype=tf.string)
-embedding = Lambda(ELMoEmbedding, output_shape=(1024,1, ))(input_text)
-#dense = Dense(256, activation='relu')(embedding)
-conv = Conv1D(256, 5, activation='relu',input_shape=(1024,1,1))(embedding)
-pool = MaxPooling1D(20)(conv)
-conv2 = Conv1D(128, 5, activation='relu')(pool)
-pool2 = MaxPooling1D(20)(conv2)
-flat = Flatten()(pool2)
-pred = Dense(2, activation='softmax')(flat)
+#embedding = Lambda(ELMoEmbedding, output_shape=(1024,1, ))(input_text)
+embedding = Lambda(ELMoEmbedding, output_shape=(1024, ))(input_text)
+
+dense = Dense(256, activation='relu')(embedding)
+# conv = Conv1D(256, 5, activation='relu',input_shape=(1024,1,1))(embedding)
+# pool = MaxPooling1D(20)(conv)
+# conv2 = Conv1D(128, 5, activation='relu')(pool)
+# pool2 = MaxPooling1D(20)(conv2)
+# flat = Flatten()(pool2)
+pred = Dense(2, activation='softmax')(dense)
 model = Model(inputs=[input_text], outputs=pred)
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
@@ -146,7 +149,7 @@ with tf.Session() as session:
     K.set_session(session)
     session.run(tf.global_variables_initializer())
     session.run(tf.tables_initializer())
-    history = model.fit(x_train, y_train, epochs=5, batch_size=4)
+    history = model.fit(x_train, y_train, epochs=1, batch_size=4)
     model.save_weights('./elmo-model.h5')
 
 with tf.Session() as session:

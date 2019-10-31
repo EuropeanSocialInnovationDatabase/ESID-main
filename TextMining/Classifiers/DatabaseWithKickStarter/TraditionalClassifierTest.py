@@ -1,4 +1,5 @@
 from nltk.corpus import stopwords
+from sklearn.cross_validation import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
@@ -15,6 +16,8 @@ import pickle
 from nltk.stem.snowball import EnglishStemmer
 
 import MySQLdb
+
+from TextMining.Classifiers.DatabaseWithKickStarter.text_cleaner import clean_text
 from database_access import *
 
 stemmer = EnglishStemmer()
@@ -102,31 +105,45 @@ df_upsampled = shuffle(df_upsampled).reset_index()
 
 #categories = ['non actor', 'actor']
 stopWords = set(stopwords.words('english'))
-text_clf = Pipeline([('vect', CountVectorizer(analyzer=stemmed_words,stop_words=stopWords,ngram_range=(1,3))),
+# text_clf = Pipeline([('vect', CountVectorizer(analyzer=stemmed_words,stop_words=stopWords,ngram_range=(1,3))),
+#                       ('tfidf', TfidfTransformer()),
+#                       ('clf', MultinomialNB()),
+#  ])
+text_clf = Pipeline([('vect', CountVectorizer(ngram_range=(1,3))),
                       ('tfidf', TfidfTransformer()),
                       ('clf', MultinomialNB()),
  ])
 
-scores = cross_val_score(text_clf, df_upsampled.text, df_upsampled.classa, cv=10,scoring='f1')
-final = 0
-for score in scores:
-    final = final + score
-print scores
-print "F1 Final:" + str(final/10)
 
+from sklearn import metrics
+X,X_test,Y,Y_test = train_test_split(df_upsampled['text'],df_upsampled['classa'],test_size=0.2,random_state=42)
+text_clf.fit(X,Y)
+y_preds = text_clf.predict(X_test)
 
-scores1 = cross_val_score(text_clf, df_upsampled.text, df_upsampled.classa, cv=10,scoring='precision')
-final = 0
-print "Precision"
-for score in scores1:
-    final = final + score
-print scores1
-print "Precision Final:" + str(final/10)
+print(metrics.confusion_matrix(Y_test, y_preds))
 
-scores2 = cross_val_score(text_clf, df_upsampled.text, df_upsampled.classa, cv=10,scoring='recall')
-final = 0
-print "Recall"
-for score in scores2:
-    final = final + score
-print scores2
-print "Recall Final:" + str(final/10)
+print(metrics.classification_report(Y_test, y_preds))
+
+# scores = cross_val_score(text_clf, df_upsampled.text, df_upsampled.classa, cv=10,scoring='f1')
+# final = 0
+# for score in scores:
+#     final = final + score
+# print scores
+# print "F1 Final:" + str(final/10)
+#
+#
+# scores1 = cross_val_score(text_clf, df_upsampled.text, df_upsampled.classa, cv=10,scoring='precision')
+# final = 0
+# print "Precision"
+# for score in scores1:
+#     final = final + score
+# print scores1
+# print "Precision Final:" + str(final/10)
+#
+# scores2 = cross_val_score(text_clf, df_upsampled.text, df_upsampled.classa, cv=10,scoring='recall')
+# final = 0
+# print "Recall"
+# for score in scores2:
+#     final = final + score
+# print scores2
+# print "Recall Final:" + str(final/10)
