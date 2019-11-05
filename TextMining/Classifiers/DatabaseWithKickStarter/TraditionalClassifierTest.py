@@ -73,7 +73,7 @@ for res in results:
         text = text + " "+res2[2]
     for doc in documents:
         text = text + " "+ doc['translation']
-    text_array.append(text)
+    text_array.append(clean_text(text))
     classa.append(binActors)
     projectList.append((text,Outputs,Objectives,Actors,Innovativeness,SocialInnovation,bin_Outputs,binObjectives,binActors,binInnovativeness,bin_SocialInnovation))
 
@@ -93,7 +93,7 @@ print "New dataset"
 # Display new class counts
 print df_upsampled.classa.value_counts()
 
-df_upsampled = df_upsampled.sample(frac=1).reset_index(drop=True)
+#df_upsampled = df_upsampled.sample(frac=1).reset_index(drop=True)
 df_upsampled = shuffle(df_upsampled).reset_index()
 #print df_upsampled
 
@@ -109,9 +109,9 @@ stopWords = set(stopwords.words('english'))
 #                       ('tfidf', TfidfTransformer()),
 #                       ('clf', MultinomialNB()),
 #  ])
-text_clf = Pipeline([('vect', CountVectorizer(ngram_range=(1,3))),
-                      ('tfidf', TfidfTransformer()),
-                      ('clf', MultinomialNB()),
+text_clf = Pipeline([('vect', CountVectorizer(analyzer=stemmed_words,ngram_range=(1,3))),
+                    ('tfidf', TfidfTransformer()),
+                      ('clf', SVC()),
  ])
 
 
