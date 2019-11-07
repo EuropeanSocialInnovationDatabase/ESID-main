@@ -8,7 +8,7 @@ db = MySQLdb.connect(host, username, password, database, charset='utf8')
 db2 = MySQLdb.connect(host, username, password, "Semanticon", charset='utf8')
 cursor = db.cursor()
 cursor2 = db2.cursor()
-print("Selecting projects from mysql")
+print("Selecting projects from mysql added comment herev  1 1")
 sql_projects = "Select idProjects,ProjectName,ProjectWebpage, City, Country, Longitude, Latitude, idLocation from Projects left join ProjectLocation on idProjects=Projects_idProjects where Exclude = 0 and Longitude is Null and Latitude is Null and City is not Null and City <> ''"
 cursor.execute(sql_projects)
 results = cursor.fetchall()
