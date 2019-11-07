@@ -3,7 +3,7 @@ import MySQLdb
 import csv
 
 from database_access import *
-
+print("aaa")
 db = MySQLdb.connect(host, username, password, database, charset='utf8')
 cursor = db.cursor()
 csvfile =  open('MissingWebsitesESID_Task_1_Penny_UPDATED_edit_31.07.2018.csv', 'rb')
