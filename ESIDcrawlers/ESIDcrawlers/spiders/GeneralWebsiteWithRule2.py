@@ -69,6 +69,7 @@ class GeneralWebsiteRulespider(CrawlSpider):
     def get_allowed(self):
         allowed_domains = []
         pattern = "[a-zA-Z0-9]*[\.]{0,1}[a-zA-Z0-9]+[\.][a-zA-Z0-9]{0,4}"
+        #Change this to connect to SSH first!
         self.db = MySQLdb.connect(host, username, password, database, charset='utf8')
         self.cursor = self.db.cursor()
         # sql = "Select idActors,ActorName,ActorWebsite from Actors"
@@ -214,6 +215,7 @@ class GeneralWebsiteRulespider(CrawlSpider):
 
         if(item.DatabaseID == None or item.DatabaseID==""):
             return
+        #Change this to connect to SSH first
         client = MongoClient()
         db = client.ESID
 
