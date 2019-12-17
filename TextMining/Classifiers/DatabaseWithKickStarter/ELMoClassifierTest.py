@@ -149,7 +149,7 @@ with tf.Session() as session:
     K.set_session(session)
     session.run(tf.global_variables_initializer())
     session.run(tf.tables_initializer())
-    history = model.fit(x_train, y_train, epochs=1, batch_size=4)
+    history = model.fit(x_train, y_train, epochs=5, batch_size=4)
     model.save_weights('./elmo-model.h5')
 
 with tf.Session() as session:

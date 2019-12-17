@@ -12,7 +12,7 @@ We believe that basic income is inevitable because of the growing optimisation a
 """
 db = MySQLdb.connect(host, username, password, database, charset='utf8')
 cursor = db.cursor()
-sql_projects = "Select ProjectName, idProjects from Projects where Exclude = 0"
+sql_projects = "Select ProjectName, idProjects from Projects where Exclude = 1"
 cursor.execute(sql_projects)
 results = cursor.fetchall()
 

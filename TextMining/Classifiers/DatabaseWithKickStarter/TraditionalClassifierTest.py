@@ -14,6 +14,7 @@ from sklearn.model_selection import cross_val_score
 from pymongo import MongoClient
 import pickle
 from nltk.stem.snowball import EnglishStemmer
+import csv
 
 import MySQLdb
 
@@ -36,6 +37,7 @@ results = cursor.fetchall()
 projectList = []
 text_array = []
 classa = []
+projects_ids = []
 for res in results:
     Outputs = res[1]
     if Outputs>1:
@@ -74,11 +76,13 @@ for res in results:
     for doc in documents:
         text = text + " "+ doc['translation']
     text_array.append(clean_text(text))
-    classa.append(binActors)
-    projectList.append((text,Outputs,Objectives,Actors,Innovativeness,SocialInnovation,bin_Outputs,binObjectives,binActors,binInnovativeness,bin_SocialInnovation))
+    classa.append(bin_SocialInnovation)
+    projects_ids.append(projectId)
+
+    projectList.append((projectId,text,Outputs,Objectives,Actors,Innovativeness,SocialInnovation,bin_Outputs,binObjectives,binActors,binInnovativeness,bin_SocialInnovation))
 
 
-df = pd.DataFrame({'text':text_array,'classa':classa})
+df = pd.DataFrame({'project_id':projects_ids,'text':text_array,'classa':classa})
 
 # df_majority = df[df.classa==1]
 # df_minority = df[df.classa==0]
@@ -111,7 +115,7 @@ stopWords = set(stopwords.words('english'))
 #  ])
 text_clf = Pipeline([('vect', CountVectorizer(analyzer=stemmed_words,ngram_range=(1,3))),
                     ('tfidf', TfidfTransformer()),
-                      ('clf', SVC()),
+                      ('clf', MultinomialNB()),
  ])
 
 
@@ -123,6 +127,22 @@ y_preds = text_clf.predict(X_test)
 print(metrics.confusion_matrix(Y_test, y_preds))
 
 print(metrics.classification_report(Y_test, y_preds))
+
+
+preds_file = open('preds_si.csv','w')
+writer = csv.writer(preds_file,delimiter=',')
+for i in range(0, len(X_test)):
+    #id = projects_ids[i]
+    text = X_test.iloc[i]
+    prediction = y_preds[i]
+    actual = Y_test.iloc[i]
+    id = 0
+    for j in range(0,len(text_array)):
+        if text_array[j] == text:
+            id = projects_ids[j]
+    writer.writerow([id,prediction,actual])
+
+
 
 # scores = cross_val_score(text_clf, df_upsampled.text, df_upsampled.classa, cv=10,scoring='f1')
 # final = 0

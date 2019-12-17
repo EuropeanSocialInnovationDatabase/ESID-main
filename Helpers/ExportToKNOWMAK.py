@@ -40,7 +40,7 @@ if __name__ == '__main__':
         Objective = 0
         Actors = 0
         Innovativeness = 0
-        projects.append(res)
+
         id = res[0]
         sql = "SELECT Projects_idProjects,City,Country,Longitude,Latitude FROM EDSI.ProjectLocation where Projects_idProjects =" + str(
             id)
@@ -57,6 +57,7 @@ if __name__ == '__main__':
                 country = resS[2].encode('utf-8')
         if country not in Euro_County_list:
             continue
+        projects.append(res)
         if res[4] == None:
             web = ""
         else:
